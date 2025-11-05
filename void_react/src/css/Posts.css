@@ -1,0 +1,155 @@
+
+.Posts{
+    width: 100%;
+}
+.Posts_tools{
+    display: flex;
+    gap: 70px;
+    margin-bottom: 60px;
+}
+
+
+/*============  фильтр  ===========*/
+.Posts_tools_filter_button{
+    display: flex;
+    gap: 15px;
+    background: none;
+}
+
+
+
+/*============  поиск  ===========*/
+.Posts_tools_find{
+    width: 100%;
+    margin: auto 0;
+}
+.Posts_tools_find_inp{
+    margin: auto 0;
+    padding: 10px 20px;
+    background-color: var(--accent);
+    width: 100%;
+    font-size: 18px;
+    color: var(--text-color);
+}
+.Posts_tools_find_inp::placeholder{
+    color: var(--text-color);
+}
+
+
+
+
+/*============  посты  ===========*/
+.Posts_posts{
+    column-count: 2;
+    gap: 80px;
+}
+.Posts_posts_post {
+    break-inside: avoid; 
+    display: inline-block; 
+    width: 100%;
+    margin-bottom: 40px;
+    background-color: var(--element);
+}
+.post_contant{
+    padding: 20px;
+}
+.post_title{
+    margin-top: 0;
+}
+.post_text{
+    font-size: 20px;
+    line-height: 1.4;
+}
+.post_info{
+    display: flex;
+    justify-content: space-between;
+}
+.post_info p{
+    margin: 0;
+}
+
+
+.post_slider button{
+    background-color: rgb(173, 208, 255, 0.6);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+justify-content: center;
+}
+.post_slider_img{
+    
+}
+.post_image{
+    height: 350px;
+    overflow: hidden; 
+}
+.post_image_img{
+    width: 100%;
+
+    height: 100%; 
+    object-fit: cover; 
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+
+
+
+/*============  модельное окно  ===========*/
+
+.modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal_content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.modal_image {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.modal_close {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal_close:hover {
+    color: #ccc;
+}
+
+.post_image_img {
+    width: 100%;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.post_image_img:hover {
+    opacity: 0.9;
+}

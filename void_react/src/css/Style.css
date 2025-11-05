@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Iceberg&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+.iceberg-regular {
+  font-family: "Iceberg";
+  font-weight: 400;
+  font-style: normal;
+}
+
+.advent-pro {
+  font-family: "Advent Pro";
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+:root{
+    --fon: #141D26;
+    --element: #1B182B;
+    --text-color: rgb(173, 208, 255);
+    --accent: #41378D;
+}
+
+
+p, h1, h2, h3{
+    font-family: "Advent Pro";
+    color: var(--text-color);
+}
+h1{
+    font-size: 40px;
+    font-weight: 600;
+}
+h2{
+    font-size: 36px;
+    font-weight: 400;
+}
+h3{
+    font-size: 26px;
+    font-weight: 400;
+}
+button{
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+input{
+    border: none;
+}
+
+
+html,
+body{
+    background-color: var(--fon);
+    
+}
+.body{
+    margin: 0 auto;
+    display: flex;
+    gap: 60px;
+    max-width: 1440px;
+    padding: 0 20px;
+}
+
+
+/*=============  naw  ============*/
+.naw{
+    background-color: var(--element);
+    display: flex;
+    flex-direction: column;
+    width: 82px;
+    height: 100vw;
+}
+.naw_container{
+    padding: 30px 7px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+}
+.logo{
+    max-width: 70px;
+    margin-bottom: 70px;
+}
+.logo_img{
+    width: 100%;
+}
+
+
+.naw_links{
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
