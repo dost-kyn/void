@@ -36,7 +36,7 @@ export default function Posts() {
                         <div className="Posts_posts_post">
                             <div className="post_slider">
                                 <button className='post_slider_prev'>
-                                    <img src="../src/uploads/posts/strelka.svg" alt="" className="post_slider_img" />
+                                    <img src="../src/uploads/posts/strelka.svg" alt="" className="post_slider_btn_img post_slider_btn_img_prev" />
                                 </button>
                                 <div className="post_image">
                                     <img src="../src/uploads/posts/post_1.jpg" alt=""
@@ -45,7 +45,7 @@ export default function Posts() {
                                     />
                                 </div>
                                 <button className='post_slider_next'>
-                                    <img src="../src/uploads/posts/strelka.svg" alt="" className="post_slider_img" />
+                                    <img src="../src/uploads/posts/strelka.svg" alt="" className="post_slider_btn_img" />
                                 </button>
                             </div>
 
