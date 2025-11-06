@@ -15,7 +15,46 @@
     gap: 15px;
     background: none;
 }
+.filter_modal{
+    background-color: var(--element);
+    padding: 10px 20px 20px 20px;
+    color: var(--text-color);
+    position: absolute;
+    z-index: 100;
+    border-radius: 5px;
+    margin-left: 50px;
+    box-shadow: 0 0 10px 2px #41378D;
+}
 
+
+
+.filter_modal_punkts{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 20px;
+}
+.filter_modal_punkt{
+    gap: 10px;
+    display: flex;
+}
+.filter_modal_punkt_inp{
+    margin: auto 0;
+}
+.filter_modal_punkt_p{
+    font-size: 20px;
+    margin: 10px 10px 10px 0;
+}
+
+.filter_modal_close_container{
+    width: 100%;
+    display: flex;
+    justify-content: right;
+}
+.filter_modal_close{
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 20px;
+}
 
 
 /*============  поиск  ===========*/
@@ -27,7 +66,7 @@
     margin: auto 0;
     padding: 10px 20px;
     background-color: var(--accent);
-    width: 100%;
+    width: 95%;
     font-size: 18px;
     color: var(--text-color);
 }
@@ -44,12 +83,113 @@
     gap: 80px;
 }
 .Posts_posts_post {
+    position: relative;
     break-inside: avoid; 
     display: inline-block; 
     width: 100%;
     margin-bottom: 40px;
     background-color: var(--element);
 }
+.post_slider {
+    position: relative;
+}
+.post_image{
+    height: 350px;
+    overflow: hidden; 
+    position: relative;
+}
+
+.post_image_img{
+    width: 100%;
+    height: 100%; 
+    object-fit: cover; 
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+
+
+/*== кнопки слайдера  ==*/
+
+.post_slider_buttons{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    pointer-events: none; /* Чтобы не блокировали клик на изображение */
+}
+
+.post_slider_buttons button {
+    pointer-events: all; /* Возвращаем кликабельность кнопкам */
+}
+
+.post_slider button{
+    background-color: rgb(173, 208, 255, 0.6);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.post_slider button:hover {
+    background-color: rgb(173, 208, 255, 0.9);
+}
+
+.post_slider_next{
+    margin-right: 15px;
+    padding-left: 10px;
+}
+.post_slider_prev{
+    margin-left: 15px;
+    padding-right: 10px;
+}
+.post_slider_btn_img{
+    width: 20px;
+    height: 20px;
+}
+.post_slider_btn_img_prev{
+    transform: scaleX(-1);
+}
+
+/*== индикаторы слайдера ==*/
+.slider_indicators {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.slider_indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slider_indicator.active {
+    background-color: white;
+    transform: scale(1.2);
+}
+
+.slider_indicator:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* остальные стили остаются без изменений */
 .post_contant{
     padding: 20px;
 }
@@ -68,50 +208,7 @@
     margin: 0;
 }
 
-
-.post_slider button{
-    background-color: rgb(173, 208, 255, 0.6);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.post_slider_next{
-    padding: 0 0 0 5px ;
-}
-.post_slider_prev{
-    padding: 0 5px 0 0;
-}
-.post_slider_btn_img{
-    margin: 0 auto;
-
-}
-.post_slider_btn_img_prev{
-    transform: scaleX(-1);
-}
-
-
-.post_image{
-    height: 350px;
-    overflow: hidden; 
-}
-
-.post_image_img{
-    width: 100%;
-
-    height: 100%; 
-    object-fit: cover; 
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-
-
-
 /*============  модельное окно  ===========*/
-
 .modal_overlay {
     position: fixed;
     top: 0;
@@ -157,14 +254,4 @@
 
 .modal_close:hover {
     color: #ccc;
-}
-
-.post_image_img {
-    width: 100%;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.post_image_img:hover {
-    opacity: 0.9;
 }

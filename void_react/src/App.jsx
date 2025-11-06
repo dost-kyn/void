@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route  path='/' element={<Posts/>}/>
+        <Route  path='/posts' element={<Posts/>}/>
       </Routes>
     </>
   )

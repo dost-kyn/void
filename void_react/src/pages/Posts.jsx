@@ -3,10 +3,42 @@ import Naw from '../components/Naw'
 
 import '../css/Posts.css'
 
+import { useState } from 'react'
 import { useImage } from '../components/UI/posts/post_image'
+import { useFilter } from '../components/UI/posts/filter'
 
 export default function Posts() {
     const { OpenModal, CloseModal, selectedImage } = useImage(null)
+    const { sostFilter, OpenFilter, CloseFilter } = useFilter(false)
+
+
+    // Состояние для текущего индекса изображения в слайдере
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Массив изображений для поста (может быть 1, 2, 3, 4 и т.д.)
+    const postImages = [
+        "../src/uploads/posts/post_1.jpg",
+        "../src/uploads/posts/post_2.jpg", // пример второго изображения
+        "../src/uploads/posts/post_3.jpg", // пример третьего изображения
+        // можно добавить больше...
+    ];
+
+
+    // Функции для слайдера
+    const nextImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === postImages.length - 1 ? 0 : prevIndex + 1
+        );
+    };
+
+    const prevImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === 0 ? postImages.length - 1 : prevIndex - 1
+        );
+    };
+
+    // Показываем кнопки только если изображений больше 1
+    const showSliderButtons = postImages.length > 1;
 
     return (
         <>
@@ -17,12 +49,62 @@ export default function Posts() {
                     <h1 className="Posts_title">Посты</h1>
 
                     <div className="Posts_tools">
+
+
                         <div className="Posts_tools_filter">
-                            <button className="Posts_tools_filter_button">
+                            <button className="Posts_tools_filter_button" onClick={OpenFilter}>
                                 <img src="../src/uploads/filter.svg" alt="" className="Posts_tools_filter_img" />
                                 <h2 className="Posts_tools_filter_title">Фильтр</h2>
                             </button>
+
+
+                            {/* Фильтр */}
+                            {sostFilter && (
+                                <div className="filter_modal">
+                                    <div className="filter_modal_close_container">
+                                        <button className='filter_modal_close' onClick={CloseFilter}>✘</button>
+                                    </div>
+
+
+                                    <div className="filter_modal_punkts">
+                                        <div className="filter_modal_punkt">
+                                            <input type="checkbox" className="filter_modal_punkt_inp" />
+                                            <p className="filter_modal_punkt_p">Животные</p>
+                                        </div>
+                                        <div className="filter_modal_punkt">
+                                            <input type="checkbox" className="filter_modal_punkt_inp" />
+                                            <p className="filter_modal_punkt_p">Животные</p>
+                                        </div>
+                                        <div className="filter_modal_punkt">
+                                            <input type="checkbox" className="filter_modal_punkt_inp" />
+                                            <p className="filter_modal_punkt_p">Животные</p>
+                                        </div>
+                                        <div className="filter_modal_punkt">
+                                            <input type="checkbox" className="filter_modal_punkt_inp" />
+                                            <p className="filter_modal_punkt_p">Животные</p>
+                                        </div>
+                                        <div className="filter_modal_punkt">
+                                            <input type="checkbox" className="filter_modal_punkt_inp" />
+                                            <p className="filter_modal_punkt_p">Животные</p>
+                                        </div>
+                                        <div className="filter_modal_punkt">
+                                            <input type="checkbox" className="filter_modal_punkt_inp" />
+                                            <p className="filter_modal_punkt_p">Животные</p>
+                                        </div>
+
+                                    </div>
+
+
+
+
+                                </div>
+                            )}
                         </div>
+
+
+
+
+
 
                         <div className="Posts_tools_find">
                             <input type="text" placeholder='Поиск по названию' className='Posts_tools_find_inp' />
@@ -30,23 +112,43 @@ export default function Posts() {
                     </div>
 
 
+
                     <div className="Posts_posts">
-
-
                         <div className="Posts_posts_post">
                             <div className="post_slider">
-                                <button className='post_slider_prev'>
-                                    <img src="../src/uploads/posts/strelka.svg" alt="" className="post_slider_btn_img post_slider_btn_img_prev" />
-                                </button>
+                                {/* Кнопки слайдера показываем только если нужно */}
+                                {showSliderButtons && (
+                                    <div className="post_slider_buttons">
+                                        <button className='post_slider_prev' onClick={prevImage}>
+                                            <img src="../src/uploads/posts/strelka.svg" alt="Предыдущее" className="post_slider_btn_img post_slider_btn_img_prev" />
+                                        </button>
+                                        <button className='post_slider_next' onClick={nextImage}>
+                                            <img src="../src/uploads/posts/strelka.svg" alt="Следующее" className="post_slider_btn_img" />
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="post_image">
-                                    <img src="../src/uploads/posts/post_1.jpg" alt=""
+                                    <img
+                                        src={postImages[currentImageIndex]}
+                                        alt={`Изображение ${currentImageIndex + 1}`}
                                         className="post_image_img"
-                                        onClick={() => OpenModal("../src/uploads/posts/post_1.jpg")}
+                                        onClick={() => OpenModal(postImages[currentImageIndex])}
                                     />
                                 </div>
-                                <button className='post_slider_next'>
-                                    <img src="../src/uploads/posts/strelka.svg" alt="" className="post_slider_btn_img" />
-                                </button>
+
+                                {/* Индикатор текущего слайда (точки) */}
+                                {showSliderButtons && (
+                                    <div className="slider_indicators">
+                                        {postImages.map((_, index) => (
+                                            <span
+                                                key={index}
+                                                className={`slider_indicator ${index === currentImageIndex ? 'active' : ''}`}
+                                                onClick={() => setCurrentImageIndex(index)}
+                                            ></span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="post_contant">
@@ -67,9 +169,9 @@ export default function Posts() {
                                     <p className="post_date">20.11.25</p>
                                 </div>
                             </div>
-
                         </div>
 
+                        {/* Модальное окно */}
                         {selectedImage && (
                             <div className="modal_overlay" onClick={CloseModal}>
                                 <div className="modal_content" onClick={(e) => e.stopPropagation()}>
@@ -78,7 +180,6 @@ export default function Posts() {
                                 </div>
                             </div>
                         )}
-
                     </div>
 
 

@@ -4,58 +4,101 @@
 
 
 .iceberg-regular {
-  font-family: "Iceberg";
-  font-weight: 400;
-  font-style: normal;
+    font-family: "Iceberg";
+    font-weight: 400;
+    font-style: normal;
 }
 
 .advent-pro {
-  font-family: "Advent Pro";
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
+    font-family: "Advent Pro";
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
 }
 
-:root{
+:root {
     --fon: #141D26;
-    --element: #1B182B;
+    --element: #221E37;
     --text-color: rgb(173, 208, 255);
     --accent: #41378D;
 }
 
 
-p, h1, h2, h3{
+p,
+h1,
+h2,
+h3 {
     font-family: "Advent Pro";
     color: var(--text-color);
 }
-h1{
+
+h1 {
     font-size: 40px;
     font-weight: 600;
 }
-h2{
+
+h2 {
     font-size: 36px;
     font-weight: 400;
 }
-h3{
+
+h3 {
     font-size: 26px;
     font-weight: 400;
 }
-button{
+
+button {
     background: none;
     border: none;
     cursor: pointer;
 }
-input{
+
+input {
     border: none;
 }
 
+input[type=checkbox] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #41378D;
+    border-radius: 4px;
+    background-color: var(--element);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+input[type=checkbox]:checked {
+    background-color: #41378D;
+    border-color: #41378D;
+}
+
+/* ИСПРАВЛЕНИЕ: добавляем только при checked */
+input[type=checkbox]:checked::before {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+
 
 html,
-body{
+body {
     background-color: var(--fon);
-    
+
 }
-.body{
+
+.body {
     margin: 0 auto;
     display: flex;
     gap: 60px;
@@ -65,31 +108,86 @@ body{
 
 
 /*=============  naw  ============*/
-.naw{
+.naw {
     background-color: var(--element);
     display: flex;
     flex-direction: column;
-    width: 82px;
+    width: 92px;
     height: 100vw;
+    align-items: center;
 }
-.naw_container{
-    padding: 30px 7px;
+
+.naw_container {
+
+    padding: 30px 0;
     display: flex;
     flex-direction: column;
     position: fixed;
+
 }
-.logo{
+
+.logo {
     max-width: 70px;
     margin-bottom: 70px;
+
 }
-.logo_img{
+
+.logo_img {
     width: 100%;
 }
 
 
-.naw_links{
+.naw_links {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 30px;
+
+}
+
+.naw_link {
+    margin: 0 auto;
+}
+
+
+
+
+.exit {
+    margin: 80px 0 0 10px;
+}
+.modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+.naw_modal_exit {
+    padding: 10px 20px 20px 20px;
+    position: fixed;
+    z-index: 1000;
+    background-color: var(--element);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.naw_modal_exit_contant_buttons{
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+}
+.naw_modal_exit_contant_btn {
+    color: var(--text-color);
+    font-size: 25px;
+    font-family: "Advent Pro";
+    font-weight: 600;
+}
+
+.naw_modal_exit_contant_btn:hover {
+    border-bottom: 1px solid var(--text-color);
+
 }
