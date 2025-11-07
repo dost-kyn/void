@@ -4,6 +4,7 @@ import './App.css'
 
 import Posts from './pages/Posts'
 import Authorization from './pages/Authorization'
+import Registration from './pages/registration'
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route  path='/' element={<Posts/>}/>
         <Route  path='/authorization' element={<Authorization/>}/>
+        <Route  path='/registration' element={<Registration/>}/>
       </Routes>
     </>
   )
