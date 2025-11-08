@@ -1,35 +1,39 @@
-.Profile{
+.Profile {
     width: 100%;
 }
-.Profile_user{
+
+.Profile_user {
     display: flex;
     justify-content: space-between;
     margin-bottom: 80px;
 }
-.Profile_user_column{
+
+.Profile_user_column {
     display: flex;
     gap: 30px;
-    align-items: flex-end; 
+    align-items: flex-end;
 }
-.Profile_user_avatar{
+
+.Profile_user_avatar {
     max-width: 150px;
 }
-.Profile_user_avatar_img{
+
+.Profile_user_avatar_img {
     width: 100%;
     border-radius: 50%;
 }
 
-.Profile_user_avatar_info_p{
+.Profile_user_avatar_info_p {
     font-size: 24px;
     margin: 10px 0;
     font-weight: 600;
 }
 
-.Profile_user_avatar_info{
+.Profile_user_avatar_info {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 100%; 
+    height: 100%;
 }
 
 .Profile_user_avatar_info_edit {
@@ -64,6 +68,48 @@
     outline-offset: 2px;
 }
 
+.Profile_user_avatar {
+    max-width: 150px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.Profile_user_avatar_img {
+    width: 100%;
+    border-radius: 50%;
+}
+
+.Profile_user_avatar_file_label {
+    display: inline-block;
+    background-color: var(--accent);
+    color: var(--text-color);
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-family: "Advent Pro", sans-serif;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.Profile_user_avatar_file_label:hover {
+    background-color: #5a4fa3;
+}
+
+.Profile_user_avatar_file_input {
+    display: none;
+    /* Скрываем оригинальный input */
+}
+
+.Profile_user_avatar_file_text {
+    display: block;
+    text-align: center;
+}
 
 
 
@@ -78,84 +124,90 @@
 
 
 
-.Profile_user_column_buttons{
+
+.Profile_user_column_buttons {
     display: flex;
     gap: 20px;
     align-items: flex-end;
 }
-.Profile_user_column_button_btn{
+
+.Profile_user_column_button_btn {
     background-color: var(--accent);
     color: var(--text-color);
     padding: 10px 15px;
     width: max-content;
-    height: 45px;
-    font-size: 20px;
+    height: 40px;
+    font-size: 16px;
     text-align: left;
-    margin: 10px 0;
     border-radius: 5px;
     justify-content: flex-end;
 }
-.Profile_user_column_button_btn_del{
+
+.Profile_user_column_button_btn_del {
     margin-right: 20px;
 }
-.Profile_user_column_button_title{
+
+.Profile_user_column_button_title {
     font-size: 18px;
     margin: 0;
 }
 
 
 .Profile_delete_modal {
-  background-color: var(--element);
-  padding: 30px;
-  border-radius: 8px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
+    background-color: var(--element);
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
 }
 
 .Profile_modal_buttons {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
 }
 
 .Profile_cancel_btn {
-  background-color: var(--accent);
-  color: var(--text-color);
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    background-color: var(--accent);
+    color: var(--text-color);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .Profile_delete_btn {
-  background-color: #ff4444;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    background-color: #ff4444;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .Profile_delete_btn:hover {
-  background-color: #c91616dc;
+    background-color: #c91616dc;
 }
-.Profile_delete_modal_title{
+
+.Profile_delete_modal_title {
     margin-top: 0;
 }
 
 /* ===========  Profile_tools  =============*/
 
-.Profile_tools{
+.Profile_tools {
     display: flex;
     gap: 80px;
     margin-bottom: 30px;
 }
-.Profile_tools_title{
+
+.Profile_tools_title {
     margin: 0;
 }
-.Profile_tools_btn{
+
+.Profile_tools_btn {
     background-color: var(--accent);
     color: var(--text-color);
     padding: 0 15px;
@@ -171,47 +223,52 @@
 
 
 /*============  категории  ===========*/
-.Posts_tools_filter_button{
+.Posts_tools_filter_button {
     display: flex;
     gap: 15px;
     background: none;
 }
-.Profile_user_categories_modal{
+
+.Profile_user_categories_modal {
     background-color: var(--element);
     padding: 10px 20px 20px 20px;
     color: var(--text-color);
     position: absolute;
     z-index: 100;
     border-radius: 5px;
-    margin-left: 180px;
+    margin-left: 140px;
     box-shadow: 0 0 10px 2px #41378D;
 }
 
 
 
-.Profile_modal_punkts{
+.Profile_modal_punkts {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     column-gap: 20px;
 }
-.Profile_modal_punkt{
+
+.Profile_modal_punkt {
     gap: 10px;
     display: flex;
 }
-.Profile_modal_punkt_inp{
+
+.Profile_modal_punkt_inp {
     margin: auto 0;
 }
-.Profile_modal_punkt_p{
+
+.Profile_modal_punkt_p {
     font-size: 20px;
     margin: 10px 10px 10px 0;
 }
 
-.Profile_modal_close_container{
+.Profile_modal_close_container {
     width: 100%;
     display: flex;
     justify-content: right;
 }
-.Profile_modal_close{
+
+.Profile_modal_close {
     margin-bottom: 20px;
     color: var(--text-color);
     font-size: 20px;
@@ -276,7 +333,7 @@
     cursor: not-allowed;
 }
 
-.Profile_modal_punkt_inp:disabled + .Profile_modal_punkt_p {
+.Profile_modal_punkt_inp:disabled+.Profile_modal_punkt_p {
     opacity: 0.5;
 }
 
@@ -285,25 +342,28 @@
 
 /*========  кнопка редактора в слайдере  =======*/
 
-.post_slider_button_edit{
+.post_slider_button_edit {
     padding: 10px;
     position: absolute;
     z-index: 100;
     right: 0;
 }
-.post_slider_btn_edit{
+
+.post_slider_btn_edit {
     background-color: var(--fon);
 }
-.post_slider_btn_edit_img{
+
+.post_slider_btn_edit_img {
     width: 100%;
 }
 
 
 
 /*========  создание поста  =======*/
-.Profile_create_post_title{
+.Profile_create_post_title {
     margin-top: 0;
 }
+
 .Profile_create_post {
     padding: 30px 30px;
     background-color: var(--fon);
@@ -311,7 +371,6 @@
     border-radius: 8px;
     width: 90%;
     max-width: 800px;
-    transform: translateY(-50px); /* Небольшая анимация появления */
 }
 
 .Profile_create_post_top_inp {
@@ -321,7 +380,8 @@
     margin-bottom: 20px;
 }
 
-.Profile_create_post_top_inp input, .Profile_create_post_inp{
+.Profile_create_post_top_inp input,
+.Profile_create_post_inp {
     background-color: var(--accent);
     color: #9C90F5;
     border-radius: 5px;
@@ -329,7 +389,7 @@
 }
 
 
-.Profile_create_post_top_select{
+.Profile_create_post_top_select {
     border: none;
     font-family: "Advent Pro";
     cursor: pointer;
@@ -339,10 +399,13 @@
     padding: 0 10px;
     font-size: 16px;
 }
-.Profile_create_post_top_inp input::placeholder, .Profile_create_post_inp::placeholder{
+
+.Profile_create_post_top_inp input::placeholder,
+.Profile_create_post_inp::placeholder {
     color: #9C90F5;
 }
-.Profile_create_post_top_inp_name{
+
+.Profile_create_post_top_inp_name {
     padding: 8px 15px;
 }
 
@@ -352,7 +415,7 @@
     padding: 15px 20px;
     height: 200px;
     resize: none;
-    overflow-y: auto; 
+    overflow-y: auto;
     font-family: "Advent Pro", sans-serif;
     box-sizing: border-box;
     margin-bottom: 20px;
@@ -361,9 +424,10 @@
 
 
 
-.Profile_create_post_photo_p{
+.Profile_create_post_photo_p {
     font-size: 20px;
 }
+
 .Profile_create_post_photo_label {
     display: inline-block;
     background-color: var(--accent);
@@ -380,7 +444,7 @@
 }
 
 .Profile_create_post_photo_inp {
-    display: none; 
+    display: none;
 }
 
 .Profile_create_post_photo_text {
@@ -390,12 +454,13 @@
 
 
 
-.Profile_create_post_buttons{
+.Profile_create_post_buttons {
     display: flex;
     justify-content: space-between;
-margin-top: 20px;
+    margin-top: 20px;
 }
-.Profile_create_post_btn{
+
+.Profile_create_post_btn {
     background-color: #add0ffae;
     color: var(--fon);
     padding: 10px 15px;
@@ -405,4 +470,318 @@ margin-top: 20px;
     text-align: center;
     border-radius: 5px;
     justify-content: flex-end;
+}
+
+
+
+
+
+
+
+
+/* ============  АДАПТИВ  ============ */
+@media (max-width: 1080px) {
+.Profile_user_column_buttons, .Profile_user_column_button {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-end;
+}
+.Profile_user_column_button_btn_del {
+    margin-right: 0px;
+}
+}
+
+
+@media (max-width: 800px) {
+.Profile_user_column_button_btn {
+    background-color: var(--accent);
+    color: var(--text-color);
+    padding: 10px 15px;
+    width: max-content;
+    height: 40px;
+    font-size: 14px;
+    text-align: left;
+    border-radius: 5px;
+    justify-content: flex-end;
+}
+}
+
+@media (max-width: 768px) {
+
+    .Profile_user {
+        flex-direction: column;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .Profile_user_column {
+        flex-direction: column;
+        /* align-items: flex-start; */
+        gap: 20px;
+        align-items: center;
+    }
+
+    .Profile_user_avatar {
+        max-width: 120px;
+    }
+
+    .Profile_user_avatar_info_p {
+        font-size: 20px;
+        margin: 8px 0;
+    }
+
+    .Profile_user_column_buttons {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .Profile_user_column_button_btn {
+        font-size: 16px;
+        padding: 8px 12px;
+        height: 40px;
+        width: 100%;
+    }
+
+    .Profile_user_column_button_btn_del {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .Profile_create_post_buttons {
+        margin-top: 30px;
+    }
+
+    .Profile_create_post_btn {
+        padding: 5px 15px;
+        width: 160px;
+        height: 35px;
+        font-size: 16px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .Profile_user_avatar {
+        max-width: 100px;
+    }
+
+    .Profile_user_avatar_info_p {
+        font-size: 18px;
+    }
+
+    .Profile_user_avatar_info_input {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+
+    .Profile_user_avatar_file_label {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .Profile_tools {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .Profile_tools_btn {
+        width: 100%;
+        font-size: 16px;
+        height: 35px;
+    }
+
+    .Profile_user_categories_modal {
+        margin-left: 0;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+        box-sizing: border-box;
+    }
+
+    .Profile_modal_punkts {
+        grid-template-columns: 1fr;
+    }
+
+    .Profile_modal_punkt_p {
+        font-size: 16px;
+    }
+
+    .Profile_create_post {
+        padding: 20px 15px;
+        width: 95%;
+    }
+
+    .Profile_create_post_top_inp {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .Profile_create_post_top_select {
+        padding: 5px 10px;
+    }
+
+    .Profile_create_post_buttons {
+        margin-top: 30px;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Profile_create_post_btn {
+        background-color: #add0ffae;
+        color: var(--fon);
+        padding: 5px 15px;
+        width: 100%;
+        height: 35px;
+        font-size: 16px;
+        text-align: center;
+        border-radius: 5px;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 320px) {
+
+
+    .Profile_user {
+        margin-bottom: 30px;
+        gap: 20px;
+    }
+
+    .Profile_user_avatar {
+        max-width: 80px;
+    }
+
+    .Profile_user_avatar_info_p {
+        font-size: 16px;
+        margin: 6px 0;
+    }
+
+    .Profile_user_avatar_info_input {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    .Profile_user_avatar_file_label {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    .Profile_user_column_button_btn {
+        font-size: 14px;
+        padding: 6px 10px;
+        height: 35px;
+    }
+
+    .Profile_tools_btn {
+        font-size: 14px;
+        height: 32px;
+        padding: 0 10px;
+    }
+
+
+
+    .Profile_create_post_top_inp {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .Profile_create_post_inp {
+        height: 150px;
+        padding: 10px 15px;
+        font-size: 14px;
+        margin: 0;
+    }
+
+.Profile_create_post_photo_label {
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 110px;
+    transition: background-color 0.3s ease;
+}
+    .Profile_create_post_photo_p, .Profile_create_post_photo_text {
+        font-size: 12px;
+    }
+
+    .Profile_delete_modal {
+        padding: 20px 15px;
+    }
+
+    .Profile_modal_buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .Profile_cancel_btn,
+    .Profile_delete_btn {
+        width: 100%;
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+
+    /* Адаптив для постов */
+    .Posts_posts {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .post_image {
+        height: 250px;
+    }
+
+    .post_text {
+        font-size: 14px;
+    }
+
+    .post_slider_buttons button {
+        width: 30px;
+        height: 30px;
+    }
+
+    .post_slider_btn_img {
+        width: 15px;
+        height: 15px;
+    }
+
+    .post_slider_button_edit {
+        padding: 5px;
+    }
+
+    .slider_indicators {
+        bottom: 10px;
+    }
+
+    .slider_indicator {
+        width: 6px;
+        height: 6px;
+    }
+}
+
+/* Дополнительные адаптивные стили для модальных окон */
+@media (max-width: 480px) {
+    .modal_overlay {
+        padding: 10px;
+    }
+
+    .Profile_create_post,
+    .Profile_delete_modal {
+        width: 95%;
+        max-width: none;
+    }
+
+    .Profile_user_categories_modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-left: 0;
+        width: 90%;
+        max-width: 300px;
+    }
 }

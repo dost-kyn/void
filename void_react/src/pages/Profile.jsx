@@ -7,13 +7,14 @@ import { useCreate } from '../components/UI/profile/create'
 import { useCategories } from '../components/UI/profile/categories'
 import { useEditProfile } from '../components/UI/profile/edit_user'
 import { useDeleteProfile } from '../components/UI/profile/delete_profile'
+import { useFileName } from '../components/UI/profile/file_avatar_name'
 
 export default function Profile() {
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
     const { sostCategories, OpenCategories, CloseCategories } = useCategories(false)
     const { sostEditProfile, OpenEditProfile, CloseEditProfile, } = useEditProfile(false)
     const { isDeleteModalOpen, OpenDelete, CloseDelete, DeleteProfile, СancelDeleteProfile } = useDeleteProfile(false)
-
+    const { FileChange, selectedFileName } = useFileName("")
 
     // Массив изображений для поста
     const postImages = [
@@ -37,11 +38,17 @@ export default function Profile() {
                             {sostEditProfile ? (
                                 <div className="Profile_user_avatar">
                                     <img src="../src/uploads/profile/avatar.jpg" alt="" className="Profile_user_avatar_img" />
-                                    <p className="Profile_user_avatar_file_title">Сменить фото</p>
-                                    <input
-                                        type="file"
-                                        className="Profile_user_avatar_file_img"
-                                    />
+                                    <label className="Profile_user_avatar_file_label">
+                                        <input
+                                            type="file"
+                                            className="Profile_user_avatar_file_input"
+                                            accept="image/*"
+                                            onChange={FileChange}
+                                        />
+                                        <span className="Profile_user_avatar_file_text">
+                                            {selectedFileName || 'Сменить фото'}
+                                        </span>
+                                    </label>
                                 </div>
                             ) : (
                                 <div className="Profile_user_avatar">
