@@ -1,0 +1,117 @@
+.AdminUsers, .AdminPosts{
+    width: 100%;
+}
+
+.adminUsers_content, .adminPosts_content{
+    background: var(--element);
+    color: var(--text-color);
+    font-family: "Advent Pro";
+    /* padding: 7px 25px; */
+    overflow-x: auto;
+    margin-top: 50px;
+}
+.table_users, .table_posts {
+    width: 100%;
+    border-collapse: collapse;
+    
+}
+.table_users th, .table_posts th{
+    background: var(--accent);
+    text-align: left;
+    padding: 8px 25px;
+    font-size: 22px;
+}
+.table_users td {
+    padding: 12px 25px;
+    font-size: 20px;
+}
+.table_users tbody tr, .table_posts tbody tr {
+    background: var(--element);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+.table_users tbody tr:hover {
+    background: #362f57;
+}
+.table_posts tbody tr:hover {
+    background: #362f57;
+}
+
+
+
+
+/*======== бан ========= */
+.ban_btn{
+    padding: 6px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    background: var(--accent);
+}
+/* .ban_btn.ban {
+    background-color: #4b1f22;
+} */
+.ban_btn.ban:hover {
+    background-color: rgb(105, 25, 33);
+}
+
+/*======== разбан ========= */
+/* .ban_btn.unban {
+    background-color: #17381e;
+} */
+.ban_btn.unban:hover {
+    background-color: #124b1e;
+}
+
+
+/* ======== строки постов ============= */
+.table_posts td {
+    padding: 12px 25px;
+    font-size: 20px;
+    max-width: 200px;
+}
+/* Для названия - одна строка */
+.table_posts td:nth-child(1) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Для текста - много строк */
+.table_posts td:nth-child(2) {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+    line-height: 1.4; /* Для лучшего вида */
+}
+
+/* Для фотографий - одна строка */
+.table_posts td:nth-child(3) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Для пользователя и категории */
+.table_posts td:nth-child(4),
+.table_posts td:nth-child(5) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+/* Для даты - нормальное отображение */
+.table_posts td:nth-child(6) {
+    white-space: nowrap;
+    max-width: 100px;
+}

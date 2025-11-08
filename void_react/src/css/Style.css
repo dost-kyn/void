@@ -16,6 +16,10 @@
     font-style: normal;
 }
 
+body{
+    margin: 0;
+}
+
 :root {
     --fon: #141D26;
     --element: #221E37;
@@ -120,7 +124,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 92px;
-    height: 100vw;
+    height: 100vh;
     align-items: center;
 }
 
@@ -207,10 +211,13 @@ body {
 
 
 
-
-
-
-
+/* адаптив */
+@media (max-width: 900px){
+    .body {
+    gap: 30px;
+}
+ 
+}
 
 
 
@@ -342,4 +349,16 @@ body {
         .naw_link_img {
         width: 70%;
     }
+}
+
+@media (max-width: 420px){
+  
+
+    input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+}
+    input[type=checkbox]:checked::before {
+    font-size: 18px;
+}
 }

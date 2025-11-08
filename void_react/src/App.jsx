@@ -3,10 +3,16 @@ import {  Route, Routes } from 'react-router-dom'
 import './App.css'
 
 
+import Screensaver from './pages/Screensaver'
 import Posts from './pages/Posts'
+import Friends from './pages/Friends'
+import Messages from './pages/Messages'
 import Authorization from './pages/Authorization'
-import Registration from './pages/registration'
+import Registration from './pages/Registration'
 import Profile from './pages/Profile'
+
+import AdminUsers from './pages/admin_panel/AdminUsers'
+import AdminPosts from './pages/admin_panel/AdminPosts'
 
 
 function App() {
@@ -16,8 +22,15 @@ function App() {
       <Routes>
         <Route  path='/posts' element={<Posts/>}/>
         <Route  path='/profile' element={<Profile/>}/>
+        <Route  path='/' element={<Screensaver/>}/>
+        <Route  path='/posts' element={<Posts/>}/>
+        <Route  path='/friends' element={<Friends/>}/>
+        <Route  path='/messages' element={<Messages/>}/>
         <Route  path='/authorization' element={<Authorization/>}/>
         <Route  path='/registration' element={<Registration/>}/>
+
+        <Route  path='/adminUsers' element={<AdminUsers/>}/>
+        <Route  path='/adminPosts' element={<AdminPosts/>}/>
       </Routes>
     </>
   )

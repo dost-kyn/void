@@ -1,0 +1,71 @@
+.Messages{
+    width: 100%;
+}
+.messages_tools{
+    display: flex;
+    flex-direction: row;
+    gap: 120px;
+    margin-bottom: 30px;
+}
+/* .friends_title{
+    margin: 0;
+} */
+
+
+
+
+/*========= список друзей =========== */
+.message{
+    width: 100%;
+    padding: 8px 20px;
+    background: var(--element);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+.message_link{
+    text-decoration: none;
+    cursor: pointer;
+}
+.message_one{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.message_avatar{
+    max-width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.message_avatar_img{
+    width: 100%;
+}
+.message_data{
+    margin: auto 0;
+}
+.message_name{
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+.message_chat_lately{
+    font-size: 19px;
+    margin: 0;
+    color: var(--accent);
+}
+.message_date_number{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+}
+.message_date, .message_number{
+    font-size: 19px;
+    margin: 0;
+}

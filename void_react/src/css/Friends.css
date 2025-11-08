@@ -1,0 +1,202 @@
+.Friends{
+    width: 100%;
+}
+.friends_tools{
+    display: flex;
+    flex-direction: row;
+    gap: 120px;
+    margin-bottom: 30px;
+}
+/* .friends_title{
+    margin: 0;
+} */
+
+/*============  поиск  ===========*/
+.friends_tools_find{
+    width: 100%;
+    margin: auto 0;
+}
+.friends_tools_find_inp{
+    margin: auto 0;
+    padding: 10px 20px;
+    background-color: var(--accent);
+    width: 95%;
+    font-size: 18px;
+    color: var(--text-color);
+}
+.friends_tools_find_inp::placeholder{
+    color: var(--text-color);
+}
+
+
+
+/*========= заявки в друзья =========== */
+.friend_requests{
+    margin-bottom: 50px;
+    /* display: none; */
+}
+.friend_request_title{
+    margin: 0 0 20px 0;
+}
+.request{
+    padding: 8px 20px;
+    background: var(--element);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+.friend_link{
+    text-decoration: none;
+    cursor: pointer;
+}
+.request_one{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.request_avatar{
+    max-width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.request_avatar_img{
+    width: 100%;
+}
+.request_data{
+    margin: auto 0;
+}
+.request_name{
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+.request_online_lately{
+    font-size: 19px;
+    margin: 0;
+    color: var(--accent);
+}
+.request_buttons{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+}
+.request_but{
+    height: 40px;
+    padding: 4px 25px;
+    border: none;
+    background: var(--accent);
+    color: var(--text-color);
+    font-size: 17px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+.request_but.true:hover{
+    background-color: var(--text-color);
+    color: var(--element);
+}
+.request_but.false:hover{
+    background-color: rgb(73, 48, 48);
+    /* color: var(--element); */
+}
+
+
+
+/*========= список друзей =========== */
+.friend{
+    padding: 8px 20px;
+    background: var(--element);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+.friend_one{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.friend_avatar{
+    max-width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.friend_avatar_img{
+    width: 100%;
+}
+.friend_data{
+    margin: auto 0;
+}
+.friend_name{
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+.friend_chat_lately{
+    font-size: 19px;
+    margin: 0;
+    color: var(--accent);
+}
+.friend_buttons{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+}
+.friend_but_chat{
+    height: 40px;
+    padding: 4px 25px;
+    border: none;
+    background: var(--accent);
+    color: var(--text-color);
+    font-size: 17px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+.friend_but_chat:hover{
+    background-color: var(--text-color);
+    color: var(--element);
+}
+
+
+
+
+
+/* адаптив */
+@media (max-width: 900px){
+/*============  поиск  ===========*/
+.friends_tools_find_inp {
+    padding: 7px 20px;
+    font-size: 17px;
+    width: 90%;
+}
+
+/*========= заявки в друзья =========== */
+.request_but {
+    height: 35px;
+    padding: 4px 25px;
+    font-size: 15px;
+}
+
+/*========= список друзей =========== */
+.friend_but_chat {
+    height: 35px;
+    padding: 4px 25px;
+    font-size: 15px;
+}
+}
