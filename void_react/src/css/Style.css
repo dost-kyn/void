@@ -58,6 +58,11 @@ input {
     font-family: "Advent Pro";
     border: none;
 }
+input:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
 
 input[type=checkbox] {
     -webkit-appearance: none;
