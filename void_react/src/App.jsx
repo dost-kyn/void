@@ -2,8 +2,12 @@ import { useState } from 'react'
 
 import './App.css'
 
-import Posts from './pages/Posts'
 import {  Route, Routes } from 'react-router-dom'
+
+
+import Posts from './pages/Posts'
+import Profile from './pages/Profile'
+
 
 function App() {
 
@@ -11,6 +15,7 @@ function App() {
     <>
       <Routes>
         <Route  path='/posts' element={<Posts/>}/>
+        <Route  path='/profile' element={<Profile/>}/>
       </Routes>
     </>
   )

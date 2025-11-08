@@ -48,12 +48,14 @@ h3 {
 }
 
 button {
+    font-family: "Advent Pro";
     background: none;
     border: none;
     cursor: pointer;
 }
 
 input {
+    font-family: "Advent Pro";
     border: none;
 }
 
@@ -136,6 +138,9 @@ body {
     width: 100%;
 }
 
+.logo_img_small {
+    display: none;
+}
 
 .naw_links {
     margin: 0 auto;
@@ -155,6 +160,7 @@ body {
 .exit {
     margin: 80px 0 0 10px;
 }
+
 .modal_overlay {
     position: fixed;
     top: 0;
@@ -164,6 +170,7 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
+
 .naw_modal_exit {
     padding: 10px 20px 20px 20px;
     position: fixed;
@@ -174,12 +181,13 @@ body {
     transform: translate(-50%, -50%);
 }
 
-.naw_modal_exit_contant_buttons{
+.naw_modal_exit_contant_buttons {
     display: flex;
     justify-content: center;
     gap: 30px;
     width: 100%;
 }
+
 .naw_modal_exit_contant_btn {
     color: var(--text-color);
     font-size: 25px;
@@ -190,4 +198,142 @@ body {
 .naw_modal_exit_contant_btn:hover {
     border-bottom: 1px solid var(--text-color);
 
+}
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 1200px) {
+    .body {
+        gap: 40px;
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .body {
+        gap: 20px;
+        padding: 0 15px;
+    }
+
+    h1 {
+        font-size: 32px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 28px;
+        font-weight: 400;
+    }
+
+    h3 {
+        font-size: 20px;
+        font-weight: 400;
+    }
+
+    .naw {
+        height: auto;
+        width: 70px;
+    }
+
+    .naw_container {
+
+        padding: 10px 0;
+    }
+
+    .logo {
+        margin: 0 auto 40px auto;
+        max-width: 50px;
+
+    }
+
+    .naw_links {
+        gap: 20px;
+    }
+
+    .naw_link_img {
+        width: 90%;
+    }
+
+    .exit {
+        margin-top: 30px;
+    }
+
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    .body {
+        padding: 0 5px;
+    }
+
+    .naw {
+        background-color: var(--element);
+        display: flex;
+        width: 100%;
+        height: 60px;
+        align-items: center;
+        top: 0%;
+        left: 0%;
+        position: fixed;
+    }
+
+    .naw_container {
+        width: 100%;
+        padding: 10px 30px;
+        flex-direction: row;
+        justify-content: space-between;
+
+    }
+
+    .naw_links {
+        margin: auto 0;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .naw_link {
+        margin: auto 0;
+    }
+
+    .logo {
+        margin: auto 0;
+        max-width: 50px;
+    }
+
+    .logo_img {
+        display: none;
+    }
+
+    .logo_img_small {
+        display: block;
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .exit {
+        margin: auto 0;
+    }
+        .naw_link_img {
+        width: 70%;
+    }
 }

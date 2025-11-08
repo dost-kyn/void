@@ -16,6 +16,7 @@ export default function Naw() {
                 <div className="naw_container">
                     <div className="logo">
                         <img src="../src/uploads/logo.svg" alt="" className="logo_img" />
+                        <img src="../src/uploads/logo_small.svg" alt="" className="logo_img_small" />
                     </div>
                     <div className="naw_links">
                         <Link to={'/posts'} className='naw_link'>
