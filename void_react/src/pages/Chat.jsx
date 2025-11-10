@@ -6,11 +6,13 @@ import { Link } from 'react-router-dom';
 import '../css/Chat.css'
 
 import { useAutoResizeTextarea } from '../components/UI/chat/textarea'
+import { useNaw } from '../components/UI/chat/naw'
 
 export default function Chat() {
     const { textareaRef, adjustHeight } = useAutoResizeTextarea();
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
+    const isMobile = useNaw(); // исчезновение <Naw/>
 
     const handleSendMessage = () => {
         if (inputText.trim() === '') return;
@@ -42,7 +44,7 @@ export default function Chat() {
         <>
             <div className="Chat_body">
 
-                <Naw />
+                {!isMobile && <Naw />}
                 <div className="Chat">
 
                     <div className="Chat_header">

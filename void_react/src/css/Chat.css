@@ -5,6 +5,7 @@
     padding: 0 20px;
     height: 100vh;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .Chat {
@@ -185,19 +186,22 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    font-family: "Advent Pro";gap: 10px;
+    font-family: "Advent Pro";
+    gap: 10px;
 }
 
 .Chat_message {
     max-width: 700px;
     padding: 12px 18px;
     border-radius: 5px;
-    
+
     position: relative;
     display: flex;
     flex-direction: column;
-    word-wrap: break-word; /* ← добавь это */
-    overflow-wrap: break-word; /* ← и это */
+    word-wrap: break-word;
+    /* ← добавь это */
+    overflow-wrap: break-word;
+    /* ← и это */
 }
 
 /* Сообщения друга - слева */
@@ -227,7 +231,7 @@
     margin: 3px 0;
 }
 
-.Chat_message_time{
+.Chat_message_time {
     font-size: 12px;
     margin-top: 5px;
     color: var(--text-color);
@@ -239,4 +243,148 @@
     opacity: 0.7;
     display: block;
     text-align: right;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 1024px) {
+    .Chat_body {
+        padding: 0 15px;
+        max-width: 100%;
+        /* ← меняем на 100% */
+        box-sizing: border-box;
+    }
+
+    .Chat {
+        width: 100%;
+    }
+
+    .Chat_header {
+        padding: 0 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .Chat_user_avatar {
+        margin: auto 0;
+        max-width: 50px;
+    }
+
+    .Chat_chat {
+        padding: 0;
+        width: 100%;
+    }
+
+    .Chat_chat_fon_inp {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .Chat_message {
+        max-width: 500px;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .Chat_body {
+        padding: 0;
+    }
+
+    .Chat_header,
+    .Chat_chat,
+    .Chat_chat_fon_inp {
+        width: 100%;
+        margin: 0;
+    }
+
+    .Chat_message {
+        max-width: 300px;
+        padding: 10px 14px;
+    }
+
+    .Chat_message_text {
+        font-size: 16px;
+    }
+
+    .Chat_header_btn {
+        height: 30px;
+        width: 30px;
+    }
+
+    .Chat_header_btn_img {
+        width: 80%;
+        margin: 2px 5px 0 0;
+        transform: scaleX(-1);
+    }
+
+    .Chat_header_container {
+        gap: 15px;
+    }
+
+    .Chat_user_avatar {
+        max-width: 45px;
+    }
+
+    .Chat_user_name {
+        font-size: 16px;
+    }
+
+
+
+
+    .Chat_chat_input {
+        font-size: 16px;
+        padding: 8px 15px;
+    }
+
+    .Chat_messages {
+        padding: 15px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .Chat_header {
+        padding: 0 ;
+    }
+    .Chat_naw{
+        display: none;
+    }
+    .Chat_body {
+        margin-top: 0px;
+    }
+
+    .Chat_message {
+        max-width: 250px;
+    }
+
+    .Chat_header_container {
+        gap: 10px;
+    }
+
+    .Chat_user_avatar {
+        max-width: 45px;
+    }
+
+    .Chat_header_info {
+        gap: 4px;
+    }
+
+    .Chat_user_name {
+        font-size: 14px;
+    }
+
+    .Chat_user_status {
+        font-size: 12px;
+    }
 }
