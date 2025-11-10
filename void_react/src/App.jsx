@@ -4,6 +4,7 @@ import './App.css'
 
 
 import Screensaver from './pages/Screensaver'
+import Chat from './pages/Chat'
 import Posts from './pages/Posts'
 import Friends from './pages/Friends'
 import Messages from './pages/Messages'
@@ -21,6 +22,7 @@ function App() {
     <>
       <Routes>
         <Route  path='/posts' element={<Posts/>}/>
+        <Route  path='/chat' element={<Chat/>}/>
         <Route  path='/profile' element={<Profile/>}/>
         <Route  path='/' element={<Screensaver/>}/>
         <Route  path='/friends' element={<Friends/>}/>

@@ -1,0 +1,242 @@
+.Chat_body {
+    margin: 0 auto;
+    display: flex;
+    max-width: 1440px;
+    padding: 0 20px;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.Chat {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.Chat_header {
+    background-color: var(--element);
+    width: 100%;
+    height: 60px;
+    padding: 3px 0;
+    position: relative;
+    z-index: 1;
+}
+
+.Chat_header_container {
+    padding: 0 15px;
+    margin-top: 2px;
+    display: flex;
+    gap: 20px;
+    height: 100%;
+}
+
+.Chat_header_btn {
+    margin: auto 0;
+    background-color: var(--accent);
+    border-radius: 50%;
+    height: 35px;
+    width: 35px;
+    justify-content: center;
+    align-items: center;
+}
+
+.Chat_header_btn_img {
+    margin: 2px 5px 0 0;
+    transform: scaleX(-1);
+}
+
+.Chat_user_avatar {
+    margin: auto 0;
+    max-width: 55px;
+}
+
+.Chat_user_avatar img {
+    border-radius: 50%;
+    width: 100%;
+}
+
+.Chat_header_info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: auto 0;
+}
+
+.Chat_header_info p {
+    margin: 0;
+    font-weight: 600;
+}
+
+.Chat_user_name {
+    font-size: 18px;
+}
+
+.Chat_user_status {
+    color: var(--accent);
+}
+
+
+
+
+
+.Chat_chat_fon {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.Chat_chat_fon_img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+
+
+
+
+
+
+
+.Chat_chat {
+    background-image: url('../src/uploads/chat/fon_light.jpg');
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+
+.Chat_input_container {
+    display: flex;
+    padding: 15px;
+    background: var(--element);
+    gap: 10px;
+}
+
+
+
+.Chat_chat_input {
+    flex: 1;
+    height: 45px;
+    min-height: 45px;
+    max-height: 100px;
+    background-color: var(--accent);
+    font-size: 20px;
+    line-height: 1.2;
+    padding: 10px 20px;
+    resize: none;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    border: none;
+    outline: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+    font-family: "Advent Pro";
+}
+
+.Chat_chat_btn {
+    background-color: var(--accent);
+    border: none;
+    padding: 0 15px;
+}
+
+.Chat_chat_fon_inp {
+    display: flex;
+    background: var(--element);
+    margin-top: auto;
+}
+
+.Chat_chat_input::placeholder {
+    color: #7267BF;
+}
+
+.Chat_chat_btn {
+    background-color: var(--accent);
+}
+
+.Chat_chat_input::-webkit-scrollbar {
+    width: 4px;
+
+}
+
+.Chat_chat_input::-webkit-scrollbar-thumb {
+    background-color: #7267BF;
+    border-radius: 2px;
+    margin: 2px 0;
+}
+
+
+
+
+
+
+
+
+.Chat_messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    font-family: "Advent Pro";gap: 10px;
+}
+
+.Chat_message {
+    max-width: 700px;
+    padding: 12px 18px;
+    border-radius: 5px;
+    
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word; /* ← добавь это */
+    overflow-wrap: break-word; /* ← и это */
+}
+
+/* Сообщения друга - слева */
+.friend-message {
+    align-self: flex-start;
+    background-color: var(--element);
+    border-bottom-left-radius: 5px;
+    /* острый угол слева */
+}
+
+/* Мои сообщения - справа */
+.my-message {
+    align-self: flex-end;
+    background-color: var(--accent);
+    border-bottom-right-radius: 5px;
+    /* острый угол справа */
+}
+
+.message p {
+    margin: 0 0 5px 0;
+
+    line-height: 1.4;
+}
+
+.Chat_message_text {
+    font-size: 18px;
+    margin: 3px 0;
+}
+
+.Chat_message_time{
+    font-size: 12px;
+    margin-top: 5px;
+    color: var(--text-color);
+    align-self: flex-end;
+}
+
+.message span {
+    font-size: 12px;
+    opacity: 0.7;
+    display: block;
+    text-align: right;
+}
