@@ -13,7 +13,7 @@ import Profile from './pages/Profile'
 
 import AdminUsers from './pages/admin_panel/AdminUsers'
 import AdminPosts from './pages/admin_panel/AdminPosts'
-
+import AdminCategories from './pages/admin_panel/AdminCategories'
 
 function App() {
 
@@ -23,7 +23,6 @@ function App() {
         <Route  path='/posts' element={<Posts/>}/>
         <Route  path='/profile' element={<Profile/>}/>
         <Route  path='/' element={<Screensaver/>}/>
-        <Route  path='/posts' element={<Posts/>}/>
         <Route  path='/friends' element={<Friends/>}/>
         <Route  path='/messages' element={<Messages/>}/>
         <Route  path='/authorization' element={<Authorization/>}/>
@@ -31,6 +30,7 @@ function App() {
 
         <Route  path='/adminUsers' element={<AdminUsers/>}/>
         <Route  path='/adminPosts' element={<AdminPosts/>}/>
+        <Route  path='/adminCategories' element={<AdminCategories/>}/>
       </Routes>
     </>
   )

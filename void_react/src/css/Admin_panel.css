@@ -1,8 +1,8 @@
-.AdminUsers, .AdminPosts{
+.AdminUsers, .AdminPosts, .AdminCategories{
     width: 100%;
 }
 
-.adminUsers_content, .adminPosts_content{
+.adminUsers_content, .adminPosts_content, .AdminCategories_content{
     background: var(--element);
     color: var(--text-color);
     font-family: "Advent Pro";
@@ -114,4 +114,86 @@
 .table_posts td:nth-child(6) {
     white-space: nowrap;
     max-width: 100px;
+}
+
+
+
+
+
+
+
+
+/*===============  КАТЕГОРИИ   =============== */
+.adminCategories_tools{
+    margin: 50px 0 ;
+}
+.adminCategories_tools_container{
+    display: flex;
+    gap: 30px;
+}
+.adminCategories_tools_inp{
+    width: 280px;
+    background-color: var(--element);
+    padding: 8px 15px;
+    color: var(--text-color);
+    border-radius: 5px;
+    font-size: 20px;
+}
+.adminCategories_tools_inp::placeholder{
+    color: var(--accent);
+}
+.adminCategories_tools_btn{
+    width: 120px;
+    border-radius: 5px;
+    background-color: var(--accent);
+    color: var(--text-color);
+    font-size: 20px;
+}
+
+
+
+
+.AdminCategories_buttons{
+    margin: 0 0 0 auto;
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    min-width: 200px;
+    gap: 10px;
+}
+.AdminCategories_buttons button{
+    width: 90px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: var(--accent);
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+
+
+
+.DelCategory_modal_contant{
+    position: fixed;
+    z-index: 1000;
+    background-color: var(--element);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 400px;
+    text-align: center;
+}
+.DelCategory_modal_title{
+    margin: 0;
+}
+
+.adminCategories_inp_edit{
+    margin-left: 20px;
+    width: 120px;
+    border-radius: 5px;
+    background-color: var(--accent);
+    color: var(--text-color);
+    font-size: 18px;
 }
