@@ -120,6 +120,9 @@
     border-radius: 20px;
     margin-bottom: 20px;
 }
+.friend_title{
+    margin: 0 0 20px 0;
+}
 .friend_one{
     display: flex;
     flex-direction: row;
@@ -186,17 +189,85 @@
     width: 90%;
 }
 
-/*========= заявки в друзья =========== */
-.request_but {
+.request_but, .friend_but_chat {
     height: 35px;
     padding: 4px 25px;
     font-size: 15px;
+}
 }
 
-/*========= список друзей =========== */
-.friend_but_chat {
-    height: 35px;
-    padding: 4px 25px;
-    font-size: 15px;
+
+@media (max-width: 768px) {
+    .request_avatar, .friend_avatar {
+        max-width: 50px;
+        height: 50px;
+    }
+    .request_name, .friend_name {
+        font-size: 18px;
+    }
+    .request_online_lately, .friend_chat_lately {
+        font-size: 17px;
+    }
+    .friends_tools {
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 30px;
+    }
 }
+
+@media (max-width: 590px) {
+    .request, .friend {
+        padding: 5px 15px;
+        margin-bottom: 15px;
+    }
+    .request_but, .friend_but_chat {
+        height: 30px;
+        padding: 4px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .friends_tools {
+        margin-top: 80px;
+    }
+    .friends_tools_find_inp {
+        padding: 5px 15px;
+        font-size: 18px;
+        width: 90%;
+    }
+}
+
+@media (max-width: 420px) {
+    .request_one, .friend_one {
+        gap: 10px;
+    }
+    .friend_chat_lately{
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 380px) {
+    .request_name {
+        margin: 0 0 3px 0;
+    }
+    .request_avatar, .friend_avatar {
+        max-width: 40px;
+        height: 40px;
+    }
+    .request, .friend {
+        padding: 5px 10px;
+        margin-bottom: 12px;
+    }
+    .request_but, .friend_but_chat {
+        height: 27px;
+        padding: 4px 13px;
+    }
+    .request_buttons {
+        gap: 5px;
+    }
 }

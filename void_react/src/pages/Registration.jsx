@@ -2,9 +2,23 @@ import React from 'react'
 import '../css/Authorization.css'
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { validateRegistration } from '../components/UI/auth/registr';
 
 export default function Registration() {
     const [preview, setPreview] = useState(null);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        surname: '',
+        login: '',
+        email: '',
+        password: '',
+        repeatPassword: '',
+        category: '',
+        avatar: null,
+        agree: false
+    });
+    const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -14,6 +28,58 @@ export default function Registration() {
                 setPreview(reader.result);
             };
             reader.readAsDataURL(file);
+            setFormData(prev => ({
+                ...prev,
+                avatar: file
+            }));
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        
+        if (type === 'checkbox') {
+            setFormData(prev => ({
+                ...prev,
+                [name]: checked
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+
+        // Очищаем ошибку при вводе
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log('Данные формы:', formData);
+        setIsLoading(true);
+
+        try {
+            const validationErrors = await validateRegistration(formData);
+            console.log('Ошибки валидации:', validationErrors);
+            
+            if (Object.keys(validationErrors).length === 0) {
+                // Все валидно, отправляем на сервер
+                console.log('Регистрация успешна! Данные:', formData);
+                alert('Регистрация успешна!');
+            } else {
+                setErrors(validationErrors);
+            }
+        } catch (error) {
+            console.error('Ошибка валидации:', error);
+            setErrors({ general: 'Произошла ошибка при валидации' });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -21,20 +87,96 @@ export default function Registration() {
         <>
             <div className="body">
                 <div className="Auth">
-                    <form className='form' action="">
+                    <form className='form' onSubmit={handleSubmit}>
                         <h1 className='title'>Регистрация пилота</h1>
-                        <input className='firstName' type="text" placeholder='Имя' required />
-                        <input className='surname' type="text" placeholder='Фамилия' required />
-                        <input className='login' type="text" placeholder='Логин' required />
-                        <input className='email' type="email" placeholder='Email' required />
-                        <input className='password' type="password" placeholder='Пароль' required />
-                        <input className='repeatPassword' type="password" placeholder='Повторите пароль' required />
+                        
+                        {/* Имя */}
+                        <input 
+                            className={`firstName ${errors.firstName ? 'error' : ''}`}
+                            type="text" 
+                            name="firstName"
+                            placeholder='Имя' 
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            required 
+                        />
+                        {errors.firstName && <div className="error_message">{errors.firstName}</div>}
+
+                        {/* Фамилия */}
+                        <input 
+                            className={`surname ${errors.surname ? 'error' : ''}`}
+                            type="text" 
+                            name="surname"
+                            placeholder='Фамилия' 
+                            value={formData.surname}
+                            onChange={handleChange}
+                            required 
+                        />
+                        {errors.surname && <div className="error_message">{errors.surname}</div>}
+
+                        {/* Логин */}
+                        <input 
+                            className={`login ${errors.login ? 'error' : ''}`}
+                            type="text" 
+                            name="login"
+                            placeholder='Логин' 
+                            value={formData.login}
+                            onChange={handleChange}
+                            required 
+                        />
+                        {errors.login && <div className="error_message">{errors.login}</div>}
+
+                        {/* Email */}
+                        <input 
+                            className={`email ${errors.email ? 'error' : ''}`}
+                            type="email" 
+                            name="email"
+                            placeholder='Email' 
+                            value={formData.email}
+                            onChange={handleChange}
+                            required 
+                        />
+                        {errors.email && <div className="error_message">{errors.email}</div>}
+
+                        {/* Пароль */}
+                        <input 
+                            className={`password ${errors.password ? 'error' : ''}`}
+                            type="password" 
+                            name="password"
+                            placeholder='Пароль' 
+                            value={formData.password}
+                            onChange={handleChange}
+                            required 
+                        />
+                        {errors.password && <div className="error_message">{errors.password}</div>}
+
+                        {/* Повтор пароля */}
+                        <input 
+                            className={`repeatPassword ${errors.repeatPassword ? 'error' : ''}`}
+                            type="password" 
+                            name="repeatPassword"
+                            placeholder='Повторите пароль' 
+                            value={formData.repeatPassword}
+                            onChange={handleChange}
+                            required 
+                        />
+                        {errors.repeatPassword && <div className="error_message">{errors.repeatPassword}</div>}
+
+                        {/* Категории */}
                         <p className='p_select'>Выбор интересующих категорий (не обязательно)</p>
-                        <select className='categories'>
-                            <option value="">Новости</option>
-                            <option name="" id="">Животные</option>
-                            <option name="" id="">Игры</option>
+                        <select 
+                            className='categories'
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                        >
+                            {/* <option value="">Выберите категорию</option> */}
+                            <option value="sport">Спорт</option>
+                            <option value="music">Музыка</option>
+                            <option value="art">Рисование</option>
                         </select>
+
+                        {/* Аватар */}
                         <p className='p_select2'>Фото профиля (не обязательно)</p>
                         <div className="avatar_upload">
                             <label className="file_input_label">
@@ -44,6 +186,7 @@ export default function Registration() {
                                     onChange={handleFileChange}
                                     accept="image/*"
                                     className="file_input"
+                                    name="avatar"
                                 />
                             </label>
 
@@ -53,13 +196,34 @@ export default function Registration() {
                                 </div>
                             )}
                         </div>
+
+                        {/* Согласие */}
                         <div className="content_checkbox">
-                            <input type="checkbox" className="checkbox" />
+                            <input 
+                                type="checkbox" 
+                                className={`checkbox ${errors.agree ? 'error' : ''}`}
+                                name="agree"
+                                checked={formData.agree}
+                                onChange={handleChange}
+                            />
                             <p className="checkbox_p">Согласие на обработку персональных данных</p>
                         </div>
+                        {errors.agree && <div className="error_message">{errors.agree}</div>}
+
+                        {/* Общие ошибки */}
+                        {errors.general && <div className="error_message general_error">{errors.general}</div>}
+
+                        {/* Кнопка отправки */}
                         <div className="button">
-                            <button className='btn'>Запуск!</button>
+                            <button 
+                                className='btn' 
+                                type="submit"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Загрузка...' : 'Запуск!'}
+                            </button>
                         </div>
+
                         <p className='already'>У вас уже есть аккаунт? <Link to="/authorization" className='link_already'>Авторизироваться</Link></p>
                     </form>
                 </div>

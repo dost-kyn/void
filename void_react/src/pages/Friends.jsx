@@ -13,7 +13,7 @@ export default function Friends() {
                     <div className="friends_tools">
                         <h1 className='friends_title'>Друзья</h1>
                         <div className="friends_tools_find">
-                            <input type="text" placeholder='Поиск по имени' className='friends_tools_find_inp' />
+                            <input type="text" placeholder='Поиск по имени и логину' className='friends_tools_find_inp' />
                         </div>
                     </div>
                     <div className="list_friends">
@@ -50,13 +50,14 @@ export default function Friends() {
                                         </Link>
                                     </div>
                                     <div className="request_buttons">
-                                        <button className='request_but true'>Принять</button>
-                                        <button className='request_but false'>Отклонить</button>
+                                    <button className='request_but true'>✓</button>
+                                    <button className='request_but false'>✘</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <h2 className='friend_title'>Мои друзья</h2>
                         <div className="friend">
                             <div className="friend_one">
                                 <div className="friend_avatar">

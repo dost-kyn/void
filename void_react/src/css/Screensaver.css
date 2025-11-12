@@ -11,6 +11,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+     padding: 0 10px;
 }
 
 .sc_logo{
@@ -44,6 +45,90 @@
 
 
 
+/* Стили для шкалы загрузки */
+.loading_container {
+    width: 100%;
+    max-width: 500px;
+    margin: 25px auto 0;
+    position: relative;
+}
+
+.loading_bar {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+.loading_progress {
+    height: 100%;
+    background: linear-gradient(90deg, #463f79, #282061);
+    border-radius: 10px;
+    width: 0%;
+    animation: loading 8s linear forwards;
+    position: relative;
+}
+
+/* Анимация загрузки */
+@keyframes loading {
+    0% {
+        width: 0%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+/* Контейнер для звезд */
+.stars_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Стили для звезд */
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: starFly linear forwards;
+}
+
+/* Анимация полета звезд */
+@keyframes starFly {
+    0% {
+        transform: translateX(-20px) translateY(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(520px) translateY(0px);
+        opacity: 0;
+    }
+}
+
+/* Дополнительные эффекты для текста */
+/* .sc_text {
+    margin-bottom: 30px;
+}
+
+.sc_text_logo {
+    color: #9C90F5;
+    font-weight: bold;
+} */
+
+
+
+
 /* ======= адаптив ========= */
 @media (max-width: 450px){
     .sc_logo{
@@ -54,6 +139,10 @@
 }
 .sc_text{
     font-size: 22px;
+}
+.loading_container {
+    width: 80%;
+    margin: 10px auto 0;
 }
 }
 
