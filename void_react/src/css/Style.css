@@ -67,6 +67,11 @@ input:focus {
     border: none;
     box-shadow: none;
 }
+textarea:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
 
 input[type=checkbox] {
     -webkit-appearance: none;
@@ -123,8 +128,10 @@ body {
     background-color: var(--element);
     display: flex;
     flex-direction: column;
-    width: 75px;
-    height: 100vh;
+    /* width: 75px;
+    height: 100vh; */
+    width: 92px;
+    height: 100vw;
     align-items: center;
 }
 
@@ -212,15 +219,6 @@ body {
 
 
 /* адаптив */
-@media (max-width: 900px){
-    .body {
-    gap: 30px;
-}
- 
-}
-
-
-
 @media (max-width: 1200px) {
     .body {
         gap: 40px;
@@ -229,7 +227,6 @@ body {
 }
 
 @media (max-width: 768px) {
-
     .body {
         gap: 20px;
         padding: 0 15px;
@@ -251,7 +248,7 @@ body {
     }
 
     .naw {
-        height: auto;
+        /* height: auto; */
         width: 70px;
     }
 

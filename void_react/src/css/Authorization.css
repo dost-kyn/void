@@ -28,7 +28,8 @@
     background-color: var(--accent);
     color: var(--text-color);
     font-size: 15px;
-    margin-bottom: 25px;
+    /* margin-bottom: 25px; */
+    margin-top: 25px;
     box-sizing: border-box
 }
 
@@ -66,7 +67,8 @@
     color: var(--text-color);
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
+    font-family: "Advent Pro";
 }
 .file_input {
     display: none;
@@ -141,6 +143,121 @@
     text-decoration: underline;
     color: var(--text-color);
     cursor: pointer;
+}
+
+
+
+/* Стили для ошибок */
+.error {
+    border: 2px solid #8b4d4dd3 !important;
+    background-color: rgba(255, 68, 68, 0.1) !important;
+}
+
+.error_message {
+    background: #8b4d4dd3;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+    animation: slideIn 0.3s ease;
+    font-size: 14px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Дополнительные стили для формы */
+.name_fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.categories_section {
+    margin: 20px 0;
+}
+
+.categories_checkboxes {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.category_label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.avatar_section {
+    margin: 20px 0;
+}
+
+.avatar_input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.input_group {
+    margin-bottom: 15px;
+}
+
+.checkbox_group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.general_error {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.error {
+    border: 2px solid #8b4d4dd3 !important;
+    background-color: rgba(255, 68, 68, 0.1) !important;
+}
+
+.error_message {
+    background: #8b4d4dd3;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    margin: 5px 0;
+    animation: slideIn 0.3s ease;
+    font-size: 14px;
+    font-family: "Advent Pro", sans-serif;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стиль для чекбокса с ошибкой */
+.checkbox.error {
+    outline: 2px solid #8b4d4dd3;
 }
 
 
