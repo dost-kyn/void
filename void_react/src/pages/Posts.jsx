@@ -136,7 +136,7 @@ export default function Posts() {
                                     ref={contentRef}
                                     className={`post_text ${isExpanded ? 'expanded' : ''}`}
                                 >
-                                    <p className="post_text">
+                                    <p>
                                         Хей, всем привет!
                                         <br /><br />
                                         Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
@@ -145,27 +145,23 @@ export default function Posts() {
                                         Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
                                         Я просто не могла пройти мимо нее.
                                         <br /><br />
-                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
-                                        Я просто не могла пройти мимо нее.
+                                        один
                                         <br /><br />
-                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
-                                        Я просто не могла пройти мимо нее.
+                                        два
                                         <br /><br />
-                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
-                                        Я просто не могла пройти мимо нее.
+                                        три
                                         <br /><br />
-                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
-                                        Я просто не могла пройти мимо нее.
+                                        четыре
 
                                     </p>
                                 </div>
-                                {isOverflowed && !isExpanded && (
+
+                                {isOverflowed && (
                                     <div className="read_more_button">
                                         <button className="read_more_btn" onClick={toggleExpand}>
-                                            Читать далее
+                                            {isExpanded ? 'Скрыть' : 'Читать далее'}
                                         </button>
                                     </div>
-
                                 )}
                                 <div className="post_info">
                                     <p className="post_author">Kron_prince</p>
@@ -173,6 +169,15 @@ export default function Posts() {
                                 </div>
                             </div>
                         </div>
+
+
+
+
+
+
+
+
+
                         <div className="Posts_posts_post">
                             <div className="post_slider">
                                 {showSliderButtons && (

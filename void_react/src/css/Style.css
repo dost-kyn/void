@@ -119,19 +119,17 @@ body {
     display: flex;
     max-width: 1440px;
     margin: 0 auto;
-    gap: 40px;
     padding: 0 20px;
     min-height: 100vh;
+    gap: 40px;
 }
 
 .naw {
     background-color: var(--element);
     display: flex;
     flex-direction: column;
-    /* width: 75px;
-    height: 100vh; */
-    width: 92px;
-    height: 100vw;
+    width: 75px;
+    height: 100vh;
     align-items: center;
     position: sticky;
     top: 0;

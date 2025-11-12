@@ -1,6 +1,5 @@
 .Posts {
     width: 100%;
-
 }
 
 .Posts_tools {
@@ -292,9 +291,6 @@
     transition: max-height 0.3s ease;
 }
 
-.post_text.expanded {
-    max-height: none;
-}
 
 .read_more_button {
     width: 100%;
@@ -313,6 +309,26 @@
 }
 
 
+.post_text.expanded {
+    max-height: 400px; /* та же высота */
+    overflow-y: auto; /* прокрутка */
+    -webkit-mask-image: none; /* убираем градиент если есть */
+    mask-image: none;
+}
+
+
+.post_text {
+    font-size: 20px;
+    line-height: 1.4;
+    max-height: 400px;
+    overflow: hidden;
+    transition: all 0.3s ease; /* плавность */
+}
+
+.post_text.expanded {
+    max-height: 400px;
+    overflow-y: auto;
+}
 
 
 /* ============  АДАПТИВ  ============ */

@@ -13,7 +13,16 @@ export const useReadMore = (maxHeight = 400) => {
   }, [maxHeight]);
 
   const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    if (!isExpanded && contentRef.current) {
+      // При раскрытии - просто меняем состояние
+      setIsExpanded(true);
+    } else {
+      // При скрытии - прокручиваем вверх и меняем состояние
+      if (contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
+      setIsExpanded(false);
+    }
   };
 
   return {

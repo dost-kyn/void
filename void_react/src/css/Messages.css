@@ -7,17 +7,12 @@
     gap: 120px;
     margin-bottom: 30px;
 }
-/* .friends_title{
-    margin: 0;
-} */
-
 
 
 
 /*========= список друзей =========== */
 .message{
-    /* width: 100%; */
-    padding: 8px 20px;
+    padding: 8px 20px; 
     background: var(--element);
     display: flex;
     flex-direction: row;

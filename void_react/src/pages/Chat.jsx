@@ -9,7 +9,7 @@ import { useAutoResizeTextarea } from '../components/UI/chat/textarea'
 import { useNaw } from '../components/UI/chat/naw'
 
 export default function Chat() {
-    const { textareaRef, adjustHeight } = useAutoResizeTextarea();
+    const { textareaRef, adjustHeight, resetHeight } = useAutoResizeTextarea();
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
     const isMobile = useNaw(); // исчезновение <Naw/>
