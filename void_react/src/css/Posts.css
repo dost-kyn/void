@@ -1,8 +1,9 @@
-
-.Posts{
+.Posts {
     width: 100%;
+
 }
-.Posts_tools{
+
+.Posts_tools {
     display: flex;
     gap: 70px;
     margin-bottom: 60px;
@@ -10,12 +11,13 @@
 
 
 /*============  фильтр  ===========*/
-.Posts_tools_filter_button{
+.Posts_tools_filter_button {
     display: flex;
     gap: 15px;
     background: none;
 }
-.filter_modal{
+
+.filter_modal {
     background-color: var(--element);
     padding: 10px 20px 20px 20px;
     color: var(--text-color);
@@ -28,29 +30,33 @@
 
 
 
-.filter_modal_punkts{
+.filter_modal_punkts {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     column-gap: 20px;
 }
-.filter_modal_punkt{
+
+.filter_modal_punkt {
     gap: 10px;
     display: flex;
 }
-.filter_modal_punkt_inp{
+
+.filter_modal_punkt_inp {
     margin: auto 0;
 }
-.filter_modal_punkt_p{
+
+.filter_modal_punkt_p {
     font-size: 20px;
     margin: 10px 10px 10px 0;
 }
 
-.filter_modal_close_container{
+.filter_modal_close_container {
     width: 100%;
     display: flex;
     justify-content: right;
 }
-.filter_modal_close{
+
+.filter_modal_close {
     margin-bottom: 20px;
     color: var(--text-color);
     font-size: 20px;
@@ -58,22 +64,24 @@
 
 
 /*============  поиск  ===========*/
-.Posts_tools_find{
+.Posts_tools_find {
     width: 100%;
     margin: auto 0;
 }
-.Posts_tools_find_inp{
+
+.Posts_tools_find_inp {
     margin: auto 0;
     padding: 10px 20px;
     background-color: var(--accent);
-    width: 95%;
+    width: 100%; /* ← меняем на 100% */
     font-size: 18px;
     color: var(--text-color);
-}
-.Posts_tools_find_inp::placeholder{
-    color: var(--text-color);
+    box-sizing: border-box; /* ← добавляем это! */
 }
 
+.Posts_tools_find_inp::placeholder {
+    color: var(--text-color);
+}
 
 
 
@@ -90,19 +98,21 @@
     margin-bottom: 40px;
     background-color: var(--element);
 }
+
 .post_slider {
     position: relative;
 }
-.post_image{
+
+.post_image {
     height: 350px;
-    overflow: hidden; 
+    overflow: hidden;
     position: relative;
 }
 
-.post_image_img{
+.post_image_img {
     width: 100%;
-    height: 100%; 
-    object-fit: cover; 
+    height: 100%;
+    object-fit: cover;
     cursor: pointer;
     transition: transform 0.3s ease;
 }
@@ -111,7 +121,7 @@
 
 /*== кнопки слайдера  ==*/
 
-.post_slider_buttons{
+.post_slider_buttons {
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -119,14 +129,15 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    pointer-events: none; /* Чтобы не блокировали клик на изображение */
+    pointer-events: none;
+    /* Чтобы не блокировали клик на изображение */
 }
 
 .post_slider_buttons button {
     pointer-events: all;
 }
 
-.post_slider button{
+.post_slider button {
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -137,27 +148,33 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-.post_slider_prev, .post_slider_next{
+
+.post_slider_prev,
+.post_slider_next {
     background-color: rgb(173, 208, 255, 0.6);
 }
 
-.post_slider_prev:hover, .post_slider_next:hover {
+.post_slider_prev:hover,
+.post_slider_next:hover {
     background-color: rgb(173, 208, 255, 0.9);
 }
 
-.post_slider_next{
+.post_slider_next {
     margin-right: 15px;
     padding-left: 10px;
 }
-.post_slider_prev{
+
+.post_slider_prev {
     margin-left: 15px;
     padding-right: 10px;
 }
-.post_slider_btn_img{
+
+.post_slider_btn_img {
     width: 20px;
     height: 20px;
 }
-.post_slider_btn_img_prev{
+
+.post_slider_btn_img_prev {
     transform: scaleX(-1);
 }
 
@@ -192,22 +209,27 @@
 }
 
 /* остальные стили остаются без изменений */
-.post_contant{
+.post_contant {
     padding: 20px;
 }
-.post_title{
+
+.post_title {
     margin-top: 0;
 }
-.post_text{
+
+/* .post_text{
     font-size: 20px;
     line-height: 1.4;
-}
-.post_info{
+} */
+.post_info {
     display: flex;
     justify-content: space-between;
+
 }
-.post_info p{
+
+.post_info p {
     margin: 0;
+    color: #658BBD;
 }
 
 /*============  модельное окно  ===========*/
@@ -262,138 +284,202 @@
 
 
 
+.post_text {
+    font-size: 20px;
+    line-height: 1.4;
+    max-height: 400px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.post_text.expanded {
+    max-height: none;
+}
+
+.read_more_button {
+    width: 100%;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.read_more_btn {
+    background: none;
+    border: none;
+    color: #658BBD;
+    cursor: pointer;
+    padding: 10px 0;
+    font-size: 20px;
+    text-decoration: none;
+}
+
 
 
 
 /* ============  АДАПТИВ  ============ */
+@media (max-width: 1200px) {
+    .Posts_posts {
+        column-count: 2;
+        column-gap: 40px;
+    }
+
+    .Posts_tools {
+        margin-bottom: 10px;
+    }
+
+    .read_more_btn {
+        font-size: 16px;
+    }
+    .post_title{
+            font-size: 22px;
+    }
+    .post_text {
+    font-size: 18px;
+
+}
+}
+
+@media (max-width: 900px) {
+    .Posts_posts {
+        column-count: 2;
+        column-gap: 20px;
+    }
+}
 
 @media (max-width: 768px) {
 
     .Posts {
-        margin-bottom: 80px; 
+        margin-bottom: 80px;
     }
-    
+
     .Posts_tools {
         flex-direction: column;
         gap: 20px;
         margin-bottom: 30px;
     }
-    
+
     .Posts_tools_filter_button {
         justify-content: center;
     }
-    
+
     .filter_modal {
         margin-left: 0;
         left: 30%;
         transform: translateX(-50%);
-            padding: 10px 20px 20px 20px;
+        padding: 10px 20px 20px 20px;
         max-width: 300px;
     }
-    
+
     .filter_modal_punkts {
         grid-template-columns: 1fr;
         gap: 10px;
     }
 
-    .Posts_tools_filter_title{
+    .Posts_tools_filter_title {
         margin: 0;
     }
-    .Posts_tools_filter_img{
+
+    .Posts_tools_filter_img {
         width: 26px;
     }
-    
+
     .Posts_tools_find_inp {
-        width: 93%;
         font-size: 16px;
     }
-    
+
     .Posts_posts {
         column-count: 1;
         gap: 30px;
     }
-    
+
     .Posts_posts_post {
         margin-bottom: 20px;
     }
-    
+
     .post_image {
         height: 250px;
     }
-    
+
     .post_contant {
         padding: 15px;
     }
-    
+
     .post_text {
         font-size: 16px;
         line-height: 1.3;
     }
-    
+
     .post_slider button {
         width: 35px;
         height: 35px;
     }
-    
+
     .post_slider_next {
         margin-right: 10px;
         padding-left: 8px;
     }
-    
+
     .post_slider_prev {
         margin-left: 10px;
         padding-right: 8px;
     }
-    
+
     .post_slider_btn_img {
         width: 16px;
         height: 16px;
     }
+
+    .read_more_btn {
+        font-size: 16px;
+    }
 }
 
 @media (max-width: 480px) {
-    .Posts_title{
+    .Posts_title {
         margin-top: 80px;
     }
+
     .Posts_tools_filter_img {
         width: 18px;
-    }    
-    .Posts_tools_filter_button {
-    gap: 8px;
+    }
 
-}
-    .post_slider_buttons{
+    .Posts_tools_filter_button {
+        gap: 8px;
+
+    }
+
+    .post_slider_buttons {
         display: none;
     }
+
     .post_image {
         height: 200px;
     }
-    
+
     .post_contant {
         padding: 10px;
     }
-  
+
     .post_text {
         font-size: 14px;
     }
-    
+
     .post_info p {
         font-size: 14px;
     }
-    
+
     .Posts_tools_find_inp {
         padding: 8px 10px;
         font-size: 12px;
     }
-    
+
     .filter_modal_punkt_p {
         font-size: 16px;
     }
-    
+
     .modal_content {
         max-width: 95%;
     }
-    
+
     .modal_close {
         top: -30px;
         right: -30px;
@@ -401,45 +487,54 @@
         width: 30px;
         height: 30px;
     }
+
+    .read_more_btn {
+        padding: 10px 0;
+        font-size: 14px;
+    }
+
+    .read_more_button {
+        margin-bottom: 0px;
+    }
 }
 
 @media (max-width: 320px) {
     .post_image {
         height: 180px;
     }
-    
+
     .post_text {
         font-size: 13px;
     }
-    
+
     .post_info p {
         font-size: 12px;
     }
-    
+
     .Posts_tools_find_inp {
         padding: 6px 12px;
         font-size: 13px;
     }
-    
+
     .filter_modal {
         padding: 8px 15px 15px 15px;
     }
-    
+
     .filter_modal_punkt_p {
         font-size: 14px;
         margin: 8px 8px 8px 0;
     }
-    
+
     .post_slider button {
         width: 30px;
         height: 30px;
     }
-    
+
     .post_slider_btn_img {
         width: 14px;
         height: 14px;
     }
-    
+
     .slider_indicator {
         width: 6px;
         height: 6px;
@@ -453,11 +548,11 @@
         max-width: 280px;
         padding: 20px;
     }
-    
+
     .naw_modal_exit_contant_title {
         font-size: 18px;
     }
-    
+
     .naw_modal_exit_contant_btn {
         font-size: 16px;
         padding: 8px 15px;
@@ -468,11 +563,11 @@
     .naw_modal_exit {
         padding: 15px;
     }
-    
+
     .naw_modal_exit_contant_title {
         font-size: 16px;
     }
-    
+
     .naw_modal_exit_contant_btn {
         font-size: 14px;
         padding: 6px 12px;

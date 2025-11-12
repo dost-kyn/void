@@ -514,6 +514,9 @@
         gap: 30px;
         margin-bottom: 40px;
     }
+    .Profile_tools{
+        gap: 20px;
+    }
 
     .Profile_user_column {
         flex-direction: column;
@@ -529,6 +532,7 @@
     .Profile_user_avatar_info_p {
         font-size: 20px;
         margin: 8px 0;
+        text-align: center;
     }
 
     .Profile_user_column_buttons {

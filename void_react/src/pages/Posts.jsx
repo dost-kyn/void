@@ -7,10 +7,12 @@ import { useState } from 'react'
 import { useImage } from '../components/UI/posts/post_image'
 import { useFilter } from '../components/UI/posts/filter'
 import { useSlider } from '../components/UI/posts/slider'
+import { useReadMore } from '../components/UI/posts/read_more'
 
 export default function Posts() {
     const { OpenModal, CloseModal, selectedImage } = useImage(null)
     const { sostFilter, OpenFilter, CloseFilter } = useFilter(false)
+    const { contentRef, isOverflowed, isExpanded, toggleExpand } = useReadMore(400)
 
     // Массив изображений для поста
     const postImages = [
@@ -94,7 +96,6 @@ export default function Posts() {
                     <div className="Posts_posts">
                         <div className="Posts_posts_post">
                             <div className="post_slider">
-                                {/* Кнопки слайдера показываем только если нужно */}
                                 {showSliderButtons && (
                                     <div className="post_slider_buttons">
                                         <button className='post_slider_prev' onClick={prevImage}>
@@ -131,13 +132,41 @@ export default function Posts() {
 
                             <div className="post_contant">
                                 <h3 className="post_title">Новый друг</h3>
-                                <p className="post_text">
-                                    Хей, всем привет!
-                                    <br /><br />
-                                    Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
-                                    Я просто не могла пройти мимо нее.
+                                <div
+                                    ref={contentRef}
+                                    className={`post_text ${isExpanded ? 'expanded' : ''}`}
+                                >
+                                    <p className="post_text">
+                                        Хей, всем привет!
+                                        <br /><br />
+                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
+                                        Я просто не могла пройти мимо нее.
+                                        <br /><br />
+                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
+                                        Я просто не могла пройти мимо нее.
+                                        <br /><br />
+                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
+                                        Я просто не могла пройти мимо нее.
+                                        <br /><br />
+                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
+                                        Я просто не могла пройти мимо нее.
+                                        <br /><br />
+                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
+                                        Я просто не могла пройти мимо нее.
+                                        <br /><br />
+                                        Сегодня ходила в магазин за продуктами и увидела там это чудо. She's so sweet!
+                                        Я просто не могла пройти мимо нее.
 
-                                </p>
+                                    </p>
+                                </div>
+                                {isOverflowed && !isExpanded && (
+                                    <div className="read_more_button">
+                                        <button className="read_more_btn" onClick={toggleExpand}>
+                                            Читать далее
+                                        </button>
+                                    </div>
+
+                                )}
                                 <div className="post_info">
                                     <p className="post_author">Kron_prince</p>
                                     <p className="post_date">20.11.25</p>
@@ -146,7 +175,6 @@ export default function Posts() {
                         </div>
                         <div className="Posts_posts_post">
                             <div className="post_slider">
-                                {/* Кнопки слайдера показываем только если нужно */}
                                 {showSliderButtons && (
                                     <div className="post_slider_buttons">
                                         <button className='post_slider_prev' onClick={prevImage}>
