@@ -325,9 +325,37 @@
     transition: all 0.3s ease; /* плавность */
 }
 
+
 .post_text.expanded {
     max-height: 400px;
     overflow-y: auto;
+    /* Стилизация скроллбара */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+}
+
+/* Для Webkit браузеров (Chrome, Safari, Edge) */
+.post_text.expanded::-webkit-scrollbar {
+    width: 6px;
+}
+
+.post_text.expanded::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 5px 0;
+}
+
+.post_text.expanded::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    border-radius: 3px;
+}
+
+.post_text.expanded::-webkit-scrollbar-thumb:hover {
+    background-color: #7267BF;
+}
+
+/* Плавная прокрутка */
+.post_text.expanded {
+    scroll-behavior: smooth;
 }
 
 
