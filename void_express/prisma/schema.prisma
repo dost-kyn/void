@@ -4,7 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,67 +19,59 @@ enum UserRole {
 }
 
 
-
-
-
 model User {
-  id Int @id @default(autoincrement())
-  role UserRole @default(User)
-  name String
-  last_name String
-  login String @unique
-  email String @unique
-  password String
-  avatar String?
+  id         Int      @id @default(autoincrement())
+  role       UserRole @default(User)
+  name       String
+  last_name  String
+  login      String   @unique
+  email      String   @unique
+  password   String
+  avatar     String?
   created_at DateTime @default(now())
 
-  id_category Category[]
+
+  id_category Category[] @relation("UserCategories")
+  posts       Post[]
 }
 
-model Category{
-  id Int @id @default(autoincrement())
+model Category {
+  id   Int    @id @default(autoincrement())
   name String
 
-  users_category User[]
+
+  users_category User[] @relation("UserCategories")
+  posts          Post[]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 model Post {
-  id Int @id @default(autoincrement())
-  title String
-  text String
-  creacte_at DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  title      String
+  text       String
+  created_at DateTime @default(now())
+
+
+
+
+  category_id        Int
+  post_category_ship Category @relation(fields: [category_id], references: [id])
+
+  user_id        Int
+  user_post_ship User @relation(fields: [user_id], references: [id])
+
+  image_id Post_image[]
+}
+
+model Post_image {
+  id          Int    @id @default(autoincrement())
+  image_url   String
+  image_order Int
+
+
+
+
+  post_id  Int?
+  post_image_ship Post? @relation(fields: [post_id], references: [id])
+  
 }
