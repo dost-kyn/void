@@ -13,6 +13,15 @@ export const registerUser = async (userData) => {
 };
 
 
+// Авторизация
+export const autoUser = async (userData) => {
+    const response = await fetch(`${API_URL}/users/login`, {
+        method: 'POST',
+        body: JSON.stringify(userData)
+    })
+    return await response.json()
+}
+
 // Получить всех пользователей
 export const getAllUsers = async() => {
     const response = await fetch(`${API_URL}/users/`)
