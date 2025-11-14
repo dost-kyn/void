@@ -5,7 +5,11 @@ dotenv.config({ path: ".env" });
 const path = require("path");
 const errorHandler = require("./middlewear/errorHandler");
 
+const PostRouters = require('./features/posts/posts.routers')
+
 app.use(express.json());
+
+app.use('/posts', PostRouters);
 
 
 
