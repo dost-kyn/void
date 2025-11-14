@@ -1,18 +1,17 @@
-
-const express = require('express')
-const app = express()
+const express = require("express");
+const app = express();
 const dotenv = require("dotenv");
-dotenv.config();   
-const path = require('path')
+dotenv.config({ path: ".env" });
+const path = require("path");
+const errorHandler = require("./middlewear/errorHandler");
+
+app.use(express.json());
 
 
 
-app.use(express.json())
-
-
-
+app.use(errorHandler)
 
 
 app.listen(process.env.PORT, () => {
-    console.log('сервер запущен на порту ' + process.env.PORT)
-})
+  console.log("сервер запущен на порту " + process.env.PORT);
+});
