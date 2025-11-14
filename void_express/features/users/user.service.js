@@ -31,20 +31,31 @@ exports.VerifyCreateUser = async (name, last_name, login, email, password, repea
 }
 
 exports.VerifyPasswords = async (password, repeatPassword) => {
-    if(!( bcrypt.compare(password, repeatPassword))){
+    if(password !== repeatPassword){// bcrypt.compare не нужен, т.к пароли еще не хэшированы
         return "Пароли не совпали"
     }
     return null
 }
 
 exports.GetUsersByEmail = async (email) => {
-    const user = await bd.user.findFirst(e => e.email === email)
-    return user
+    const user = await bd.user.findUnique({  // это правильный синтаксис Prisma
+        where: { email: email }
+    })
+
+    if(user){
+        return "Пользователь с таким email уже существует"
+    } 
+    return null
 }
 
 exports.GetUsersByLogin = async (login) => {
-    const user = await bd.user.findFirst(e => e.login === login)
-    return user
+    const user = await bd.user.findUnique({
+        where: {login: login}
+    })
+    if(user){
+        return "Пользователь с таким логином уже существует"
+    }
+    return null
 }
 //===============  регистрация конец
 
@@ -60,8 +71,19 @@ exports.VerifyAuto = async (login, password) => {
 }
 
 exports.AutoPasswords = async (user, password) => {
-    if(!user || !( bcrypt.compare(password, user.password))){
-        return "Неверный пароль или логин"
-    }
+    if(!user) return "Пользователь не найден"
+    
+    const isValidPassword = await bcrypt.compare(password, user.password) 
+    if(!isValidPassword) return "Неверный пароль"
+    
     return null
 }
+
+exports.findUserByLogin = async (login) => {
+    return await bd.user.findUnique({
+        where: { login: login }
+    })
+}
+//===============  авторизация конец
+
+

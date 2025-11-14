@@ -3,6 +3,7 @@ import '../css/Authorization.css'
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { validateRegistration } from '../components/UI/auth/registr';
+import { registerUser } from '../api/users.api.js';
 
 export default function Registration() {
     const [preview, setPreview] = useState(null);
@@ -37,7 +38,7 @@ export default function Registration() {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        
+
         if (type === 'checkbox') {
             setFormData(prev => ({
                 ...prev,
@@ -67,17 +68,38 @@ export default function Registration() {
         try {
             const validationErrors = await validateRegistration(formData);
             console.log('Ошибки валидации:', validationErrors);
-            
+
             if (Object.keys(validationErrors).length === 0) {
-                // Все валидно, отправляем на сервер
                 console.log('Регистрация успешна! Данные:', formData);
-                alert('Регистрация успешна!');
-            } else {
+
+                const result = await registerUser({
+                    name: formData.firstName,
+                    last_name: formData.surname,
+                    login: formData.login,
+                    email: formData.email,
+                    password: formData.password,
+                    repeatPassword: formData.repeatPassword,
+                    avatar: formData.avatar 
+                });
+
+                console.log('Ответ сервера:', result);
+                if (result.token) {
+                    alert('Регистрация успешна!');
+                    // Сохраняем токен
+                    localStorage.setItem('token', result.token);
+                    // Перенаправляем на главную или в кабинет
+                    window.location.href = '/posts';
+                } else {
+                    setErrors({ general: result.message || 'Ошибка регистрации' });
+                }
+
+            }
+            else {
                 setErrors(validationErrors);
             }
         } catch (error) {
-            console.error('Ошибка валидации:', error);
-            setErrors({ general: 'Произошла ошибка при валидации' });
+            console.error('Ошибка регистрации:', error);
+            setErrors({ general: 'Произошла ошибка при регистрации' });
         } finally {
             setIsLoading(false);
         }
@@ -89,82 +111,82 @@ export default function Registration() {
                 <div className="Auth">
                     <form className='form' onSubmit={handleSubmit}>
                         <h1 className='title'>Регистрация пилота</h1>
-                        
+
                         {/* Имя */}
-                        <input 
+                        <input
                             className={`firstName ${errors.firstName ? 'error' : ''}`}
-                            type="text" 
+                            type="text"
                             name="firstName"
-                            placeholder='Имя' 
+                            placeholder='Имя'
                             value={formData.firstName}
                             onChange={handleChange}
-                            required 
+                            required
                         />
                         {errors.firstName && <div className="error_message">{errors.firstName}</div>}
 
                         {/* Фамилия */}
-                        <input 
+                        <input
                             className={`surname ${errors.surname ? 'error' : ''}`}
-                            type="text" 
+                            type="text"
                             name="surname"
-                            placeholder='Фамилия' 
+                            placeholder='Фамилия'
                             value={formData.surname}
                             onChange={handleChange}
-                            required 
+                            required
                         />
                         {errors.surname && <div className="error_message">{errors.surname}</div>}
 
                         {/* Логин */}
-                        <input 
+                        <input
                             className={`login ${errors.login ? 'error' : ''}`}
-                            type="text" 
+                            type="text"
                             name="login"
-                            placeholder='Логин' 
+                            placeholder='Логин'
                             value={formData.login}
                             onChange={handleChange}
-                            required 
+                            required
                         />
                         {errors.login && <div className="error_message">{errors.login}</div>}
 
                         {/* Email */}
-                        <input 
+                        <input
                             className={`email ${errors.email ? 'error' : ''}`}
-                            type="email" 
+                            type="email"
                             name="email"
-                            placeholder='Email' 
+                            placeholder='Email'
                             value={formData.email}
                             onChange={handleChange}
-                            required 
+                            required
                         />
                         {errors.email && <div className="error_message">{errors.email}</div>}
 
                         {/* Пароль */}
-                        <input 
+                        <input
                             className={`password ${errors.password ? 'error' : ''}`}
-                            type="password" 
+                            type="password"
                             name="password"
-                            placeholder='Пароль' 
+                            placeholder='Пароль'
                             value={formData.password}
                             onChange={handleChange}
-                            required 
+                            required
                         />
                         {errors.password && <div className="error_message">{errors.password}</div>}
 
                         {/* Повтор пароля */}
-                        <input 
+                        <input
                             className={`repeatPassword ${errors.repeatPassword ? 'error' : ''}`}
-                            type="password" 
+                            type="password"
                             name="repeatPassword"
-                            placeholder='Повторите пароль' 
+                            placeholder='Повторите пароль'
                             value={formData.repeatPassword}
                             onChange={handleChange}
-                            required 
+                            required
                         />
                         {errors.repeatPassword && <div className="error_message">{errors.repeatPassword}</div>}
 
                         {/* Категории */}
                         <p className='p_select'>Выбор интересующих категорий (не обязательно)</p>
-                        <select 
+                        <select
                             className='categories'
                             name="category"
                             value={formData.category}
@@ -199,8 +221,8 @@ export default function Registration() {
 
                         {/* Согласие */}
                         <div className="content_checkbox">
-                            <input 
-                                type="checkbox" 
+                            <input
+                                type="checkbox"
                                 className={`checkbox ${errors.agree ? 'error' : ''}`}
                                 name="agree"
                                 checked={formData.agree}
@@ -215,8 +237,8 @@ export default function Registration() {
 
                         {/* Кнопка отправки */}
                         <div className="button">
-                            <button 
-                                className='btn' 
+                            <button
+                                className='btn'
                                 type="submit"
                                 disabled={isLoading}
                             >

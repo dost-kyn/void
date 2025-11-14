@@ -1,8 +1,16 @@
 import React from 'react'
 import '../css/Authorization.css'
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { autoUser } from '../api/users.api'
 
 export default function Auth() {
+    const [formData, setFormData] = useState({
+        login: '',
+        password: ''
+    })
+    const [error, setError] = useState({})
+
     return (
         <>
             <div className="body">

@@ -16,16 +16,17 @@
     font-style: normal;
 }
 
-body{
+body {
     margin: 0;
 }
 
 :root {
     --fon: #141D26;
     --element: #221E37;
-    --text-color: rgb(173, 208, 255);
+    --text-color: #add0ff;
     --accent: #41378D;
 }
+
 
 
 p,
@@ -62,11 +63,13 @@ input {
     font-family: "Advent Pro";
     border: none;
 }
+
 input:focus {
     outline: none;
     border: none;
     box-shadow: none;
 }
+
 textarea:focus {
     outline: none;
     border: none;
@@ -111,7 +114,7 @@ input[type=checkbox]:checked::before {
 html,
 body {
     background-color: var(--fon);
-    
+
 
 }
 
@@ -133,7 +136,8 @@ body {
     align-items: center;
     position: sticky;
     top: 0;
-    flex-shrink: 0; /* чтобы не сжимался */
+    flex-shrink: 0;
+    /* чтобы не сжимался */
 }
 
 /*=============  naw  ============*/
@@ -207,11 +211,18 @@ body {
     font-size: 25px;
     font-family: "Advent Pro";
     font-weight: 600;
+
 }
 
-.naw_modal_exit_contant_btn:hover {
-    border-bottom: 1px solid var(--text-color);
+.naw_modal_exit_contant_btn a {
+    text-decoration: none;
+    font-family: "Advent Pro";
+    color: var(--text-color);
+}
 
+.naw_modal_exit_contant_btn:hover,
+.naw_modal_exit_contant_btn a:hover {
+    color: #8ab1e4;
 }
 
 
@@ -225,13 +236,15 @@ body {
         padding: 0 15px;
     }
 }
-@media (max-width: 900px){
+
+@media (max-width: 900px) {
     .body {
         gap: 30px;
         padding: 0 15px;
     }
- 
+
 }
+
 @media (max-width: 768px) {
     .body {
         gap: 20px;
@@ -350,19 +363,21 @@ body {
     .exit {
         margin: auto 0;
     }
-        .naw_link_img {
+
+    .naw_link_img {
         width: 70%;
     }
 }
 
-@media (max-width: 420px){
-  
+@media (max-width: 420px) {
+
 
     input[type=checkbox] {
-    width: 25px;
-    height: 25px;
-}
+        width: 25px;
+        height: 25px;
+    }
+
     input[type=checkbox]:checked::before {
-    font-size: 18px;
-}
+        font-size: 18px;
+    }
 }

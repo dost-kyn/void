@@ -74,7 +74,7 @@ export default function Naw() {
                         <h3 className="naw_modal_exit_contant_title">Вы действительно хотите выйти?</h3>
                         <div className="naw_modal_exit_contant_buttons">
                             <button className="naw_modal_exit_contant_btn" onClick={CloseExit}>нет</button>
-                            <button className="naw_modal_exit_contant_btn">да</button>
+                            <button className="naw_modal_exit_contant_btn"><Link to={'/'}>да</Link></button>
                         </div>
                     </div>
                 </div>
