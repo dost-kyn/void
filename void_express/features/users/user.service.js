@@ -38,7 +38,7 @@ exports.VerifyPasswords = async (password, repeatPassword) => {
 }
 
 exports.GetUsersByEmail = async (email) => {
-    const user = await bd.user.findUnique({  // это правильный синтаксис Prisma
+    const user = await bd.user.findUnique({  
         where: { email: email }
     })
 

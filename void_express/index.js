@@ -12,21 +12,28 @@ app.use(cors())
 
 const errorHandler = require("./middlewear/errorHandler");
 const userRoutes = require('./features/users/user.routers')
-
-
-
-
-
-
 const PostRouters = require('./features/posts/posts.routers')
+const CategoriesRouters = require('./features/categories/categories.routers')
 
 app.use(express.json());
 
+
+app.get('/api/categories/test-simple', (req, res) => {
+    console.log('✅ Test route called!');
+    res.json({ 
+        message: 'Simple test works!', 
+        timestamp: new Date(),
+        data: [
+            { id: 1, name: 'Тестовая категория 1' },
+            { id: 2, name: 'Тестовая категория 2' }
+        ]
+    });
+});
+console.log('✅ CategoriesRouters loaded:', !!CategoriesRouters);
+
 app.use('/posts', PostRouters);
-
-
-
-app.use('/api', userRoutes)
+app.use('/users', userRoutes)
+app.use('/api/categories', CategoriesRouters)
 app.use(errorHandler)
 
 
