@@ -71,9 +71,16 @@ exports.VerifyAuto = async (login, password) => {
 }
 
 exports.AutoPasswords = async (user, password) => {
+    console.log('AutoPasswords вызвана с:', { user, password });
+
     if(!user) return "Пользователь не найден"
+
+    if(!user.password) {
+        console.log('У пользователя нет пароля:', user);
+        return "Ошибка базы данных"
+    }
     
-    const isValidPassword = await bcrypt.compare(password, user.password) 
+    const isValidPassword = await bcrypt.compare(password, user.password)
     if(!isValidPassword) return "Неверный пароль"
     
     return null
@@ -83,6 +90,7 @@ exports.findUserByLogin = async (login) => {
     return await bd.user.findUnique({
         where: { login: login }
     })
+    return user;
 }
 //===============  авторизация конец
 

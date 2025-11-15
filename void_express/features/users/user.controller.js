@@ -74,16 +74,14 @@ exports.loginUsers = async (req, res, next) => {
     const VerifyAuto = await UserService.VerifyAuto(login, password);
     if (VerifyAuto) return res.status(400).json({ message: VerifyAuto });
 
-    const user = await UserService.GetUsersByLogin(login); // Находим массив пользователя по логину
-    const AutoPasswords = await UserService.AutoPasswords(user, password); // Передаем user и обычный пароль
+    const user = await UserService.findUserByLogin(login) // Находим массив пользователя по логину
 
+    const passwordError = await UserService.AutoPasswords(user, password);
+    
+    if (passwordError) {
+        return res.status(400).json({ message: passwordError });
+    }
 
-    if (loginCheck) {
-        return res.status(400).json({ message: loginCheck });
-    }
-    if (AutoPasswords) {
-        res.status(400).json({ message: AutoPasswords });
-    }
 
     const token = jwt.sign(
         {
