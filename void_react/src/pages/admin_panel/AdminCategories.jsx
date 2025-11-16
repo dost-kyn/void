@@ -157,6 +157,7 @@ export default function AdminCategories() {
                             <thead>
                                 <tr>
                                     <th>Название</th>
+                                    <th>Дата создания</th>
                                     <th>Привязаные посты</th>
                                     <th> </th>
                                 </tr>
@@ -175,6 +176,7 @@ export default function AdminCategories() {
                                                 category.name
                                             )}
                                         </td>
+                                        <td>{formatDate(category.created_at )}</td>
                                         <td>{category.postCount || '0'} постов</td>
                                         <td className='AdminCategories_buttons'>
                                             {editingId === category.id ? (

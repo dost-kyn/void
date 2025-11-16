@@ -49,6 +49,7 @@ model User {
 model Category {
   id   Int    @id @default(autoincrement())
   name String
+  created_at DateTime @default(now())
 
   users_category User[] @relation("UserCategories")
   posts          Post[]
