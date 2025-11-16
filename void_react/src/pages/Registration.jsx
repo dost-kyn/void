@@ -67,30 +67,32 @@ export default function Registration() {
 
         try {
             const validationErrors = await validateRegistration(formData);
-            console.log('Ошибки валидации:', validationErrors);
 
             if (Object.keys(validationErrors).length === 0) {
                 console.log('Регистрация успешна! Данные:', formData);
 
-                const result = await registerUser({
-                    name: formData.firstName,
-                    last_name: formData.surname,
-                    login: formData.login,
-                    email: formData.email,
-                    password: formData.password,
-                    repeatPassword: formData.repeatPassword,
-                    avatar: formData.avatar 
-                });
+                if (Object.keys(validationErrors).length === 0) {
+                    // 🔥 СОЗДАЕМ FORMDATA ДЛЯ ОТПРАВКИ ФАЙЛА
+                    const formDataToSend = new FormData();
+                    formDataToSend.append('name', formData.firstName);
+                    formDataToSend.append('last_name', formData.surname);
+                    formDataToSend.append('login', formData.login);
+                    formDataToSend.append('email', formData.email);
+                    formDataToSend.append('password', formData.password);
+                    formDataToSend.append('repeatPassword', formData.repeatPassword);
 
-                console.log('Ответ сервера:', result);
-                if (result.token) {
-                    alert('Регистрация успешна!');
-                    // Сохраняем токен
-                    localStorage.setItem('token', result.token);
-                    // Перенаправляем на главную или в кабинет
-                    window.location.href = '/posts';
-                } else {
-                    setErrors({ general: result.message || 'Ошибка регистрации' });
+                    if (formData.avatar) {
+                        formDataToSend.append('avatar', formData.avatar);
+                    }
+
+                    const result = await registerUser(formDataToSend);
+
+                    if (result.token) {
+                        localStorage.setItem('token', result.token);
+                        window.location.href = '/';
+                    } else {
+                        setErrors({ general: result.message || 'Ошибка регистрации' });
+                    }
                 }
 
             }

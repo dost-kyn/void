@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "react-router-dom": "^7.9.5"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0"
   }
 }

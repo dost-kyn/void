@@ -30,19 +30,33 @@ export default function Auth() {
 
     const handleSubmit = async (e) =>{
         e.preventDefault();
-        console.log('Данные формы перед отправкой:', formData);
 
         try{
             const result = await autoUser({
                 login: formData.login,
                 password: formData.password
             })
-            console.log('Ответ сервера:', result);
 
             if (result.token){
-                alert('Авторизация успешна!');
                 localStorage.setItem('token', result.token);
-                window.location.href = '/posts';
+                
+
+                try {
+                    const tokenPayload = JSON.parse(atob(result.token.split('.')[1]));
+                    const userRole = tokenPayload.role;
+                    
+                    alert('Авторизация успешна!');
+                    
+                    if (userRole === 'Admin') {
+                        window.location.href = '/adminUsers';
+                    } else {
+                        window.location.href = '/posts';
+                    }
+                } catch (decodeError) {
+                    console.error('Ошибка декодирования токена:', decodeError);
+                    setError({ general: 'Ошибка обработки токена' });
+                }
+
             } else {
                 setError({ general: result.message || 'Ошибка авторизации' });
             }
@@ -50,7 +64,7 @@ export default function Auth() {
         } catch (error){
             console.error('Ошибка авторизации:', error);
             setError({ general: 'Произошла ошибка при авторизации' });
-        }
+        } 
     }
 
     return (

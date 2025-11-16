@@ -10,6 +10,21 @@ export default function Naw() {
     const location = useLocation();
     const currentPath = location.pathname;
 
+    const getUserId = () => {
+        const token = localStorage.getItem('token')
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]))
+                return payload.id
+            } catch (error) {
+                console.error('Ошибка чтения токена:', error)
+                return null
+            }
+        }
+        return null
+    }
+    const userId = getUserId()
+
     return (
         <>
             <div className="naw">
@@ -40,7 +55,7 @@ export default function Naw() {
                                 className="naw_link_img"
                             />
                         </Link>
-                        <Link to={'/profile'} className='naw_link'>
+                        <Link to={`/profile/${userId}`} className='naw_link'>
                             <img
                                 src={currentPath === '/profile' ? "../src/uploads/profile_active.svg" : "../src/uploads/profile.svg"}
                                 alt="Профиль"

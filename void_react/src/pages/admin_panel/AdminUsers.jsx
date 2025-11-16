@@ -1,31 +1,29 @@
 import React from 'react'
 import '../../css/Admin_panel.css'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Naw_Admin_panel from '../../components/Naw_Admin_panel'
 
+
+
+import { getAllUsers } from '../../api/users.api'
+
 export default function AdminUsers() {
-    const [users, setUsers] = useState([
-        {
-            id: 1,
-            name: 'Иосиф',
-            surname: 'Сталин',
-            login: 'Stalin_I',
-            email: 'Stalin@mail.ru',
-            categories: 'Котики, Новости, Романтика',
-            date: '12.09.22',
-            isBanned: false
-        },
-        {
-            id: 2,
-            name: 'Иосиф',
-            surname: 'Сталин',
-            login: 'Stalin_I',
-            email: 'Stalin@mail.ru',
-            categories: 'Котики, Новости, Романтика',
-            date: '12.09.22',
-            isBanned: true
+    const [users, setUsers] = useState([])
+
+    useEffect(() => {
+        AllUsers()
+    }, [])
+
+    const AllUsers = async () => {
+        try {
+            const result = await getAllUsers()
+            setUsers(result)
+        } catch (error) {
+            console.error('Ошибка загрузки пользователей:', error)
         }
-    ]);
+    }
+
+
 
     // Функция для бана/разбана
     const toggleBan = (userId) => {
@@ -58,12 +56,12 @@ export default function AdminUsers() {
                             <tbody>
                                 {users.map(user => (
                                     <tr key={user.id}>
-                                        <td>Иосиф</td>
-                                        <td>Сталин</td>
-                                        <td>Stalin_I</td>
-                                        <td>Stalin@mail.ru</td>
+                                        <td>{user.name}</td>
+                                        <td>{user.last_name}</td>
+                                        <td>{user.login}</td>
+                                        <td>{user.email}</td>
                                         <td>Котики, Новости, Романтика</td>
-                                        <td>12.09.22</td>
+                                        <td>{new Date(user.created_at).toLocaleDateString()}</td>
                                         <td>
                                             <button className={`ban_btn ${user.isBanned ? 'unban' : 'ban'}`}
                                                 onClick={() => toggleBan(user.id)}>
