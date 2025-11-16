@@ -12,8 +12,21 @@ import { useReadMore } from '../components/UI/posts/read_more'
 
 export default function Posts() {
     const { OpenModal, CloseModal, selectedImage } = useImage(null) // фотка поста в модальном окне
-    const { sostFilter, OpenFilter, CloseFilter } = useFilter(false) // фильтр
     const { contentRef, isOverflowed, isExpanded, toggleExpand } = useReadMore(400)
+
+    // фильтр 
+    const {
+        sostFilter,
+        OpenFilter,
+        CloseFilter,
+        categories,
+        categoriesLoading,
+        categoriesError,
+        selectedCategories,
+        handleCategorySelect,
+        clearFilter,
+        applyFilter
+    } = useFilter()
 
     // Массив изображений для поста
     const postImages = [
@@ -47,41 +60,37 @@ export default function Posts() {
                             {sostFilter && (
                                 <div className="filter_modal">
                                     <div className="filter_modal_close_container">
+                                        <h3 className="filter_modal_close_h3">Категории</h3>
                                         <button className='filter_modal_close' onClick={CloseFilter}>✘</button>
                                     </div>
 
 
-                                    <div className="filter_modal_punkts">
-                                        <div className="filter_modal_punkt">
-                                            <input type="checkbox" className="filter_modal_punkt_inp" />
-                                            <p className="filter_modal_punkt_p">Животные</p>
-                                        </div>
-                                        <div className="filter_modal_punkt">
-                                            <input type="checkbox" className="filter_modal_punkt_inp" />
-                                            <p className="filter_modal_punkt_p">Животные</p>
-                                        </div>
-                                        <div className="filter_modal_punkt">
-                                            <input type="checkbox" className="filter_modal_punkt_inp" />
-                                            <p className="filter_modal_punkt_p">Животные</p>
-                                        </div>
-                                        <div className="filter_modal_punkt">
-                                            <input type="checkbox" className="filter_modal_punkt_inp" />
-                                            <p className="filter_modal_punkt_p">Животные</p>
-                                        </div>
-                                        <div className="filter_modal_punkt">
-                                            <input type="checkbox" className="filter_modal_punkt_inp" />
-                                            <p className="filter_modal_punkt_p">Животные</p>
-                                        </div>
-                                        <div className="filter_modal_punkt">
-                                            <input type="checkbox" className="filter_modal_punkt_inp" />
-                                            <p className="filter_modal_punkt_p">Животные</p>
-                                        </div>
 
+                                    <div className="filter_modal_punkts">
+                                        {categoriesLoading ? (
+                                            <div className="loading">Загрузка категорий...</div>
+                                        ) : categoriesError ? (
+                                            <div className="error">{categoriesError}</div>
+                                        ) : (
+                                            categories.map(category => (
+                                                <div key={category.id} className="filter_modal_punkt">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="filter_modal_punkt_inp"
+                                                        checked={selectedCategories.includes(category.id)}
+                                                        onChange={() => handleCategorySelect(category.id)}
+                                                    />
+                                                    <p className="filter_modal_punkt_p">{category.name}</p>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
 
-
-
-
+                                    <div className="filter_modal_actions">
+                                        <button className="apply_filter_btn" onClick={applyFilter}>
+                                            Применить фильтр
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

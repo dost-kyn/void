@@ -11,9 +11,9 @@ export default function AdminCategories() {
         categories,
         loading,
         apiError,
-        createCategory,  // ✅ Работает!
-        updateCategory,  // ✅ Работает!
-        deleteCategory   // ✅ Работает!
+        createCategory,
+        updateCategory, 
+        deleteCategory  
     } = useCategories()
 
     // UI состояние для модалок и форм
@@ -157,7 +157,6 @@ export default function AdminCategories() {
                             <thead>
                                 <tr>
                                     <th>Название</th>
-                                    <th>Дата создания</th>
                                     <th>Привязаные посты</th>
                                     <th> </th>
                                 </tr>
@@ -176,7 +175,6 @@ export default function AdminCategories() {
                                                 category.name
                                             )}
                                         </td>
-                                        <td>{formatDate(category.createdAt )}</td>
                                         <td>{category.postCount || '0'} постов</td>
                                         <td className='AdminCategories_buttons'>
                                             {editingId === category.id ? (

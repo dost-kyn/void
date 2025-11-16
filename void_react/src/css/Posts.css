@@ -52,7 +52,11 @@
 .filter_modal_close_container {
     width: 100%;
     display: flex;
-    justify-content: right;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.filter_modal_close_h3{
+    margin: 5px 0 0 0;
 }
 
 .filter_modal_close {
@@ -61,6 +65,15 @@
     font-size: 20px;
 }
 
+.apply_filter_btn{
+    width: 100%;
+    display: flex;
+    color: var(--text-color);
+    text-align: center;
+    padding: 0;
+    margin: 25px 0 0 0;
+    font-size: 18px;
+}
 
 /*============  поиск  ===========*/
 .Posts_tools_find {
