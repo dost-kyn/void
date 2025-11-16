@@ -1,7 +1,9 @@
-const express = require('express');
+const express = require('express')
 const router = express.Router()
 const PostController = require('./posts.controller')
 
-router.post('/', PostController.getAllPosts)
+router.get('/', PostController.getAllPosts)
+router.get('/user/:userId', PostController.getUserPosts)
+router.post('/create', PostController.createPost)
 
 module.exports = router
