@@ -3,19 +3,17 @@ import '../../css/Admin_panel.css'
 import { useState } from 'react';
 
 import Naw_Admin_panel from '../../components/Naw_Admin_panel'
-import { useDelCategory } from '../../components/UI/admin/delete_category'
-import { useCreateCategory } from '../../components/UI/admin/create_category'
-import { useEditCategory } from '../../components/UI/admin/edit_category'
 import { useCategories } from '../../hooks/useCategories'
+
 
 export default function AdminCategories() {
     const {
         categories,
         loading,
         apiError,
-        createCategory,
-        updateCategory,
-        deleteCategory
+        createCategory,  // ✅ Работает!
+        updateCategory,  // ✅ Работает!
+        deleteCategory   // ✅ Работает!
     } = useCategories()
 
     // UI состояние для модалок и форм
@@ -103,6 +101,7 @@ export default function AdminCategories() {
         return <div className="loading">Загрузка...</div>;
     }
 
+
     return (
         <>
             <div className="body">
@@ -118,7 +117,10 @@ export default function AdminCategories() {
                         <h2 className="adminCategories_tools_title">Создание новой категории</h2>
                         <div className="adminCategories_tools_container">
                             <input type="text" className="adminCategories_tools_inp" placeholder='Название'
-                                value={inp} onChange={(e) => setInp(e.target.value)} />
+                                value={inp} 
+                                onChange={(e) => setInp(e.target.value)}  
+
+                                />
                             <button className="adminCategories_tools_btn" onClick={handleCreateCategory}>Создать</button>
                         </div>
                         {textError && (
@@ -130,7 +132,7 @@ export default function AdminCategories() {
 
                     {soslDelCategory && (
                         <div className="DelCategory_modal">
-                            <div className="modal_overlay"></div>
+                            <div className="modal_overlay" onClick={CloseDelCategory}></div>
                             <div className="DelCategory_modal_contant">
                                 <div className="filter_modal_close_container">
                                     <button className="filter_modal_close" onClick={CloseDelCategory}>✘</button>

@@ -17,7 +17,7 @@ exports.getAllUsers = async (req, res, next) => {
 };
 
 
-
+//===============  регистрация
 exports.createUser = async (req, res, next) => {
     const { name, last_name, login, email, password, repeatPassword } = req.body;
 
@@ -60,7 +60,7 @@ exports.createUser = async (req, res, next) => {
 
 
 
-
+//===============  авторизация
 exports.loginUsers = async (req, res, next) => {
     const { login, password } = req.body;
 

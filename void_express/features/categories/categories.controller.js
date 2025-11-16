@@ -1,36 +1,68 @@
 const CategoryService = require("./categories.service");
 
+//===============  вызвать всех
 exports.getAllCategories = async (req, res, next) => {
-  const categories = await CategoryService.getAllCategories
-  if (categories.length <= 0) {
-    const error = new Error("Категории не найдены");
-    error.status = 404;
-    return next(error);
-  }
+  const categories = await CategoryService.getAllCategories()
+  
   res.status(200).json(categories);
 };
 
+
+//===============  создание категории
 exports.createCategory = async (req, res, next) => {
-  const { name } = req.body;
-  const validationError = await CategoryService.VerifyCreateCategory(name);
-  const uniquenessError = await CategoryService.VerifyNameCategory(name);
+  try {
+    const { name } = req.body;
+    
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Category name is required' });
+    }
 
-  if (validationError) {
-    return res.status(400).json({ error: validationError });
+    const newCategory = await CategoryService.createCategory(name.trim());
+    res.status(201).json(newCategory);
+  } catch (error) {
+    console.error('Error in createCategory:', error);
+    
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Category already exists' });
+    }
+    
+    res.status(500).json({ error: 'Internal server error' });
   }
-  if (uniquenessError) {
-    return res.status(400).json({ error: uniquenessError });
-  }
+};
 
-  const newCategory = await CategoryService.createCategory({ name });
-  // if (newCategory.length <= 0) {
-  //   const error = new Error("Категории не найдены");
-  //   error.status = 404;
-  //   return next(error);
-  // }
+
+//===============  изменение категории
+exports.updateCategory = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+    
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Category name is required' });
+    }
+    
+    const updatedCategory = await CategoryService.updateCategory(id, name.trim());
+    res.status(200).json(updatedCategory);
+  } catch (error) {
+    console.error('Error in updateCategory:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+//===============  удаление категории
+exports.deleteCategory = async(req, res, next) => {
+  const { id } = req.params
   
-  res.status(200).json({
-    message: 'Категория успешно создана',
-    category: newCategory
-  });
+  const category = await CategoryService.findCategoryId(id)
+
+  if(!category){
+    return res.status(404).json({message: 'Категория не найдена'})
+  }
+
+  await CategoryService.deleteCategory(id)
+
+  return res.status(200).json({message: 'Категория не найдена'})
+
 }

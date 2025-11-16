@@ -62,7 +62,6 @@ export default function Registration() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Данные формы:', formData);
         setIsLoading(true);
 
         try {
@@ -72,7 +71,7 @@ export default function Registration() {
                 console.log('Регистрация успешна! Данные:', formData);
 
                 if (Object.keys(validationErrors).length === 0) {
-                    // 🔥 СОЗДАЕМ FORMDATA ДЛЯ ОТПРАВКИ ФАЙЛА
+                    // FORMDATA ДЛЯ ОТПРАВКИ ФАЙЛА
                     const formDataToSend = new FormData();
                     formDataToSend.append('name', formData.firstName);
                     formDataToSend.append('last_name', formData.surname);

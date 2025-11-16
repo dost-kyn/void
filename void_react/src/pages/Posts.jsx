@@ -9,9 +9,10 @@ import { useFilter } from '../components/UI/posts/filter'
 import { useSlider } from '../components/UI/posts/slider'
 import { useReadMore } from '../components/UI/posts/read_more'
 
+
 export default function Posts() {
-    const { OpenModal, CloseModal, selectedImage } = useImage(null)
-    const { sostFilter, OpenFilter, CloseFilter } = useFilter(false)
+    const { OpenModal, CloseModal, selectedImage } = useImage(null) // фотка поста в модальном окне
+    const { sostFilter, OpenFilter, CloseFilter } = useFilter(false) // фильтр
     const { contentRef, isOverflowed, isExpanded, toggleExpand } = useReadMore(400)
 
     // Массив изображений для поста
