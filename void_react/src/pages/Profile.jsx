@@ -11,6 +11,10 @@ import { useDeleteProfile } from '../components/UI/profile/delete_profile'
 import { useFileName } from '../components/UI/profile/file_avatar_name'
 import { findUser, delProfile, updateUser, updateUserWithPhoto } from '../api/users.api'
 
+import { getUserPosts } from '../api/posts.api'
+import { getAllCategories } from '../api/categories.api'
+import { useCreatePost } from '../hooks/useCreatePost'
+
 export default function Profile() {
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
     const { sostCategories, OpenCategories, CloseCategories } = useCategories(false)
@@ -18,9 +22,28 @@ export default function Profile() {
     const { isDeleteModalOpen, OpenDelete, CloseDelete, DeleteProfile, СancelDeleteProfile } = useDeleteProfile(false)
     const { FileChange, selectedFileName } = useFileName("")
 
+
+    // хук
+    const {
+        isOpen: createPostOpen,
+        loading: createPostLoading,
+        error: createPostError,
+        postData,
+        OpenCreate: openCreatePost,
+        CloseCreate: closeCreatePost,
+        handleInputChange: handlePostInputChange,
+        handleFileChange: handlePostFileChange,
+        handleCreatePost
+    } = useCreatePost(false)
+
+
+    const [categories, setCategories] = useState([])
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(false)
     const [photo, setPhoto] = useState(null)
+    const [userPosts, setUserPosts] = useState([])
+
+
 
     // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПРОФИЛЯ
     const fetchUserProfile = async (userId) => {
@@ -128,11 +151,56 @@ export default function Profile() {
         }))
     }
 
+
+
+    // Функция для получения категорий
+    const fetchCategories = async () => {
+        try {
+            const categoriesData = await getAllCategories()
+            setCategories(categoriesData)
+        } catch (error) {
+            console.error('Ошибка загрузки категорий:', error)
+        }
+    }
+
+
+    // Функция для получения постов пользователя
+    const fetchUserPosts = async (userId) => {
+        try {
+            const posts = await getUserPosts(userId)
+            setUserPosts(posts)
+        } catch (error) {
+            console.error('Ошибка загрузки постов:', error)
+            setUserPosts([]) // на всякий случай пустой массив
+        }
+    }
+
+    // Функция для создания поста
+    const handleSubmitPost = async () => {
+        const userId = getUserIdFromToken()
+        if (!userId) {
+            alert('Ошибка: пользователь не авторизован')
+            return
+        }
+
+        const success = await handleCreatePost(userId)
+        if (success) {
+            // Обновляем список постов после успешного создания
+            fetchUserPosts(userId)
+        }
+    }
+
+
+
+
+
     // Загружаем данные пользователя при монтировании компонента
     useEffect(() => {
         const userId = getUserIdFromToken()
         if (userId) {
             fetchUserProfile(userId)
+            fetchUserPosts(userId)
+            fetchCategories()
         }
     }, [])
 
@@ -359,28 +427,46 @@ export default function Profile() {
 
                     <div className="Profile_tools">
                         <h2 className="Profile_tools_title">Мои посты</h2>
-                        <button className="Profile_tools_btn" onClick={OpenCreate}>Создать новый пост</button>
+                        <button className="Profile_tools_btn" onClick={openCreatePost}>Создать новый пост</button>
 
-                        {sostCreate && (
+                        {createPostOpen  && (
                             <>
-                                <div className="modal_overlay" onClick={CloseCreate}>
+                                <div className="modal_overlay" onClick={closeCreatePost}>
                                     <div className="Profile_create_post" onClick={(e) => e.stopPropagation()}>
                                         <h1 className="Profile_create_post_title">Новый пост</h1>
+                                        {/* {error && ( 
+                                            <div className="error-message">{error}</div>
+                                        )} */}
                                         <div className="Profile_create_post_top_inp">
                                             <input
                                                 type="text"
+                                                name="title"
                                                 placeholder='Название поста'
                                                 className='Profile_create_post_top_inp_name'
+                                                value={postData.title}
+                                                onChange={handlePostInputChange}
                                             />
-                                            <select className='Profile_create_post_top_select' required>
-                                                <option value="" disabled selected>Категория</option>
-                                                <option value="cats">Котики</option>
-                                                <option value="cook">Кулинария</option>
+                                            <select
+                                                className='Profile_create_post_top_select'
+                                                name="categoryId"
+                                                value={postData.categoryId}
+                                                onChange={handlePostInputChange}
+                                                required>
+                                                <option value="" disabled>Выберите категорию</option>
+                                                {categories.map(category => (
+                                                    <option key={category.id} value={category.id}>
+                                                        {category.name}
+                                                    </option>
+                                                ))}
                                             </select>
                                         </div>
                                         <textarea
                                             className="Profile_create_post_inp"
                                             placeholder='Текст'
+                                            name="content"
+                                            value={postData.content}
+                                            onChange={handlePostInputChange}
+                                            rows="6"
                                         />
                                         <div className="Profile_create_post_photo">
                                             <p className="Profile_create_post_photo_p">Прикрепить фотографию (не обязательно)</p>
@@ -388,13 +474,27 @@ export default function Profile() {
                                                 <input
                                                     type="file"
                                                     className='Profile_create_post_photo_inp'
+                                                    onChange={handlePostFileChange}
+                                                    accept="image/*"
                                                 />
-                                                <span className="Profile_create_post_photo_text">Выберите файл</span>
+                                                <span className="Profile_create_post_photo_text">
+                                                    {postData.image ? postData.image.name : 'Выберите файл'}
+                                                </span>
                                             </label>
                                         </div>
                                         <div className="Profile_create_post_buttons">
-                                            <button className="Profile_create_post_btn" onClick={CloseCreate}>Отменить</button>
-                                            <button className="Profile_create_post_btn">Опубликовать</button>
+                                            <button
+                                                className="Profile_create_post_btn"
+                                                onClick={CloseCreate}
+                                                disabled={createPostLoading}
+                                            >
+                                                Отменить</button>
+                                            <button className="Profile_create_post_btn"
+                                                onClick={handleSubmitPost}
+                                                disabled={createPostLoading}
+                                            >
+                                                {createPostLoading ? 'Публикация...' : 'Опубликовать'}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -402,7 +502,58 @@ export default function Profile() {
                         )}
                     </div>
 
+
+
+
                     <div className="Posts_posts">
+                        {userPosts && userPosts.length > 0 ? (
+                            userPosts.map(post => (
+                                <div key={post.id} className="Posts_posts_post">
+                                    {/* <div className="post_slider">
+                                        {post.image && (
+                                            <>
+                                                <div className="post_slider_button_edit">
+                                                    <button className="post_slider_btn_edit">
+                                                        <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
+                                                    </button>
+                                                </div>
+
+                                                <div className="post_image">
+                                                    <img
+                                                        src={`http://localhost:5000${post.image}`}
+                                                        alt={post.title}
+                                                        className="post_image_img"
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+                                    </div> */}
+
+                                    <div className="post_contant">
+                                        <h3 className="post_title">{post.title}</h3>
+                                        <p className="post_text">{post.text}</p>
+                                        <div className="post_info">
+                                            <p className="post_author">{user.login}</p>
+                                            <p className="post_date">
+                                                {post.created_at ? new Date(post.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}
+                                            </p>
+                                            {post.category && (
+                                                <p className="post_category">Категория: {post.category.name}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="no-posts">
+                                <p>У вас пока нет постов. Создайте первый пост, нажав кнопку "Создать новый пост"</p>
+                            </div>
+                        )}
+                    </div>
+
+
+
+                    {/* <div className="Posts_posts">
                         <div className="Posts_posts_post">
                             <div className="post_slider">
                                 <div className="post_slider_button_edit">
@@ -461,7 +612,10 @@ export default function Profile() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
+
+
+
                 </div>
             </div>
         </>
