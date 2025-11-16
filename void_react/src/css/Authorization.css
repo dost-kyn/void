@@ -34,7 +34,7 @@
 }
 
 .p_select{
-    margin: 8px 0 15px 0 ;
+    margin: 28px 0 10px 0 ;
     font-size: 19px;
 }
 .categories{
@@ -48,7 +48,7 @@
     font-size: 15px;
 }
 .p_select2{
-    margin: 25px 0 15px 0 ;
+    margin: 28px 0 10px 0 ;
     font-size: 19px;
 }
 
@@ -310,30 +310,84 @@
 }
 
 
+
+
+
+
+
+.Reg_category_btn{
+    background-color: var(--accent);
+    color: var(--text-color);
+    max-width: 210px;
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    font-family: "Advent Pro";
+}
+.Reg_category_modal{
+    background-color: var(--element);
+    padding: 10px 20px 20px 20px;
+    color: var(--text-color);
+    position: absolute;
+    z-index: 100;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0 0 10px 2px #41378D;
+}
+.Reg_category_modal_close_h3{
+    font-size: 20px;
+    margin: 5px 0;
+}
+.Reg_category_modal_punkt_p{
+    font-size: 16px;
+}
+.Reg_category_modal_punkt_inp{
+    width:15px;
+    height: 15px;
+    border: 2px solid #41378D;
+    border-radius: 4px;
+    background-color: var(--element);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+
 /* адаптив */
 @media (max-width: 420px){
+    .form {
+padding: 0 5px;
+}
+.Reg_category_modal_punkt_p {
+    font-size: 16px;
+    margin: 10px 0;
+}
+.p_select, .p_select2 {
+    margin: 28px 0 10px 0;
+    font-size: 16px;
+}
+    .checkbox_p {
+        font-size: 18px;
+    }
     .firstName, .surname, .login, .email, .password, .repeatPassword{
     padding: 8px 15px;
     font-size: 18px;
 }
-.p_select2 {
-    margin: 10px 0 15px 0;
-    font-size: 22px;
-}
+
 .categories, .file_input_label{
     padding: 8px 15px;
     font-size: 18px;
 }
-.p_select2 {
-    margin: 26px 0 15px 0;
-    font-size: 22px;
+
+.Reg_category_btn, .file_input_label {
+    font-size: 14px;
 }
-.checkbox_p {
-    font-size: 21px;
-}
+
 .btn {
     padding: 10px 20px;
-    font-size: 24px;
+    font-size: 18px;
 }
 .already {
     font-size: 20px;

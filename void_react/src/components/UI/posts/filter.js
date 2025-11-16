@@ -35,6 +35,23 @@ export const useFilter = () => {
     const clearFilter = () => {
         setSelectedCategories([]);
     }
+        // ✅ Обработчик с ограничением на 3 категории
+    const RegCategorySelect = (categoryId) => {
+        setSelectedCategories(prev => {
+            if (prev.includes(categoryId)) {
+                // Убираем категорию если уже выбрана
+                return prev.filter(id => id !== categoryId);
+            } else {
+                // Проверяем что не больше 3 категорий
+                if (prev.length >= 3) {
+                    alert('Можно выбрать максимум 3 категории');
+                    return prev;
+                }
+                // Добавляем категорию
+                return [...prev, categoryId];
+            }
+        });
+    }
 
     // Применить фильтр
     const applyFilter = () => {
@@ -43,6 +60,8 @@ export const useFilter = () => {
         CloseFilter();
         return selectedCategories; // Возвращаем выбранные категории
     }
+
+    
 
     return {
         sostFilter, 

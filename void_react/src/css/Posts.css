@@ -55,7 +55,8 @@
     justify-content: space-between;
     margin-bottom: 8px;
 }
-.filter_modal_close_h3{
+
+.filter_modal_close_h3 {
     margin: 5px 0 0 0;
 }
 
@@ -65,7 +66,7 @@
     font-size: 20px;
 }
 
-.apply_filter_btn{
+.apply_filter_btn {
     width: 100%;
     display: flex;
     color: var(--text-color);
@@ -85,10 +86,12 @@
     margin: auto 0;
     padding: 10px 20px;
     background-color: var(--accent);
-    width: 100%; /* ← меняем на 100% */
+    width: 100%;
+    /* ← меняем на 100% */
     font-size: 18px;
     color: var(--text-color);
-    box-sizing: border-box; /* ← добавляем это! */
+    box-sizing: border-box;
+    /* ← добавляем это! */
 }
 
 .Posts_tools_find_inp::placeholder {
@@ -323,9 +326,12 @@
 
 
 .post_text.expanded {
-    max-height: 400px; /* та же высота */
-    overflow-y: auto; /* прокрутка */
-    -webkit-mask-image: none; /* убираем градиент если есть */
+    max-height: 400px;
+    /* та же высота */
+    overflow-y: auto;
+    /* прокрутка */
+    -webkit-mask-image: none;
+    /* убираем градиент если есть */
     mask-image: none;
 }
 
@@ -335,7 +341,8 @@
     line-height: 1.4;
     max-height: 400px;
     overflow: hidden;
-    transition: all 0.3s ease; /* плавность */
+    transition: all 0.3s ease;
+    /* плавность */
 }
 
 
@@ -386,13 +393,15 @@
     .read_more_btn {
         font-size: 16px;
     }
-    .post_title{
-            font-size: 22px;
-    }
-    .post_text {
-    font-size: 18px;
 
-}
+    .post_title {
+        font-size: 22px;
+    }
+
+    .post_text {
+        font-size: 18px;
+
+    }
 }
 
 @media (max-width: 900px) {
@@ -418,18 +427,21 @@
         justify-content: center;
     }
 
+    .filter_modal_close_container {
+        margin-bottom: 0px;
+    }
+
     .filter_modal {
-        margin-left: 0;
-        left: 30%;
-        transform: translateX(-50%);
+        margin: 12px 0 0 40px;
         padding: 10px 20px 20px 20px;
         max-width: 300px;
     }
 
-    .filter_modal_punkts {
-        grid-template-columns: 1fr;
-        gap: 10px;
+    .filter_modal_punkt_p {
+        font-size: 18px;
+        margin: 8px 8px 8px 0;
     }
+
 
     .Posts_tools_filter_title {
         margin: 0;
@@ -449,7 +461,7 @@
     }
 
     .Posts_posts_post {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
     }
 
     .post_image {
@@ -503,7 +515,28 @@
         gap: 8px;
 
     }
-
+    .filter_modal {
+        margin: 12px 0 0 30px;
+        padding: 10px 20px 20px 20px;
+        max-width: 300px;
+    }
+    .apply_filter_btn {
+    margin: 15px 0 0 0;
+    font-size: 14px;
+}
+.filter_modal_punkt input{
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+}
+.filter_modal_punkt input:checked::before{
+font-size: 10px;
+}
+.filter_modal_close {
+    margin-bottom: 10px;
+    color: var(--text-color);
+    font-size: 18px;
+}
     .post_slider_buttons {
         display: none;
     }

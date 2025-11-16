@@ -5,7 +5,24 @@ import { Link } from 'react-router-dom';
 import { validateRegistration } from '../components/UI/auth/registr';
 import { registerUser } from '../api/users.api.js';
 
+import { useFilter } from '../components/UI/posts/filter'
+
 export default function Registration() {
+    // категории 
+        const {
+            sostFilter,
+            OpenFilter,
+            CloseFilter,
+            categories,
+            categoriesLoading,
+            categoriesError,
+            selectedCategories,
+            handleCategorySelect,
+            clearFilter,
+            applyFilter
+        } = useFilter()
+
+
     const [preview, setPreview] = useState(null);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -20,6 +37,7 @@ export default function Registration() {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -60,7 +78,7 @@ export default function Registration() {
         }
     };
 
-    const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
@@ -70,30 +88,32 @@ export default function Registration() {
             if (Object.keys(validationErrors).length === 0) {
                 console.log('Регистрация успешна! Данные:', formData);
 
-                if (Object.keys(validationErrors).length === 0) {
-                    // FORMDATA ДЛЯ ОТПРАВКИ ФАЙЛА
-                    const formDataToSend = new FormData();
-                    formDataToSend.append('name', formData.firstName);
-                    formDataToSend.append('last_name', formData.surname);
-                    formDataToSend.append('login', formData.login);
-                    formDataToSend.append('email', formData.email);
-                    formDataToSend.append('password', formData.password);
-                    formDataToSend.append('repeatPassword', formData.repeatPassword);
+                // FORMDATA ДЛЯ ОТПРАВКИ ФАЙЛА
+                const formDataToSend = new FormData();
+                formDataToSend.append('name', formData.firstName);
+                formDataToSend.append('last_name', formData.surname);
+                formDataToSend.append('login', formData.login);
+                formDataToSend.append('email', formData.email);
+                formDataToSend.append('password', formData.password);
+                formDataToSend.append('repeatPassword', formData.repeatPassword);
 
-                    if (formData.avatar) {
-                        formDataToSend.append('avatar', formData.avatar);
-                    }
+                // ✅ Добавляем выбранные категории
+                selectedCategories.forEach(categoryId => {
+                    formDataToSend.append('categories[]', categoryId);
+                });
 
-                    const result = await registerUser(formDataToSend);
-
-                    if (result.token) {
-                        localStorage.setItem('token', result.token);
-                        window.location.href = '/';
-                    } else {
-                        setErrors({ general: result.message || 'Ошибка регистрации' });
-                    }
+                if (formData.avatar) {
+                    formDataToSend.append('avatar', formData.avatar);
                 }
 
+                const result = await registerUser(formDataToSend);
+
+                if (result.token) {
+                    localStorage.setItem('token', result.token);
+                    window.location.href = '/';
+                } else {
+                    setErrors({ general: result.message || 'Ошибка регистрации' });
+                }
             }
             else {
                 setErrors(validationErrors);
@@ -105,6 +125,15 @@ export default function Registration() {
             setIsLoading(false);
         }
     };
+
+    // ✅ Получаем названия выбранных категорий
+    const getSelectedCategoryNames = () => {
+        return selectedCategories.map(catId => {
+            const category = categories.find(cat => cat.id === catId);
+            return category ? category.name : '';
+        }).filter(name => name !== '');
+    };
+
 
     return (
         <>
@@ -187,17 +216,56 @@ export default function Registration() {
 
                         {/* Категории */}
                         <p className='p_select'>Выбор интересующих категорий (не обязательно)</p>
-                        <select
-                            className='categories'
-                            name="category"
-                            value={formData.category}
-                            onChange={handleChange}
-                        >
-                            {/* <option value="">Выберите категорию</option> */}
-                            <option value="sport">Спорт</option>
-                            <option value="music">Музыка</option>
-                            <option value="art">Рисование</option>
-                        </select>
+
+                        <div className="Posts_tools_filter">
+                            <button 
+                                type="button" 
+                                className="Reg_category_btn" 
+                                onClick={OpenFilter}
+                                disabled={selectedCategories.length >= 3} 
+                            >
+                                {selectedCategories.length === 0 
+                                    ? 'Выберите категории' 
+                                    : `Выбрано ${selectedCategories.length}/3 категорий`
+                                }
+                            </button>
+
+                            {/* Фильтр */}
+                            {sostFilter && (
+                                <div className="Reg_category_modal">
+                                    <div className="filter_modal_close_container">
+                                        <h3 className="Reg_category_modal_close_h3">
+                                            Категории ({selectedCategories.length}/3)
+                                        </h3>
+                                        <button className='filter_modal_close' onClick={CloseFilter}>✘</button>
+                                    </div>
+
+                                    <div className="filter_modal_punkts">
+                                        {categoriesLoading ? (
+                                            <div className="loading">Загрузка категорий...</div>
+                                        ) : categoriesError ? (
+                                            <div className="error">{categoriesError}</div>
+                                        ) : (
+                                            categories.map(category => (
+                                                <div key={category.id} className="filter_modal_punkt">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="filter_modal_punkt_inp"
+                                                        checked={selectedCategories.includes(category.id)}
+                                                        onChange={() => handleCategorySelect(category.id)}
+                                                        disabled={selectedCategories.length >= 3 && !selectedCategories.includes(category.id)} // ✅ Блокируем новые выборы при лимите
+                                                    />
+                                                    <p className="Reg_category_modal_punkt_p">{category.name}</p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+
+
 
                         {/* Аватар */}
                         <p className='p_select2'>Фото профиля (не обязательно)</p>
