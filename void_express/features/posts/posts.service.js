@@ -1,10 +1,5 @@
 const bd = require('../../utils/configuration.prisma')
 
-// exports.getAllPosts = async () => {
-//     const posts = await bd.posts.findMany()
-//     return posts
-// }
-
 //===============  вызвать все посты
 // exports.getAllPosts = async () => {
 //     const posts = await bd.post.findMany({
@@ -33,12 +28,12 @@ exports.getUserPosts = async (userId) => {
             user_id: parseInt(userId)
         },
         include: {
-            category_id: {
+            post_category_ship: {
                 select: {
                     name: true
                 }
             },
-            author: {
+            user_post_ship: {
                 select: {
                     login: true,
                     name: true,
@@ -60,7 +55,7 @@ exports.getPostById = async (id) => {
         const post = await bd.post.findUnique({
             where: { id: postId },
             include: {
-                author: {
+                user_post_ship: {
                     select: {
                         login: true,
                         name: true,
@@ -68,7 +63,7 @@ exports.getPostById = async (id) => {
                         avatar: true
                     }
                 },
-                category: {
+                post_category_ship: {
                     select: {
                         name: true
                     }
@@ -123,19 +118,76 @@ exports.addPostImage = async (postId, imageUrl, imageOrder = 0) => {
     return postImage
 }
 
-//===============  изменение поста
-// exports.updatePost = async (id, postData) => {
-//     const post = await bd.post.update({
-//         where: { id: parseInt(id) },
-//         data: {
-//             title: postData.title,
-//             content: postData.content,
-//             categoryId: parseInt(postData.categoryId),
-//             image: postData.image || null
-//         }
-//     })
-//     return post
-// }
+
+
+//===============  найти пост по ID
+exports.findPostById = async (id) => {
+    if (id) {
+        const postId = parseInt(id)
+        const post = await bd.post.findUnique({
+            where: { id: postId },
+            include: {
+                post_category_ship: {
+                    select: {
+                        name: true,
+                        id: true
+                    }
+                },
+                images: {
+                    select: {
+                        id: true,
+                        image_url: true,
+                        image_order: true
+                    },
+                    orderBy: {
+                        image_order: 'asc'
+                    }
+                }
+            }
+        })
+        return post
+    }
+    return null
+}
+
+//===============  обновление поста
+exports.updatePost = async (id, postData) => {
+    const post = await bd.post.update({
+        where: { id: parseInt(id) },
+        data: {
+            title: postData.title,
+            text: postData.content,
+            category_id: parseInt(postData.categoryId)
+        }
+    })
+    return post
+}
+
+//===============  добавление фото к посту
+exports.addPostImage = async (postId, imageUrl, imageOrder = 0) => {
+    const postImage = await bd.post_image.create({
+        data: {
+            image_url: imageUrl,
+            image_order: imageOrder,
+            post_id: parseInt(postId)
+        }
+    })
+    return postImage
+}
+
+//===============  удаление фото поста
+exports.deletePostImage = async (imageId) => {
+    if (imageId) {
+        const image = await bd.post_image.delete({
+            where: { id: parseInt(imageId) }
+        })
+        return image
+    }
+    return null
+}
+
+
+
 
 //===============  удаление поста
 // exports.findPostId = async (id) => {

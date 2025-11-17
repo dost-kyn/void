@@ -14,6 +14,7 @@ import { findUser, delProfile, updateUser, updateUserWithPhoto } from '../api/us
 import { getUserPosts } from '../api/posts.api'
 import { getAllCategories } from '../api/categories.api'
 import { useCreatePost } from '../hooks/useCreatePost'
+import { useEditPost } from '../hooks/useEditPost';
 
 export default function Profile() {
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
@@ -35,6 +36,17 @@ export default function Profile() {
         handleFileChange: handlePostFileChange,
         handleCreatePost
     } = useCreatePost(false)
+
+    const {
+        isOpen: editPostOpen,
+        loading: editPostLoading,
+        error: editPostError,
+        postData: editPostData,
+        OpenEdit: openEditPost,
+        CloseEdit: closeEditPost,
+        handleInputChange: handleEditPostInputChange,
+        handleUpdatePost
+    } = useEditPost(false);
 
 
     const [categories, setCategories] = useState([])
@@ -190,7 +202,15 @@ export default function Profile() {
         }
     }
 
-
+    // Функция для обновления поста
+    const handleSubmitEditPost = async () => {
+        const success = await handleUpdatePost();
+        if (success) {
+            // Обновляем список постов
+            const userId = getUserIdFromToken();
+            fetchUserPosts(userId);
+        }
+    };
 
 
 
@@ -211,8 +231,8 @@ export default function Profile() {
         }
     }, [sostEditProfile])
 
-    console.log('User data:', user)
-    console.log('User avatar:', user?.avatar)
+    // console.log('User data:', user)
+    // console.log('User avatar:', user?.avatar)
 
     // Массив изображений для поста
     const postImages = [
@@ -429,7 +449,7 @@ export default function Profile() {
                         <h2 className="Profile_tools_title">Мои посты</h2>
                         <button className="Profile_tools_btn" onClick={openCreatePost}>Создать новый пост</button>
 
-                        {createPostOpen  && (
+                        {createPostOpen && (
                             <>
                                 <div className="modal_overlay" onClick={closeCreatePost}>
                                     <div className="Profile_create_post" onClick={(e) => e.stopPropagation()}>
@@ -509,37 +529,49 @@ export default function Profile() {
                         {userPosts && userPosts.length > 0 ? (
                             userPosts.map(post => (
                                 <div key={post.id} className="Posts_posts_post">
-                                    {/* <div className="post_slider">
-                                        {post.image && (
-                                            <>
-                                                <div className="post_slider_button_edit">
-                                                    <button className="post_slider_btn_edit">
+                                    
+                                    <div className="post_slider">
+                                        <div className="post_slider_button_edit">
+                                                    <button
+                                                        className="post_slider_btn_edit"
+                                                        onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
+                                                    >
                                                         <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
                                                     </button>
                                                 </div>
+                                        {post.images && post.images.length > 0 (
+                                            <>
+                                                {/* <div className="post_slider_button_edit">
+                                                    <button
+                                                        className="post_slider_btn_edit"
+                                                        onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
+                                                    >
+                                                        <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
+                                                    </button>
+                                                </div> */}
 
                                                 <div className="post_image">
                                                     <img
-                                                        src={`http://localhost:5000${post.image}`}
+                                                        src={`http://localhost:5000${post.images[0].image_url}`}
                                                         alt={post.title}
                                                         className="post_image_img"
                                                     />
                                                 </div>
                                             </>
                                         )}
-                                    </div> */}
+                                    </div>
 
                                     <div className="post_contant">
                                         <h3 className="post_title">{post.title}</h3>
                                         <p className="post_text">{post.text}</p>
                                         <div className="post_info">
-                                            <p className="post_author">{user.login}</p>
+                                            <p className="post_author">{post.user_post_ship?.login || user?.login}</p>
                                             <p className="post_date">
                                                 {post.created_at ? new Date(post.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}
                                             </p>
-                                            {post.category && (
-                                                <p className="post_category">Категория: {post.category.name}</p>
-                                            )}
+                                            {/* {post.category_id && (
+                                                <p className="post_category">Категория: {post.post_category_ship.name}</p>
+                                            )} */}
                                         </div>
                                     </div>
                                 </div>
@@ -614,7 +646,80 @@ export default function Profile() {
                         </div>
                     </div> */}
 
+                    {/* Модалка редактирования поста */}
+                    {editPostOpen && (
+                        <div className="modal_overlay" onClick={closeEditPost}>
+                            <div className="Profile_create_post" onClick={(e) => e.stopPropagation()}>
+                                <h1 className="Profile_create_post_title">Редактировать пост</h1>
 
+                                {editPostError && (
+                                    <div className="error-message">{editPostError}</div>
+                                )}
+
+                                <div className="Profile_create_post_top_inp">
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        placeholder='Название поста'
+                                        className='Profile_create_post_top_inp_name'
+                                        value={editPostData.title}
+                                        onChange={handleEditPostInputChange}
+                                    />
+                                    <select
+                                        className='Profile_create_post_top_select'
+                                        name="categoryId"
+                                        value={editPostData.categoryId}
+                                        onChange={handleEditPostInputChange}
+                                        required>
+                                        <option value="">Выберите категорию</option>
+                                        {categories.map(category => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <textarea
+                                    className="Profile_create_post_inp"
+                                    placeholder='Текст'
+                                    name="content"
+                                    value={editPostData.content}
+                                    onChange={handleEditPostInputChange}
+                                    rows="6"
+                                />
+                                <div className="Profile_create_post_photo">
+                                    <p className="Profile_create_post_photo_p">Прикрепить фотографию (не обязательно)</p>
+                                    <label className="Profile_create_post_photo_label">
+                                        <input
+                                            type="file"
+                                            className='Profile_create_post_photo_inp'
+                                            onChange={handlePostFileChange}
+                                            accept="image/*"
+                                        />
+                                        <span className="Profile_create_post_photo_text">
+                                            {postData.image ? postData.image.name : 'Выберите файл'}
+                                        </span>
+                                    </label>
+                                </div>
+                                <div className="Profile_create_post_buttons">
+                                    <button
+                                        className="Profile_create_post_btn"
+                                        onClick={closeEditPost}
+                                        disabled={editPostLoading}
+                                    >
+                                        Отменить
+                                    </button>
+                                    <button
+                                        className="Profile_create_post_btn"
+                                        onClick={handleSubmitEditPost}
+                                        disabled={editPostLoading}
+                                    >
+                                        {editPostLoading ? 'Сохранение...' : 'Сохранить'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </div>

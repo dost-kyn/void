@@ -8,7 +8,8 @@ export const useCreatePost = (initialState = false) => {
     const [postData, setPostData] = useState({
         title: '',
         content: '',
-        categoryId: ''
+        categoryId: '',
+        images: []
     });
 
     const OpenCreate = () => {
@@ -36,10 +37,10 @@ export const useCreatePost = (initialState = false) => {
     };
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
+        const files = Array.from(e.target.files);
         setPostData(prev => ({
             ...prev,
-            image: file
+            images: files
         }));
     };
 
@@ -57,10 +58,14 @@ export const useCreatePost = (initialState = false) => {
                 ...postData,
                 authorId: authorId
             });
-            
+
+            postData.images.forEach((image, index) => {
+                formData.append('images', image);
+            });
+
             CloseCreate();
             return newPost;
-            
+
         } catch (err) {
             setError('Ошибка при создании поста');
             console.error('Error creating post:', err);

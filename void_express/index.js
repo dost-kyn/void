@@ -4,10 +4,31 @@ const dotenv = require("dotenv");
 
 dotenv.config({ path: ".env" });
 const path = require("path");
+const multer = require('multer');
 const cors = require('cors')
 app.use(cors())
 
+// Настройка multer для загрузки фото
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/posts/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'post-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
 
+const upload = multer({ 
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Можно загружать только изображения!'), false);
+        }
+    }
+});
 
 
 const errorHandler = require("./middlewear/errorHandler");
@@ -18,28 +39,12 @@ const CategoriesRouters = require('./features/categories/categories.routers')
 app.use(express.json());
 
 
-app.get('/api/categories/test-simple', (req, res) => {
-    console.log('✅ Test route called!');
-    res.json({ 
-        message: 'Simple test works!', 
-        timestamp: new Date(),
-        data: [
-            { id: 1, name: 'Тестовая категория 1' },
-            { id: 2, name: 'Тестовая категория 2' }
-        ]
-    });
-});
-console.log('✅ CategoriesRouters loaded:', !!CategoriesRouters);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/posts', PostRouters);
 app.use('/api/users', userRoutes)
 app.use('/api/categories', CategoriesRouters)
-
-// app.use('/posts', PostRouters);
-// app.use('/users', userRoutes)
-// app.use('/api/categories', CategoriesRouters)
 
 app.use(errorHandler)
 
