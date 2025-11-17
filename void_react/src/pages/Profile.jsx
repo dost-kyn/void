@@ -2,6 +2,7 @@ import React from 'react'
 import Naw from '../components/Naw'
 import '../css/Profile.css'
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom';
 
 import { useSlider } from '../components/UI/posts/slider'
 import { useCreate } from '../components/UI/profile/create'

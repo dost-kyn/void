@@ -78,47 +78,49 @@ export default function Friends() {
                     )}
 
                     <div className="list_friends">
-                        {/* Входящие заявки */}
-                        {filteredRequests.length > 0 && (
-                            <div className="friend_requests">
-                                <h2 className='friend_request_title'>Заявки в друзья ({filteredRequests.length})</h2>
-                                <div className="list_requests">
-                                    {filteredRequests.map(request => (
-                                        <div key={request.friendship_id} className="request">
-                                            <div className="request_one">
-                                                <div className="request_avatar">
-                                                    <img
-                                                        className="request_avatar_img"
-                                                        src={getAvatarUrl(friend.avatar)}
-                                                        alt={`${request.name} ${request.last_name}`}
-                                                    />
-                                                </div>
-                                                <Link to={`/user/${friend.id}`} className='friend_link'>
-                                                    <div className="request_data">
-                                                        <p className="request_name">{request.name} {request.last_name}</p>
-                                                        <p className='request_online_lately'>@{request.login}</p>
-                                                    </div>
-                                                </Link>
-                                            </div>
-                                            <div className="request_buttons">
-                                                <button
-                                                    className='request_but true'
-                                                    onClick={() => acceptFriendRequest(request.friendship_id)}
-                                                >
-                                                    ✓
-                                                </button>
-                                                <button
-                                                    className='request_but false'
-                                                    onClick={() => rejectFriendRequest(request.friendship_id)}
-                                                >
-                                                    ✘
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+
+
+{/* Входящие заявки */}
+{filteredRequests.length > 0 && (
+    <div className="friend_requests">
+        <h2 className='friend_request_title'>Заявки в друзья ({filteredRequests.length})</h2>
+        <div className="list_requests">
+            {filteredRequests.map(request => (
+                <div key={request.friendship_id} className="request">
+                    <div className="request_one">
+                        <div className="request_avatar">
+                            <img
+                                className="request_avatar_img"
+                                src={getAvatarUrl(request.avatar)}
+                                alt={`${request.name} ${request.last_name}`}
+                            />
+                        </div>
+                        <Link to={`/user/${request.id}`} className='friend_link'>
+                            <div className="request_data">
+                                <p className="request_name">{request.name} {request.last_name}</p>
+                                <p className='request_online_lately'>@{request.login}</p>
                             </div>
-                        )}
+                        </Link>
+                    </div>
+                    <div className="request_buttons">
+                        <button
+                            className='request_but true'
+                            onClick={() => acceptFriendRequest(request.friendship_id)}
+                        >
+                            ✓
+                        </button>
+                        <button
+                            className='request_but false'
+                            onClick={() => rejectFriendRequest(request.friendship_id)}
+                        >
+                            ✘
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+)}
 
                         {/* Отправленные заявки */}
                         {filteredSentRequests.length > 0 && (
@@ -135,7 +137,7 @@ export default function Friends() {
                                                         alt={`${request.name} ${request.last_name}`}
                                                     />
                                                 </div>
-                                               <Link to={`/user/${friends.id}`} className='friend_link'>
+                                               <Link to={`/user/${request.id}`} className='friend_link'>
                                                     <div className="request_data">
                                                         <p className="request_name">{request.name} {request.last_name}</p>
                                                         <p className='request_online_lately'>@{request.login}</p>
