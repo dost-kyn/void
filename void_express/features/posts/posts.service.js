@@ -1,30 +1,34 @@
 const bd = require('../../utils/configuration.prisma')
 
 //===============  вызвать все посты
-// exports.getAllPosts = async () => {
-//     const posts = await bd.post.findMany({
-//         include: {
-//             author: {
-//                 select: {
-//                     login: true,
-//                     name: true,
-//                     last_name: true
-//                 }
-//             },
-//             category: {
-//                 select: {
-//                     name: true
-//                 }
-//             }
-//         }
-//     })
-//     return posts
-// }
+exports.getAllPosts = async () => {
+    const posts = await bd.post.findMany({
+        include: {
+            user_post_ship: {
+                select: {
+                    id: true,
+                    login: true,
+                    name: true,
+                    last_name: true
+                }
+            },
+            post_category_ship: {
+                select: {
+                    name: true
+                }
+            },
+            images: {  // ← ДОБАВЬ ЭТО!
+                orderBy: { image_order: 'asc' }
+            }
+        }
+    })
+    return posts
+}
 
 //===============  вызвать посты пользователя
 exports.getUserPosts = async (userId) => {
     const posts = await bd.post.findMany({
-        where: { 
+        where: {
             user_id: parseInt(userId)
         },
         include: {
@@ -39,6 +43,9 @@ exports.getUserPosts = async (userId) => {
                     name: true,
                     last_name: true
                 }
+            },
+            images: {  // ← ДОБАВЬ ЭТО!
+                orderBy: { image_order: 'asc' }
             }
         },
         orderBy: {
@@ -50,29 +57,37 @@ exports.getUserPosts = async (userId) => {
 
 //===============  вызвать пост по ID
 exports.getPostById = async (id) => {
-    if (id) {
-        const postId = parseInt(id)
-        const post = await bd.post.findUnique({
-            where: { id: postId },
-            include: {
-                user_post_ship: {
-                    select: {
-                        login: true,
-                        name: true,
-                        last_name: true,
-                        avatar: true
-                    }
-                },
-                post_category_ship: {
-                    select: {
-                        name: true
+    try {
+        console.log('🔍 Сервис: ищем пост ID:', postId);
+        if (id) {
+            const postId = parseInt(id)
+            const post = await bd.post.findUnique({
+                where: { id: postId },
+                include: {
+                    user_post_ship: {
+                        select: {
+                            login: true,
+                            name: true,
+                            last_name: true,
+                            avatar: true
+                        }
+                    },
+                    post_category_ship: {
+                        select: {
+                            name: true
+                        }
                     }
                 }
-            }
-        })
-        return post
+            })
+            console.log('✅ Сервис: пост найден:', post ? post.title : 'null');
+            console.log('🖼️ Сервис: изображения:', post ? post.images : 'null');
+            return post
+        }
+        return null
+    } catch (error) {
+        console.error('❌ Сервис: ошибка поиска поста:', error);
+        throw error;
     }
-    return null
 }
 
 //===============  валидация создания поста
@@ -106,18 +121,26 @@ exports.createPost = async (postData) => {
 }
 
 
-//===============  добавление фото к посту
-exports.addPostImage = async (postId, imageUrl, imageOrder = 0) => {
-    const postImage = await bd.post_image.create({
-        data: {
-            image_url: imageUrl,
-            image_order: imageOrder,
-            post_id: parseInt(postId)
-        }
-    })
-    return postImage
-}
+//===============  добавить фото к посту
+exports.addPostImage = async (postId, imageUrl, order) => {
+    console.log(`🖼️ Сервис: добавляем фото к посту ${postId}`);
+    console.log(`🖼️ URL: ${imageUrl}, порядок: ${order}`);
 
+    try {
+        const image = await bd.post_image.create({
+            data: {
+                post_id: parseInt(postId),
+                image_url: imageUrl,
+                image_order: parseInt(order)
+            }
+        });
+        console.log('✅ Фото добавлено в БД:', image);
+        return image;
+    } catch (error) {
+        console.error('❌ Ошибка добавления фото в БД:', error);
+        throw error;
+    }
+}
 
 
 //===============  найти пост по ID
@@ -139,9 +162,7 @@ exports.findPostById = async (id) => {
                         image_url: true,
                         image_order: true
                     },
-                    orderBy: {
-                        image_order: 'asc'
-                    }
+                    orderBy: { image_order: 'asc' }
                 }
             }
         })
@@ -186,7 +207,21 @@ exports.deletePostImage = async (imageId) => {
     return null
 }
 
-
+//===============  получить фото поста
+exports.getPostImages = async (postId) => {
+    console.log(`🔍 Сервис: получаем фото поста ${postId}`);
+    try {
+        const images = await bd.post_image.findMany({
+            where: { post_id: parseInt(postId) },
+            orderBy: { image_order: 'asc' }
+        });
+        console.log(`✅ Найдено фото:`, images);
+        return images;
+    } catch (error) {
+        console.error('❌ Ошибка получения фото:', error);
+        throw error;
+    }
+}
 
 
 //===============  удаление поста

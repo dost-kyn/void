@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { updatePost, getPostById } from '../api/posts.api';
+const API_URL = 'http://localhost:5000/api';
 
 export const useEditPost = (initialState = false) => {
     const [isOpen, setIsOpen] = useState(initialState);
@@ -10,22 +11,26 @@ export const useEditPost = (initialState = false) => {
         title: '',
         content: '',
         categoryId: '',
-        images: []
+        images: [], // новые фото
+        imagePreviews: [], // превью новых фото
+        existingImages: [] // уже существующие фото из БД
     });
 
     const OpenEdit = async (postId) => {
         try {
             setLoading(true);
             const post = await getPostById(postId);
-            
+
             setPostData({
                 id: post.id,
                 title: post.title,
                 content: post.text,
                 categoryId: post.category_id,
-                images: post.images || []
+                images: [],
+                imagePreviews: [],
+                existingImages: post.images || []
             });
-            
+
             setIsOpen(true);
             setError(null);
         } catch (err) {
@@ -34,6 +39,45 @@ export const useEditPost = (initialState = false) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        console.log('📁 Выбраны файлы в редактировании:', files);
+        console.log('📁 Тип files:', typeof files);
+        console.log('📁 files[0]:', files[0]);
+        console.log('📁 files.length:', files.length);
+
+        // Создаем превью для отображения
+        const previews = files.map(file => {
+            console.log('🖼️ Создаем превью для:', file.name);
+            return URL.createObjectURL(file);
+        });
+
+        setPostData(prev => {
+            const newState = {
+                ...prev,
+                images: [...prev.images, ...files],
+                imagePreviews: [...prev.imagePreviews, ...previews]
+            };
+            console.log('🔄 Новое состояние после выбора файлов:', newState);
+            return newState;
+        });
+    };
+
+    const removeNewImage = (index) => {
+        setPostData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index),
+            imagePreviews: prev.imagePreviews.filter((_, i) => i !== index)
+        }));
+    };
+
+    const removeExistingImage = (imageId) => {
+        setPostData(prev => ({
+            ...prev,
+            existingImages: prev.existingImages.filter(img => img.id !== imageId)
+        }));
     };
 
     const CloseEdit = () => {
@@ -66,18 +110,56 @@ export const useEditPost = (initialState = false) => {
         setError(null);
 
         try {
-            const updatedPost = await updatePost(postData.id, {
-                title: postData.title,
-                content: postData.content,
-                categoryId: postData.categoryId
-            });
-            
+            console.log('🔄 Начинаем обновление поста...');
+            console.log('📊 Состояние postData:', postData);
+            console.log('📸 Количество новых фото:', postData.images.length);
+            console.log('🖼️ Новые фото:', postData.images);
+            console.log('🏞️ Существующие фото:', postData.existingImages);
+
+            let updatedPost;
+
+            // Если есть новые фото - используем FormData
+            if (postData.images.length > 0) {
+                console.log('📸 Отправляем пост с новыми фото');
+
+                const formData = new FormData();
+                formData.append('title', postData.title);
+                formData.append('content', postData.content);
+                formData.append('categoryId', postData.categoryId);
+
+                // Добавляем новые фото
+                postData.images.forEach((image, index) => {
+                    console.log(`➕ Добавляем фото ${index}:`, image.name, image);
+                    formData.append('images', image);
+                });
+
+                console.log('📨 FormData создан, отправляем запрос...');
+                const response = await fetch(`${API_URL}/posts/update-with-images/${postData.id}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Failed to update post');
+                updatedPost = await response.json();
+                console.log('✅ Пост с фото обновлен:', updatedPost);
+
+            } else {
+                // Без новых фото - обычный JSON
+                console.log('📝 Отправляем пост без новых фото');
+                updatedPost = await updatePost(postData.id, {
+                    title: postData.title,
+                    content: postData.content,
+                    categoryId: postData.categoryId
+                });
+                console.log('✅ Пост без фото обновлен:', updatedPost);
+            }
+
             CloseEdit();
             return updatedPost;
-            
+
         } catch (err) {
             setError('Ошибка при обновлении поста');
-            console.error('Error updating post:', err);
+            console.error('❌ Error updating post:', err);
             return false;
         } finally {
             setLoading(false);
@@ -92,6 +174,9 @@ export const useEditPost = (initialState = false) => {
         OpenEdit,
         CloseEdit,
         handleInputChange,
+        handleFileChange, 
+        removeNewImage,   
+        removeExistingImage, 
         handleUpdatePost
     };
 };

@@ -38,3 +38,13 @@ export const updatePost = async (postId, postData) => {
     if (!response.ok) throw new Error('Failed to update post');
     return await response.json();
 };
+
+export const updatePostWithImages = async (postId, formData) => {
+    const response = await fetch(`${API_URL}/posts/update-with-images/${postId}`, {
+        method: 'PUT',
+        body: formData
+    });
+    
+    if (!response.ok) throw new Error('Failed to update post');
+    return await response.json();
+};

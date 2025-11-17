@@ -1,18 +1,59 @@
 import React from 'react'
 import Naw from '../components/Naw'
-
+import { Link } from 'react-router-dom';
 import '../css/Posts.css'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useImage } from '../components/UI/posts/post_image'
 import { useFilter } from '../components/UI/posts/filter'
 import { useSlider } from '../components/UI/posts/slider'
 import { useReadMore } from '../components/UI/posts/read_more'
+import { usePosts } from '../hooks/usePosts'
 
+const API_URL = 'http://localhost:5000/api';
 
 export default function Posts() {
     const { OpenModal, CloseModal, selectedImage } = useImage(null) // фотка поста в модальном окне
     const { contentRef, isOverflowed, isExpanded, toggleExpand } = useReadMore(400)
+
+
+    // Состояния для постов
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Получение постов из БД
+    const fetchPosts = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await fetch(`${API_URL}/posts/`);
+
+            if (!response.ok) {
+                throw new Error(`Ошибка загрузки постов: ${response.status}`);
+            }
+
+            const postsData = await response.json();
+            setPosts(postsData);
+        } catch (err) {
+            console.error('Ошибка при загрузке постов:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+    }, []);
+
+    // Форматирование даты
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU');
+    };
+
 
     // фильтр 
     const {
@@ -37,6 +78,11 @@ export default function Posts() {
 
     // Передаем postImages в хук
     const { currentImageIndex, nextImage, prevImage, showSliderButtons } = useSlider(postImages);
+
+
+
+
+
 
     return (
         <>
@@ -104,6 +150,48 @@ export default function Posts() {
 
 
                     <div className="Posts_posts">
+                        {/* Состояние загрузки */}
+                        {loading && (
+                            <div className="posts_loading">
+                                <p>Загрузка постов...</p>
+                            </div>
+                        )}
+
+                        {/* Состояние ошибки */}
+                        {error && (
+                            <div className="posts_error">
+                                <p>Ошибка: {error}</p>
+                                <button onClick={fetchPosts} className="retry_btn">
+                                    Попробовать снова
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Список постов */}
+                        {!loading && !error && posts.length === 0 && (
+                            <div className="posts_empty">
+                                <p>Пока нет постов</p>
+                            </div>
+                        )}
+                        {!loading && !error && posts.map(post => {
+                            // Для каждого поста создаем свой экземпляр хуков
+                            const postImages = post.images && post.images.length > 0
+                                ? post.images.map(img => `http://localhost:5000${img.image_url}`)
+                                : ['../src/uploads/posts/default-post.jpg'];
+
+                            return (
+                                <PostComponent
+                                    key={post.id}
+                                    post={post}
+                                    postImages={postImages}
+                                    formatDate={formatDate}
+                                    onImageClick={OpenModal}
+                                />
+                            );
+                        })}
+
+
+
                         <div className="Posts_posts_post">
                             <div className="post_slider">
                                 {showSliderButtons && (
@@ -183,12 +271,7 @@ export default function Posts() {
 
 
 
-
-
-
-
-
-                        <div className="Posts_posts_post">
+                        {/* <div className="Posts_posts_post">
                             <div className="post_slider">
                                 {showSliderButtons && (
                                     <div className="post_slider_buttons">
@@ -208,10 +291,10 @@ export default function Posts() {
                                         className="post_image_img"
                                         onClick={() => OpenModal(postImages[currentImageIndex])}
                                     />
-                                </div>
+                                </div>*/}
 
-                                {/* Индикатор текущего слайда (точки) */}
-                                {showSliderButtons && (
+                        {/* Индикатор текущего слайда (точки) */}
+                        {/*  {showSliderButtons && (
                                     <div className="slider_indicators">
                                         {postImages.map((_, index) => (
                                             <span
@@ -244,9 +327,9 @@ export default function Posts() {
                             </div>
                         </div>
                         <div className="Posts_posts_post">
-                            <div className="post_slider">
-                                {/* Кнопки слайдера показываем только если нужно */}
-                                {showSliderButtons && (
+                            <div className="post_slider">*/}
+                        {/* Кнопки слайдера показываем только если нужно */}
+                        {/*  {showSliderButtons && (
                                     <div className="post_slider_buttons">
                                         <button className='post_slider_prev' onClick={prevImage}>
                                             <img src="../src/uploads/posts/strelka.svg" alt="Предыдущее" className="post_slider_btn_img post_slider_btn_img_prev" />
@@ -264,10 +347,10 @@ export default function Posts() {
                                         className="post_image_img"
                                         onClick={() => OpenModal(postImages[currentImageIndex])}
                                     />
-                                </div>
+                                </div>*/}
 
-                                {/* Индикатор текущего слайда (точки) */}
-                                {showSliderButtons && (
+                        {/* Индикатор текущего слайда (точки) */}
+                        {/* {showSliderButtons && (
                                     <div className="slider_indicators">
                                         {postImages.map((_, index) => (
                                             <span
@@ -300,9 +383,9 @@ export default function Posts() {
                             </div>
                         </div>
                         <div className="Posts_posts_post">
-                            <div className="post_slider">
-                                {/* Кнопки слайдера показываем только если нужно */}
-                                {showSliderButtons && (
+                            <div className="post_slider">*/}
+                        {/* Кнопки слайдера показываем только если нужно */}
+                        {/*  {showSliderButtons && (
                                     <div className="post_slider_buttons">
                                         <button className='post_slider_prev' onClick={prevImage}>
                                             <img src="../src/uploads/posts/strelka.svg" alt="Предыдущее" className="post_slider_btn_img post_slider_btn_img_prev" />
@@ -320,10 +403,10 @@ export default function Posts() {
                                         className="post_image_img"
                                         onClick={() => OpenModal(postImages[currentImageIndex])}
                                     />
-                                </div>
+                                </div>*/}
 
-                                {/* Индикатор текущего слайда (точки) */}
-                                {showSliderButtons && (
+                        {/* Индикатор текущего слайда (точки) */}
+                        {/*{showSliderButtons && (
                                     <div className="slider_indicators">
                                         {postImages.map((_, index) => (
                                             <span
@@ -354,21 +437,21 @@ export default function Posts() {
                                     <p className="post_date">20.11.25</p>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
 
 
-                        {/* Модальное окно */}
-                        {selectedImage && (
-                            <div className="modal_overlay" onClick={CloseModal}>
-                                <div className="modal_content" onClick={(e) => e.stopPropagation()}>
-                                    <button className="modal_close" onClick={CloseModal}>×</button>
-                                    <img src={selectedImage} alt="Увеличенное изображение" className="modal_image" />
-                                </div>
-                            </div>
-                        )}
+
                     </div>
-
+                    {/* Модальное окно */}
+                    {selectedImage && (
+                        <div className="modal_overlay" onClick={CloseModal}>
+                            <div className="modal_content" onClick={(e) => e.stopPropagation()}>
+                                <button className="modal_close" onClick={CloseModal}>×</button>
+                                <img src={selectedImage} alt="Увеличенное изображение" className="modal_image" />
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </div>
@@ -376,4 +459,78 @@ export default function Posts() {
 
         </>
     )
+}
+
+
+// Внутренний компонент для каждого поста
+function PostComponent({ post, postImages, formatDate, onImageClick }) {
+    const { OpenModal } = useImage(null)
+    const { contentRef, isOverflowed, isExpanded, toggleExpand } = useReadMore(400)
+    const { currentImageIndex, nextImage, prevImage, showSliderButtons, setCurrentImageIndex } = useSlider(postImages);
+
+    return (
+        <div className="Posts_posts_post">
+            <div className="post_slider">
+                {showSliderButtons && postImages.length > 1 && (
+                    <div className="post_slider_buttons">
+                        <button className='post_slider_prev' onClick={prevImage}>
+                            <img src="../src/uploads/posts/strelka.svg" alt="Предыдущее" className="post_slider_btn_img post_slider_btn_img_prev" />
+                        </button>
+                        <button className='post_slider_next' onClick={nextImage}>
+                            <img src="../src/uploads/posts/strelka.svg" alt="Следующее" className="post_slider_btn_img" />
+                        </button>
+                    </div>
+                )}
+
+                <div className="post_image">
+                    <img
+                        src={postImages[currentImageIndex]}
+                        alt={`Изображение поста ${post.title}`}
+                        className="post_image_img"
+                        onClick={() => onImageClick(postImages[currentImageIndex])}
+                    />
+                </div>
+
+                {/* Индикатор текущего слайда (точки) */}
+                {showSliderButtons && postImages.length > 1 && (
+                    <div className="slider_indicators">
+                        {postImages.map((_, index) => (
+                            <span
+                                key={index}
+                                className={`slider_indicator ${index === currentImageIndex ? 'active' : ''}`}
+                                onClick={() => setCurrentImageIndex(index)}
+                            ></span>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="post_contant">
+                <h3 className="post_title">{post.title}</h3>
+                <div
+                    ref={contentRef}
+                    className={`post_text ${isExpanded ? 'expanded' : ''}`}
+                >
+                    <p>{post.text}</p>
+                </div>
+                {isOverflowed && (
+                    <div className="read_more_button">
+                        <button className="read_more_btn" onClick={toggleExpand}>
+                            {isExpanded ? 'Скрыть' : 'Читать далее'}
+                        </button>
+                    </div>
+                )}
+                <div className="post_info">
+                    <Link to={`/profile/${post.user_post_ship?.id || post.user_id}`} className='Link'>
+                        <p className="post_author">
+                            {post.user_post_ship?.login || 'Неизвестный автор'}
+                        </p>
+                    </Link>
+                    <p className="post_date">
+                        {formatDate(post.created_at)}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
 }
