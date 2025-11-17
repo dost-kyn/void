@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPost } from '../api/posts.api';
+const API_URL = 'http://localhost:5000/api';
 
 export const useCreatePost = (initialState = false) => {
     const [isOpen, setIsOpen] = useState(initialState);
@@ -18,7 +19,7 @@ export const useCreatePost = (initialState = false) => {
         setError(null);
     };
 
-    
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -70,7 +71,7 @@ export const useCreatePost = (initialState = false) => {
 
 
 
-    const handleCreatePost = async (authorId) => {
+    const handleCreatePost = async (userId) => {
         if (!postData.title.trim() || !postData.content.trim() || !postData.categoryId) {
             setError('Заполните все обязательные поля');
             return false;
@@ -80,21 +81,56 @@ export const useCreatePost = (initialState = false) => {
         setError(null);
 
         try {
-            const newPost = await createPost({
-                ...postData,
-                authorId: authorId
-            });
+            console.log('🔄 Создаем пост...');
+            console.log('📊 Состояние postData:', postData);
+            console.log('📸 Количество фото:', postData.images.length);
 
-            postData.images.forEach((image, index) => {
-                formData.append('images', image);
-            });
+            let newPost;
+
+            // Если есть фото - используем FormData
+            if (postData.images.length > 0) {
+                console.log('📸 Создаем пост с фото');
+
+                const formData = new FormData(); // ← ОПРЕДЕЛИ formData ЗДЕСЬ
+                formData.append('title', postData.title);
+                formData.append('content', postData.content);
+                formData.append('categoryId', postData.categoryId);
+                formData.append('authorId', userId);
+
+                // Добавляем фото
+                postData.images.forEach((image, index) => {
+                    console.log(`➕ Добавляем фото ${index}:`, image.name);
+                    formData.append('images', image);
+                });
+
+                console.log('📨 FormData создан, отправляем запрос...');
+                const response = await fetch(`${API_URL}/posts/create-with-images`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Failed to create post');
+                newPost = await response.json();
+                console.log('✅ Пост с фото создан:', newPost);
+
+            } else {
+                // Без фото - обычный JSON
+                console.log('📝 Создаем пост без фото');
+                newPost = await createPost({
+                    title: postData.title,
+                    content: postData.content,
+                    categoryId: postData.categoryId,
+                    authorId: userId
+                });
+                console.log('✅ Пост без фото создан:', newPost);
+            }
 
             CloseCreate();
             return newPost;
 
         } catch (err) {
             setError('Ошибка при создании поста');
-            console.error('Error creating post:', err);
+            console.error('❌ Error creating post:', err);
             return false;
         } finally {
             setLoading(false);
@@ -110,6 +146,7 @@ export const useCreatePost = (initialState = false) => {
         CloseCreate,
         handleInputChange,
         handleFileChange,
-        handleCreatePost
+        handleCreatePost,
+        removeImage
     };
 };

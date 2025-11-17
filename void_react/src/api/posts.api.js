@@ -27,16 +27,34 @@ export const getPostById = async (postId) => {
 };
 
 export const updatePost = async (postId, postData) => {
-    const response = await fetch(`${API_URL}/posts/update/${postId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(postData)
-    });
+    console.log('📝 API: Обновляем пост без фото ID:', postId);
+    console.log('📝 API: Данные:', postData);
 
-    if (!response.ok) throw new Error('Failed to update post');
-    return await response.json();
+    try {
+        const response = await fetch(`${API_URL}/posts/update/${postId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData)
+        });
+
+        console.log('📡 API Response status:', response.status);
+        console.log('📡 API Response ok:', response.ok);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ API Error response:', errorText);
+            throw new Error(`Failed to update post: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ API Update successful:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ API Update error:', error);
+        throw error;
+    }
 };
 
 export const updatePostWithImages = async (postId, formData) => {
@@ -44,7 +62,7 @@ export const updatePostWithImages = async (postId, formData) => {
         method: 'PUT',
         body: formData
     });
-    
+
     if (!response.ok) throw new Error('Failed to update post');
     return await response.json();
 };

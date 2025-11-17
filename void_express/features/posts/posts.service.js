@@ -224,25 +224,34 @@ exports.getPostImages = async (postId) => {
 }
 
 
-//===============  удаление поста
-// exports.findPostId = async (id) => {
-//     if (id) {
-//         const postId = parseInt(id)
-//         const post = await bd.post.findUnique({
-//             where: { id: postId }
-//         })
-//         return post
-//     }
-//     return null
-// }
+//===============  найти фото по ID
+exports.findPostImageById = async (imageId) => {
+    const image = await bd.post_image.findUnique({
+        where: { id: parseInt(imageId) }
+    })
+    return image
+}
 
-// exports.deletePost = async (id) => {
-//     if (id) {
-//         const postId = parseInt(id)
-//         const post = await bd.post.delete({
-//             where: { id: postId }
-//         })
-//         return post
-//     }
-//     return null
-// }
+//===============  удалить фото
+exports.deletePostImage = async (imageId) => {
+    const image = await bd.post_image.delete({
+        where: { id: parseInt(imageId) }
+    })
+    return image
+}
+
+//===============  удалить пост
+exports.deletePost = async (postId) => {
+    const post = await bd.post.delete({
+        where: { id: parseInt(postId) }
+    })
+    return post
+}
+
+//===============  удалить все фото поста
+exports.deletePostImagesByPostId = async (postId) => {
+    const images = await bd.post_image.deleteMany({
+        where: { post_id: parseInt(postId) }
+    })
+    return images
+}

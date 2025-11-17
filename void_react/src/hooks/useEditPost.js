@@ -73,11 +73,31 @@ export const useEditPost = (initialState = false) => {
         }));
     };
 
-    const removeExistingImage = (imageId) => {
-        setPostData(prev => ({
-            ...prev,
-            existingImages: prev.existingImages.filter(img => img.id !== imageId)
-        }));
+    const removeExistingImage = async (imageId) => {
+        try {
+            console.log('🗑️ Удаляем существующее фото ID:', imageId);
+
+            // Сначала удаляем на сервере
+            const response = await fetch(`${API_URL}/posts/images/${imageId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete image');
+            }
+
+            console.log('✅ Фото удалено с сервера');
+
+            // Затем удаляем из состояния
+            setPostData(prev => ({
+                ...prev,
+                existingImages: prev.existingImages.filter(img => img.id !== imageId)
+            }));
+
+        } catch (error) {
+            console.error('❌ Ошибка удаления фото:', error);
+            alert('Ошибка при удалении изображения');
+        }
     };
 
     const CloseEdit = () => {
@@ -139,19 +159,38 @@ export const useEditPost = (initialState = false) => {
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Failed to update post');
+                console.log('📡 Ответ сервера (статус):', response.status);
+                console.log('📡 Ответ сервера (ok):', response.ok);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ Ошибка ответа сервера:', errorText);
+                    throw new Error(`Failed to update post: ${response.status} ${errorText}`);
+                }
+
                 updatedPost = await response.json();
                 console.log('✅ Пост с фото обновлен:', updatedPost);
 
             } else {
                 // Без новых фото - обычный JSON
                 console.log('📝 Отправляем пост без новых фото');
-                updatedPost = await updatePost(postData.id, {
+                console.log('📦 Данные для отправки:', {
                     title: postData.title,
                     content: postData.content,
                     categoryId: postData.categoryId
                 });
-                console.log('✅ Пост без фото обновлен:', updatedPost);
+
+                try {
+                    updatedPost = await updatePost(postData.id, {
+                        title: postData.title,
+                        content: postData.content,
+                        categoryId: postData.categoryId
+                    });
+                    console.log('✅ Пост без фото обновлен:', updatedPost);
+                } catch (updateError) {
+                    console.error('❌ Ошибка в updatePost функции:', updateError);
+                    throw updateError;
+                }
             }
 
             CloseEdit();
@@ -160,6 +199,7 @@ export const useEditPost = (initialState = false) => {
         } catch (err) {
             setError('Ошибка при обновлении поста');
             console.error('❌ Error updating post:', err);
+            console.error('❌ Error stack:', err.stack);
             return false;
         } finally {
             setLoading(false);
@@ -174,9 +214,9 @@ export const useEditPost = (initialState = false) => {
         OpenEdit,
         CloseEdit,
         handleInputChange,
-        handleFileChange, 
-        removeNewImage,   
-        removeExistingImage, 
+        handleFileChange,
+        removeNewImage,
+        removeExistingImage,
         handleUpdatePost
     };
 };
