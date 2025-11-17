@@ -178,6 +178,11 @@
 
 
 
+.request_status{
+    color: var(--text-color);
+    font-family: "Advent Pro";
+}
+
 
 
 /* адаптив */

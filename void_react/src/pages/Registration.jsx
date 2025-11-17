@@ -97,7 +97,7 @@ export default function Registration() {
                 formDataToSend.append('password', formData.password);
                 formDataToSend.append('repeatPassword', formData.repeatPassword);
 
-                // ✅ Добавляем выбранные категории
+                // Добавляем выбранные категории
                 selectedCategories.forEach(categoryId => {
                     formDataToSend.append('categories[]', categoryId);
                 });
@@ -110,7 +110,7 @@ export default function Registration() {
 
                 if (result.token) {
                     localStorage.setItem('token', result.token);
-                    window.location.href = '/';
+                    window.location.href = '/posts';
                 } else {
                     setErrors({ general: result.message || 'Ошибка регистрации' });
                 }

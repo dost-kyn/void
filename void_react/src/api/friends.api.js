@@ -1,0 +1,64 @@
+const API_URL = 'http://localhost:5000/api';
+
+export const getFriends = async () => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/friends`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch friends');
+    return await response.json();
+};
+
+export const getFriendRequests = async () => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/friends/requests`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch friend requests');
+    return await response.json();
+};
+
+// Получить отправленные заявки
+export const getSentFriendRequests = async () => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/friends/sent-requests`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch sent friend requests');
+    return await response.json();
+};
+
+export const acceptFriendRequest = async (friendshipId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/friends/requests/accept/${friendshipId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to accept friend request');
+    return await response.json();
+};
+
+export const rejectFriendRequest = async (friendshipId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/friends/requests/reject/${friendshipId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to reject friend request');
+    return await response.json();
+};
