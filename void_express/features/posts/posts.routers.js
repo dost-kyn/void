@@ -11,6 +11,8 @@ router.put('/update/:id', PostController.updatePost)
 router.put('/update-with-images/:id', upload.array('images', 10), PostController.updatePostWithImages);
 router.post('/create-with-images', upload.array('images', 10), PostController.createPostWithImages);
 router.post('/:id/images', upload.single('image'), PostController.addPostImage);
+router.delete('/images/:imageId', PostController.deletePostImage);
+router.delete('/:id', PostController.deletePost);
 
 
 module.exports = router

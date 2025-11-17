@@ -13,21 +13,21 @@ exports.getAllPosts = async (req, res) => {
 
 // GET /api/posts/user/:userId - посты пользователя
 exports.getUserPosts = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const posts = await PostsService.getUserPosts(userId);
-        
-        // Должны возвращаться посты с фото
-        console.log(`📊 Загружено постов пользователя ${userId}:`, posts.length);
-        if (posts.length > 0) {
-            console.log('🖼️ Первый пост имеет фото:', posts[0].images);
-        }
-        
-        res.json(posts);
-    } catch (error) {
-        console.error('Error getting user posts:', error);
-        res.status(500).json({ error: 'Ошибка сервера' });
+  try {
+    const { userId } = req.params;
+    const posts = await PostsService.getUserPosts(userId);
+
+    // Должны возвращаться посты с фото
+    console.log(`📊 Загружено постов пользователя ${userId}:`, posts.length);
+    if (posts.length > 0) {
+      console.log('🖼️ Первый пост имеет фото:', posts[0].images);
     }
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Error getting user posts:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
 };
 
 // POST /api/posts/create - создать пост
@@ -65,90 +65,101 @@ exports.createPost = async (req, res) => {
 
 // GET /api/posts/:id - получить пост по ID
 exports.getPostById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log('🔍 Получаем пост ID:', id);
-        
-        const post = await PostsService.findPostById(id);
-        
-        if (!post) {
-            console.log('❌ Пост не найден');
-            return res.status(404).json({ error: 'Пост не найден' });
-        }
+  try {
+    const { id } = req.params;
+    console.log('🔍 Получаем пост ID:', id);
 
-        console.log('✅ Пост найден:', post.title);
-        console.log('🖼️ Изображения поста:', post.images);
-        
-        res.json(post);
-    } catch (error) {
-        console.error('❌ Ошибка получения поста:', error);
-        console.error('❌ Stack:', error.stack);
-        res.status(500).json({ error: 'Ошибка сервера при получении поста' });
+    const post = await PostsService.findPostById(id);
+
+    if (!post) {
+      console.log('❌ Пост не найден');
+      return res.status(404).json({ error: 'Пост не найден' });
     }
+
+    console.log('✅ Пост найден:', post.title);
+    console.log('🖼️ Изображения поста:', post.images);
+
+    res.json(post);
+  } catch (error) {
+    console.error('❌ Ошибка получения поста:', error);
+    console.error('❌ Stack:', error.stack);
+    res.status(500).json({ error: 'Ошибка сервера при получении поста' });
+  }
 };
 
-  // PUT /api/posts/update/:id - обновить пост
-  exports.updatePost = async (req, res) => {
-    try {
-      const { id } = req.params
-      const { title, content, categoryId } = req.body
+// PUT /api/posts/update/:id - обновить пост
+exports.updatePost = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { title, content, categoryId } = req.body
 
-      // Проверяем существование поста
-      const existingPost = await PostsService.findPostById(id)
-      if (!existingPost) {
-        return res.status(404).json({ error: 'Пост не найден' })
-      }
+    console.log('🔄 Обновляем пост без фото ID:', id);
+    console.log('📝 Данные:', { title, content, categoryId });
 
-      // Валидация
-      if (!title || !content || !categoryId) {
-        return res.status(400).json({ error: 'Заполните все обязательные поля' })
-      }
-
-      const updatedPost = await PostsService.updatePost(id, {
-        title, content, categoryId
-      })
-
-      res.json({
-        message: 'Пост успешно обновлен',
-        post: updatedPost
-      })
-
-    } catch (error) {
-      console.error('Ошибка обновления поста:', error)
-      res.status(500).json({ error: 'Ошибка сервера при обновлении поста' })
+    // Проверяем существование поста
+    const existingPost = await PostsService.findPostById(id)
+    if (!existingPost) {
+      console.log('❌ Пост не найден');
+      return res.status(404).json({ error: 'Пост не найден' })
     }
-  },
 
-  // POST /api/posts/:id/images - добавить фото к посту
-  exports.addPostImage = async (req, res) => {
-    try {
-      const { id } = req.params;
+    console.log('✅ Пост найден:', existingPost.title);
 
-      if (!req.file) {
-        return res.status(400).json({ error: 'Файл не загружен' });
-      }
-
-      // Сохраняем путь к файлу
-      const imageUrl = '/uploads/posts/' + req.file.filename;
-
-      // Получаем текущее количество фото у поста для порядка
-      const postImages = await bd.post_image.findMany({
-        where: { post_id: parseInt(id) }
-      });
-      const imageOrder = postImages.length;
-
-      const postImage = await PostsService.addPostImage(id, imageUrl, imageOrder);
-
-      res.json({
-        message: 'Фото успешно добавлено',
-        image: postImage
-      });
-
-    } catch (error) {
-      console.error('Ошибка добавления фото:', error);
-      res.status(500).json({ error: 'Ошибка сервера при добавлении фото' });
+    // Валидация
+    if (!title || !content || !categoryId) {
+      console.log('❌ Не все обязательные поля заполнены');
+      return res.status(400).json({ error: 'Заполните все обязательные поля' })
     }
+
+    console.log('📝 Обновляем пост в БД...');
+    const updatedPost = await PostsService.updatePost(id, {
+      title, content, categoryId
+    })
+
+    console.log('✅ Пост обновлен:', updatedPost);
+
+    res.json({
+      message: 'Пост успешно обновлен',
+      post: updatedPost
+    })
+
+  } catch (error) {
+    console.error('❌ Ошибка обновления поста:', error)
+    console.error('❌ Stack:', error.stack);
+    res.status(500).json({ error: 'Ошибка сервера при обновлении поста' })
   }
+}
+
+// POST /api/posts/:id/images - добавить фото к посту
+exports.addPostImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Файл не загружен' });
+    }
+
+    // Сохраняем путь к файлу
+    const imageUrl = '/uploads/posts/' + req.file.filename;
+
+    // Получаем текущее количество фото у поста для порядка
+    const postImages = await bd.post_image.findMany({
+      where: { post_id: parseInt(id) }
+    });
+    const imageOrder = postImages.length;
+
+    const postImage = await PostsService.addPostImage(id, imageUrl, imageOrder);
+
+    res.json({
+      message: 'Фото успешно добавлено',
+      image: postImage
+    });
+
+  } catch (error) {
+    console.error('Ошибка добавления фото:', error);
+    res.status(500).json({ error: 'Ошибка сервера при добавлении фото' });
+  }
+}
 
 
 // POST /api/posts/create-with-images - создать пост с фото
@@ -257,3 +268,98 @@ exports.updatePostWithImages = async (req, res) => {
     res.status(500).json({ error: 'Ошибка сервера при обновлении поста' });
   }
 }
+
+
+
+// DELETE /api/posts/images/:imageId - удалить фото поста
+exports.deletePostImage = async (req, res) => {
+  try {
+    const { imageId } = req.params;
+
+    console.log('🗑️ Удаляем фото ID:', imageId);
+
+    // Проверяем существование фото
+    const existingImage = await PostsService.findPostImageById(imageId);
+    if (!existingImage) {
+      console.log('❌ Фото не найдено');
+      return res.status(404).json({ error: 'Фото не найдено' });
+    }
+
+    console.log('✅ Фото найдено:', existingImage.image_url);
+
+    // Удаляем фото из БД
+    await PostsService.deletePostImage(imageId);
+
+    // TODO: Также можно удалить файл из папки uploads
+    const fs = require('fs').promises;
+    const filePath = '.' + existingImage.image_url; // добавляем точку для относительного пути
+
+    try {
+      await fs.access(filePath); // проверяем существует ли файл
+      await fs.unlink(filePath); // удаляем файл
+      console.log('✅ Файл удален с диска:', filePath);
+    } catch (fileError) {
+      console.warn('⚠️ Не удалось удалить файл с диска:', fileError.message);
+    }
+
+    console.log('✅ Фото удалено из БД');
+
+    res.json({
+      message: 'Фото успешно удалено'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка удаления фото:', error);
+    res.status(500).json({ error: 'Ошибка сервера при удалении фото' });
+  }
+};
+
+// DELETE /api/posts/:id - удалить пост
+exports.deletePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('🗑️ Удаляем пост ID:', id);
+
+        // Проверяем существование поста
+        const existingPost = await PostsService.findPostById(id);
+        if (!existingPost) {
+            console.log('❌ Пост не найден');
+            return res.status(404).json({ error: 'Пост не найден' });
+        }
+
+        console.log('✅ Пост найден:', existingPost.title);
+
+        // Сначала удаляем все фото поста (если есть)
+        const postImages = await PostsService.getPostImages(id);
+        if (postImages.length > 0) {
+            console.log('🗑️ Удаляем фото поста:', postImages.length);
+            
+            // TODO: Можно добавить удаление файлов с диска
+            const fs = require('fs').promises;
+            for (const image of postImages) {
+                try {
+                    await fs.unlink('.' + image.image_url);
+                } catch (fileError) {
+                    console.warn('⚠️ Не удалось удалить файл:', fileError.message);
+                }
+            }
+            
+            // Удаляем фото из БД
+            await PostsService.deletePostImagesByPostId(id);
+        }
+
+        // Удаляем сам пост
+        await PostsService.deletePost(id);
+
+        console.log('✅ Пост удален из БД');
+
+        res.json({
+            message: 'Пост успешно удален'
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка удаления поста:', error);
+        res.status(500).json({ error: 'Ошибка сервера при удалении поста' });
+    }
+};

@@ -112,8 +112,12 @@
     width: 100%;
     margin-bottom: 40px;
     background-color: var(--element);
+    position: relative;
 }
-
+/* Если нет фото, уменьшаем отступы */
+.Posts_posts_post:not(:has(.post_slider)) {
+    padding-top: 30px; 
+}
 .post_slider {
     position: relative;
 }

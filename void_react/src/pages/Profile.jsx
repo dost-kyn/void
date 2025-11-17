@@ -15,6 +15,10 @@ import { getUserPosts } from '../api/posts.api'
 import { getAllCategories } from '../api/categories.api'
 import { useCreatePost } from '../hooks/useCreatePost'
 import { useEditPost } from '../hooks/useEditPost';
+import { useDeletePost } from '../hooks/useDeletePost';
+import { useImage } from '../components/UI/posts/post_image'
+import { useReadMore } from '../components/UI/posts/read_more'
+import { useDeletePostModal } from '../hooks/useDeletePostModal';
 
 export default function Profile() {
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
@@ -22,6 +26,7 @@ export default function Profile() {
     const { sostEditProfile, OpenEditProfile, CloseEditProfile } = useEditProfile(false)
     const { isDeleteModalOpen, OpenDelete, CloseDelete, DeleteProfile, СancelDeleteProfile } = useDeleteProfile(false)
     const { FileChange, selectedFileName } = useFileName("")
+    const { OpenModal, CloseModal, selectedImage } = useImage(null)
 
 
     // хук
@@ -51,6 +56,20 @@ export default function Profile() {
         handleUpdatePost
     } = useEditPost(false);
 
+    const {
+        loading: deletePostLoading,
+        error: deletePostError,
+        deletePost: deletePostAction
+    } = useDeletePost();
+
+    const {
+        isDeletePostModalOpen,
+        postToDelete,
+        OpenDeletePost,
+        CloseDeletePost,
+        ConfirmDeletePost,
+        CancelDeletePost
+    } = useDeletePostModal(false);
 
     const [categories, setCategories] = useState([])
     const [user, setUser] = useState(null)
@@ -58,6 +77,9 @@ export default function Profile() {
     const [photo, setPhoto] = useState(null)
     const [userPosts, setUserPosts] = useState([])
 
+    // const [selectedPostImage, setSelectedPostImage] = useState(null)
+    const [expandedPosts, setExpandedPosts] = useState({})
+    const [currentImageIndexes, setCurrentImageIndexes] = useState({})
 
 
     // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПРОФИЛЯ
@@ -203,12 +225,19 @@ export default function Profile() {
             return
         }
 
+        console.log('🔄 Создаем пост, userId:', userId);
+
         const success = await handleCreatePost(userId)
+
         if (success) {
+            console.log('✅ Пост создан, перезагружаем посты...');
             // Обновляем список постов после успешного создания
-            fetchUserPosts(userId)
+            await fetchUserPosts(userId);
+            console.log('✅ Посты перезагружены');
+        } else {
+            console.log('❌ Ошибка при создании поста');
         }
-    }
+    };
 
     // Функция для обновления поста
     const handleSubmitEditPost = async () => {
@@ -233,6 +262,80 @@ export default function Profile() {
 
 
 
+    // Функция для открытия модального окна с изображением
+    // const handleImageModalOpen = (imageUrl) => {
+    //     console.log('🖼️ Открываем модалку с изображением:', imageUrl)
+    //     setSelectedPostImage(imageUrl)
+    // }
+
+    // const handleImageModalClose = () => {
+    //     setSelectedPostImage(null)
+    // }
+
+    // Функция для переключения "Читать далее"
+    const handleToggleExpand = (postId) => {
+        setExpandedPosts(prev => ({
+            ...prev,
+            [postId]: !prev[postId]
+        }))
+    }
+
+    // Функции для слайдера
+    const handleNextImage = (postId) => {
+        setCurrentImageIndexes(prev => {
+            const currentIndex = prev[postId] || 0
+            const post = userPosts.find(p => p.id === postId)
+            const imagesCount = post?.images?.length || 0
+            return {
+                ...prev,
+                [postId]: imagesCount > 0 ? (currentIndex + 1) % imagesCount : 0
+            }
+        })
+    }
+
+    const handlePrevImage = (postId) => {
+        setCurrentImageIndexes(prev => {
+            const currentIndex = prev[postId] || 0
+            const post = userPosts.find(p => p.id === postId)
+            const imagesCount = post?.images?.length || 0
+            return {
+                ...prev,
+                [postId]: imagesCount > 0 ? (currentIndex - 1 + imagesCount) % imagesCount : 0
+            }
+        })
+    }
+
+    const handleSetImageIndex = (postId, index) => {
+        setCurrentImageIndexes(prev => ({
+            ...prev,
+            [postId]: index
+        }))
+    }
+
+
+    // Функция для удаления поста
+    const handleDeletePost = async () => {
+        const postId = ConfirmDeletePost();
+        if (!postId) return;
+
+        console.log('🗑️ Удаляем пост ID:', postId);
+
+        const success = await deletePostAction(postId);
+
+        if (success) {
+            console.log('✅ Пост удален, обновляем список...');
+            const userId = getUserIdFromToken();
+            if (userId) {
+                await fetchUserPosts(userId);
+            }
+            console.log('✅ Список постов обновлен');
+        } else {
+            alert('Ошибка при удалении поста');
+        }
+    };
+
+
+
 
     // Загружаем данные пользователя при монтировании компонента
     useEffect(() => {
@@ -254,14 +357,6 @@ export default function Profile() {
     // console.log('User data:', user)
     // console.log('User avatar:', user?.avatar)
 
-    // Массив изображений для поста
-    const postImages = [
-        "../src/uploads/posts/post_1.jpg",
-        "../src/uploads/posts/post_2.jpg",
-        "../src/uploads/posts/post_3.jpg",
-    ]
-
-    const { currentImageIndex, nextImage, prevImage, showSliderButtons } = useSlider(postImages)
 
     return (
         <>
@@ -469,6 +564,7 @@ export default function Profile() {
                         <h2 className="Profile_tools_title">Мои посты</h2>
                         <button className="Profile_tools_btn" onClick={openCreatePost}>Создать новый пост</button>
 
+                        {/* модальное окно - создание поста */}
                         {createPostOpen && (
                             <>
                                 <div className="modal_overlay" onClick={closeCreatePost}>
@@ -508,7 +604,8 @@ export default function Profile() {
                                             onChange={handlePostInputChange}
                                             rows="6"
                                         />
-                                        {/* <div className="Profile_create_post_photo">
+
+                                        <div className="Profile_create_post_photo">
                                             <p className="Profile_create_post_photo_p">Прикрепить фотографию (не обязательно)</p>
                                             <label className="Profile_create_post_photo_label">
                                                 <input
@@ -518,10 +615,13 @@ export default function Profile() {
                                                     accept="image/*"
                                                 />
                                                 <span className="Profile_create_post_photo_text">
-                                                    {postData.image ? postData.image.name : 'Выберите файл'}
+                                                    {postData.images.length > 0 ?
+                                                        `Выбрано ${postData.images.length} файл(ов)` :
+                                                        'Выберите файл'
+                                                    }
                                                 </span>
                                             </label>
-                                        </div> */}
+                                        </div>
                                         {postData.imagePreviews && postData.imagePreviews.length > 0 && (
                                             <div className="post_gallery">
                                                 <h3 className="gallery_title">Выбранные изображения ({postData.imagePreviews.length})</h3>
@@ -570,60 +670,168 @@ export default function Profile() {
 
                     <div className="Posts_posts">
                         {userPosts && userPosts.length > 0 ? (
-                            userPosts.map(post => (
-                                <div key={post.id} className="Posts_posts_post">
+                            userPosts.map(post => {
+                                const postImages = post.images && post.images.length > 0
+                                    ? post.images.map(img => {
+                                        const fullUrl = `http://localhost:5000${img.image_url}`
+                                        // console.log('🖼️ URL изображения:', fullUrl)
+                                        return fullUrl
+                                    })
+                                    : [];
 
-                                    <div className="post_slider">
-                                        <div className="post_slider_button_edit">
-                                            <button
-                                                className="post_slider_btn_edit"
-                                                onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
-                                            >
-                                                <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
-                                            </button>
+                                const currentIndex = currentImageIndexes[post.id] || 0
+                                const showSliderButtons = postImages.length > 1
+                                const isExpanded = expandedPosts[post.id] || false
+                                const hasImages = postImages.length > 0
+
+                                // Проверка на переполнение текста (простая версия)
+                                const isOverflowed = post.text && post.text.length > 200
+
+                                return (
+                                    <div key={post.id} className="Posts_posts_post">
+                                        <div className="post_actions">
+                                            {/* Кнопка редактирования */}
+                                            <div className="post_slider_button_edit">
+                                                <button
+                                                    className="post_slider_btn_edit"
+                                                    onClick={() => openEditPost(post.id)}
+                                                >
+                                                    <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
+                                                </button>
+                                            </div>
+                                            {/* Кнопка удаления */}
+                                            <div className="post_slider_button_delete">
+                                                <button
+                                                    className="post_slider_btn_delete"
+                                                    onClick={() => OpenDeletePost(post.id)}
+                                                    disabled={deletePostLoading}
+                                                    title="Удалить пост"
+                                                >
+                                                    <img src="../src/uploads/profile/btn_delete.svg" alt="" className="post_slider_btn_delete_img" />
+                                                </button>
+                                            </div>
                                         </div>
-                                        {post.images && post.images.length > 0 && (  // ← ДОБАВЬ &&
-                                            <>
-                                                {/* <div className="post_slider_button_edit">
-                                                    <button
-                                                        className="post_slider_btn_edit"
-                                                        onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
-                                                    >
-                                                        <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
-                                                    </button>
-                                                </div> */}
+
+                                        {hasImages && (
+                                            <div className="post_slider">
+                                                {/* Кнопки слайдера */}
+                                                {showSliderButtons && (
+                                                    <div className="post_slider_buttons">
+                                                        <button className='post_slider_prev' onClick={() => handlePrevImage(post.id)}>
+                                                            <img src="../src/uploads/posts/strelka.svg" alt="Предыдущее" className="post_slider_btn_img post_slider_btn_img_prev" />
+                                                        </button>
+                                                        <button className='post_slider_next' onClick={() => handleNextImage(post.id)}>
+                                                            <img src="../src/uploads/posts/strelka.svg" alt="Следующее" className="post_slider_btn_img" />
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {/* Изображение */}
                                                 <div className="post_image">
                                                     <img
-                                                        src={`http://localhost:5000${post.images[0].image_url}`}
-                                                        alt={post.title}
+                                                        src={postImages[currentIndex]}
+                                                        alt={`Изображение поста ${post.title}`}
                                                         className="post_image_img"
+                                                        onClick={() => {
+                                                            OpenModal(postImages[currentIndex])
+                                                        }}
                                                     />
                                                 </div>
-                                            </>
-                                        )}
-                                    </div>
 
-                                    <div className="post_contant">
-                                        <h3 className="post_title">{post.title}</h3>
-                                        <p className="post_text">{post.text}</p>
-                                        <div className="post_info">
-                                            <p className="post_author">{post.user_post_ship?.login || user?.login}</p>
-                                            <p className="post_date">
-                                                {post.created_at ? new Date(post.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}
-                                            </p>
-                                            {/* {post.category_id && (
-                                                <p className="post_category">Категория: {post.post_category_ship.name}</p>
-                                            )} */}
+                                                {/* Индикаторы слайдера */}
+                                                {showSliderButtons && (
+                                                    <div className="slider_indicators">
+                                                        {postImages.map((_, index) => (
+                                                            <span
+                                                                key={index}
+                                                                className={`slider_indicator ${index === currentIndex ? 'active' : ''}`}
+                                                                onClick={() => handleSetImageIndex(post.id, index)}
+                                                            ></span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        <div className="post_contant">
+                                            <h3 className="post_title">{post.title}</h3>
+                                            <div className={`post_text ${isExpanded ? 'expanded' : ''}`}>
+                                                <p>{post.text}</p>
+                                            </div>
+                                            {isOverflowed && (
+                                                <div className="read_more_button">
+                                                    <button className="read_more_btn" onClick={() => handleToggleExpand(post.id)}>
+                                                        {isExpanded ? 'Скрыть' : 'Читать далее'}
+                                                    </button>
+                                                </div>
+                                            )}
+                                            <div className="post_info">
+                                                <p className="post_author">{post.user_post_ship?.login || user?.login}</p>
+                                                <p className="post_date">
+                                                    {post.created_at ? new Date(post.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
+                                )
+
+
+                                // <div key={post.id} className="Posts_posts_post">
+
+                                //     <div className="post_slider">
+                                //         <div className="post_slider_button_edit">
+                                //             <button
+                                //                 className="post_slider_btn_edit"
+                                //                 onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
+                                //             >
+                                //                 <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
+                                //             </button>
+                                //         </div>
+                                //         {post.images && post.images.length > 0 && (  // ← ДОБАВЬ &&
+                                //             <>
+                                //                 {/* <div className="post_slider_button_edit">
+                                //                 <button
+                                //                     className="post_slider_btn_edit"
+                                //                     onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
+                                //                 >
+                                //                     <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
+                                //                 </button>
+                                //             </div> */}
+                                //                 <div className="post_image">
+                                //                     <img
+                                //                         src={`http://localhost:5000${post.images[0].image_url}`}
+                                //                         alt={post.title}
+                                //                         className="post_image_img"
+                                //                     />
+                                //                 </div>
+                                //             </>
+                                //         )}
+                                //     </div>
+
+                                //     <div className="post_contant">
+                                //         <h3 className="post_title">{post.title}</h3>
+                                //         <p className="post_text">{post.text}</p>
+                                //         <div className="post_info">
+                                //             <p className="post_author">{post.user_post_ship?.login || user?.login}</p>
+                                //             <p className="post_date">
+                                //                 {post.created_at ? new Date(post.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}
+                                //             </p>
+                                //             {/* {post.category_id && (
+                                //             <p className="post_category">Категория: {post.post_category_ship.name}</p>
+                                //         )} */}
+                                //         </div>
+                                //     </div>
+                                // </div>
+                            })
                         ) : (
                             <div className="no-posts">
                                 <p>У вас пока нет постов. Создайте первый пост, нажав кнопку "Создать новый пост"</p>
                             </div>
                         )}
                     </div>
+
+
+
 
 
 
@@ -688,6 +896,11 @@ export default function Profile() {
                         </div>
                     </div> */}
 
+
+
+
+
+
                     {/* Модалка редактирования поста */}
                     {editPostOpen && (
                         <div className="modal_overlay" onClick={closeEditPost}>
@@ -740,7 +953,10 @@ export default function Profile() {
                                             multiple
                                         />
                                         <span className="Profile_create_post_photo_text">
-                                            {editPostData.images ? editPostData.images.name : 'Выберите файл'}
+                                            {editPostData.images.length > 0 ?
+                                                `Выбрано ${editPostData.images.length} файл(ов)` :
+                                                'Выберите файл'
+                                            }
                                         </span>
                                     </label>
                                 </div>
@@ -814,6 +1030,41 @@ export default function Profile() {
                         </div>
                     )}
 
+
+                    {/* Модальное окно для увеличенного изображения поста */}
+                    {selectedImage && (
+                        <div className="modal_overlay" onClick={CloseModal}>
+                            <div className="modal_content" onClick={(e) => e.stopPropagation()}>
+                                <button className="modal_close" onClick={CloseModal}>×</button>
+                                <img src={selectedImage} alt="Увеличенное изображение" className="modal_image" />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Модальное окно подтверждения удаления поста */}
+                    {isDeletePostModalOpen && (
+                        <div className="modal_overlay">
+                            <div className="Profile_delete_modal">
+                                <div className="filter_modal_close_container">
+                                    <button className='filter_modal_close' onClick={CancelDeletePost}>✘</button>
+                                </div>
+                                <h3 className='Profile_delete_modal_title'>Подтверждение удаления</h3>
+                                <p>Вы действительно хотите удалить этот пост? Это действие нельзя отменить.</p>
+                                <div className="Profile_modal_buttons">
+                                    <button onClick={CancelDeletePost} className="Profile_cancel_btn">
+                                        Отмена
+                                    </button>
+                                    <button
+                                        className="Profile_delete_btn"
+                                        onClick={handleDeletePost}
+                                        disabled={deletePostLoading}
+                                    >
+                                        {deletePostLoading ? 'Удаление...' : 'Удалить'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>
