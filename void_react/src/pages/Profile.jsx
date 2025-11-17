@@ -15,8 +15,11 @@ import { getUserPosts } from '../api/posts.api'
 import { getAllCategories } from '../api/categories.api'
 import { useCreatePost } from '../hooks/useCreatePost'
 import { useEditPost } from '../hooks/useEditPost';
+import { useParams } from 'react-router-dom';
 
 export default function Profile() {
+    const { id } = useParams();
+    const [isMyProfile, setIsMyProfile] = useState(true);
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
     const { sostCategories, OpenCategories, CloseCategories } = useCategories(false)
     const { sostEditProfile, OpenEditProfile, CloseEditProfile } = useEditProfile(false)
@@ -45,6 +48,9 @@ export default function Profile() {
         OpenEdit: openEditPost,
         CloseEdit: closeEditPost,
         handleInputChange: handleEditPostInputChange,
+        handleFileChange: handleEditPostFileChange,
+        removeNewImage: removeEditPostNewImage,
+        removeExistingImage: removeEditPostExistingImage,
         handleUpdatePost
     } = useEditPost(false);
 
@@ -179,11 +185,16 @@ export default function Profile() {
     // Функция для получения постов пользователя
     const fetchUserPosts = async (userId) => {
         try {
-            const posts = await getUserPosts(userId)
-            setUserPosts(posts)
+            console.log('🔄 Загружаю посты пользователя...');
+            const posts = await getUserPosts(userId);
+            console.log('📥 Загружены посты:', posts);
+            if (posts.length > 0) {
+                console.log('🖼️ Первый пост имеет изображения:', posts[0].images);
+            }
+            setUserPosts(posts);
         } catch (error) {
-            console.error('Ошибка загрузки постов:', error)
-            setUserPosts([]) // на всякий случай пустой массив
+            console.error('❌ Ошибка загрузки постов:', error);
+            setUserPosts([]);
         }
     }
 
@@ -204,13 +215,25 @@ export default function Profile() {
 
     // Функция для обновления поста
     const handleSubmitEditPost = async () => {
-        const success = await handleUpdatePost();
-        if (success) {
-            // Обновляем список постов
+        console.log('💾 Сохраняем изменения поста...');
+
+        const updatedPost = await handleUpdatePost();
+
+        if (updatedPost) {
+            console.log('✅ Пост обновлен, перезагружаем посты...');
+
             const userId = getUserIdFromToken();
-            fetchUserPosts(userId);
+            if (userId) {
+                await fetchUserPosts(userId);
+            }
+
+            console.log('🔄 Посты перезагружены');
+        } else {
+            console.log('❌ Ошибка при обновлении поста');
         }
     };
+
+
 
 
 
@@ -242,7 +265,38 @@ export default function Profile() {
     ]
 
     const { currentImageIndex, nextImage, prevImage, showSliderButtons } = useSlider(postImages)
+// Загружаем данные пользователя при монтировании компонента
+useEffect(() => {
+    const loadUserData = async () => {
+        try {
+            setLoading(true);
+            
+            // Если есть ID в URL - загружаем данные этого пользователя
+            if (id) {
+                const userData = await findUser(id);
+                setUser(userData);
+                setIsMyProfile(false);
+                fetchUserPosts(id); // загружаем посты этого пользователя
+            } else {
+                // Если нет ID - загружаем данные текущего пользователя
+                const currentUserId = getUserIdFromToken();
+                if (currentUserId) {
+                    const userData = await findUser(currentUserId);
+                    setUser(userData);
+                    setIsMyProfile(true);
+                    fetchUserPosts(currentUserId);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    loadUserData();
+    fetchCategories();
+}, [id]);
     return (
         <>
             <div className="body">
@@ -488,7 +542,7 @@ export default function Profile() {
                                             onChange={handlePostInputChange}
                                             rows="6"
                                         />
-                                        <div className="Profile_create_post_photo">
+                                        {/* <div className="Profile_create_post_photo">
                                             <p className="Profile_create_post_photo_p">Прикрепить фотографию (не обязательно)</p>
                                             <label className="Profile_create_post_photo_label">
                                                 <input
@@ -501,7 +555,30 @@ export default function Profile() {
                                                     {postData.image ? postData.image.name : 'Выберите файл'}
                                                 </span>
                                             </label>
-                                        </div>
+                                        </div> */}
+                                        {postData.imagePreviews && postData.imagePreviews.length > 0 && (
+                                            <div className="post_gallery">
+                                                <h3 className="gallery_title">Выбранные изображения ({postData.imagePreviews.length})</h3>
+                                                <div className="gallery_container">
+                                                    {postData.imagePreviews.map((preview, index) => (
+                                                        <div key={index} className="gallery_item">
+                                                            <img
+                                                                src={preview}
+                                                                alt={`Изображение ${index + 1}`}
+                                                                className="gallery_image"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="gallery_remove_btn"
+                                                                onClick={() => removeImage(index)}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="Profile_create_post_buttons">
                                             <button
                                                 className="Profile_create_post_btn"
@@ -529,17 +606,17 @@ export default function Profile() {
                         {userPosts && userPosts.length > 0 ? (
                             userPosts.map(post => (
                                 <div key={post.id} className="Posts_posts_post">
-                                    
+
                                     <div className="post_slider">
                                         <div className="post_slider_button_edit">
-                                                    <button
-                                                        className="post_slider_btn_edit"
-                                                        onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
-                                                    >
-                                                        <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
-                                                    </button>
-                                                </div>
-                                        {post.images && post.images.length > 0 (
+                                            <button
+                                                className="post_slider_btn_edit"
+                                                onClick={() => openEditPost(post.id)} // ← добавляем вызов хука
+                                            >
+                                                <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
+                                            </button>
+                                        </div>
+                                        {post.images && post.images.length > 0 && (  // ← ДОБАВЬ &&
                                             <>
                                                 {/* <div className="post_slider_button_edit">
                                                     <button
@@ -549,7 +626,6 @@ export default function Profile() {
                                                         <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
                                                     </button>
                                                 </div> */}
-
                                                 <div className="post_image">
                                                     <img
                                                         src={`http://localhost:5000${post.images[0].image_url}`}
@@ -693,14 +769,65 @@ export default function Profile() {
                                         <input
                                             type="file"
                                             className='Profile_create_post_photo_inp'
-                                            onChange={handlePostFileChange}
+                                            onChange={handleEditPostFileChange}
                                             accept="image/*"
+                                            multiple
                                         />
                                         <span className="Profile_create_post_photo_text">
-                                            {postData.image ? postData.image.name : 'Выберите файл'}
+                                            {editPostData.images ? editPostData.images.name : 'Выберите файл'}
                                         </span>
                                     </label>
                                 </div>
+                                {/* Существующие изображения */}
+                                {editPostData.existingImages && editPostData.existingImages.length > 0 && (
+                                    <div className="post_gallery">
+                                        <h3 className="gallery_title">Текущие изображения ({editPostData.existingImages.length})</h3>
+                                        <div className="gallery_container">
+                                            {editPostData.existingImages.map((image) => (
+                                                <div key={image.id} className="gallery_item">
+                                                    <img
+                                                        src={`http://localhost:5000${image.image_url}`}
+                                                        alt="Изображение поста"
+                                                        className="gallery_image"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="gallery_remove_btn"
+                                                        onClick={() => removeEditPostExistingImage(image.id)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Новые изображения */}
+                                {editPostData.imagePreviews && editPostData.imagePreviews.length > 0 && (
+                                    <div className="post_gallery">
+                                        <h3 className="gallery_title">Новые изображения ({editPostData.imagePreviews.length})</h3>
+                                        <div className="gallery_container">
+                                            {editPostData.imagePreviews.map((preview, index) => (
+                                                <div key={index} className="gallery_item">
+                                                    <img
+                                                        src={preview}
+                                                        alt={`Новое изображение ${index + 1}`}
+                                                        className="gallery_image"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="gallery_remove_btn"
+                                                        onClick={() => removeEditPostNewImage(index)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="Profile_create_post_buttons">
                                     <button
                                         className="Profile_create_post_btn"

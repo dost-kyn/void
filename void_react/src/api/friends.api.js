@@ -62,3 +62,21 @@ export const rejectFriendRequest = async (friendshipId) => {
     if (!response.ok) throw new Error('Failed to reject friend request');
     return await response.json();
 };
+
+
+
+// Отправить заявку в друзья
+export const sendFriendRequest = async (user2Id) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/friends/request`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ user2_id: user2Id })
+    });
+    if (!response.ok) throw new Error('Failed to send friend request');
+    return await response.json();
+};
+

@@ -9,7 +9,8 @@ export const useCreatePost = (initialState = false) => {
         title: '',
         content: '',
         categoryId: '',
-        images: []
+        images: [],
+        imagePreviews: []
     });
 
     const OpenCreate = () => {
@@ -17,16 +18,7 @@ export const useCreatePost = (initialState = false) => {
         setError(null);
     };
 
-    const CloseCreate = () => {
-        setIsOpen(false);
-        setError(null);
-        setPostData({
-            title: '',
-            content: '',
-            categoryId: '',
-            image: null
-        });
-    };
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -38,11 +30,45 @@ export const useCreatePost = (initialState = false) => {
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
+        console.log('📁 Выбраны файлы:', files);
+
+        // Создаем превью для отображения
+        const previews = files.map(file => URL.createObjectURL(file));
+
         setPostData(prev => ({
             ...prev,
-            images: files
+            images: [...prev.images, ...files],
+            imagePreviews: [...prev.imagePreviews, ...previews]
         }));
     };
+
+    // Добавим функцию удаления фото
+    const removeImage = (index) => {
+        setPostData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index),
+            imagePreviews: prev.imagePreviews.filter((_, i) => i !== index)
+        }));
+    };
+
+
+    // В CloseCreate очищаем превью
+    const CloseCreate = () => {
+        // Освобождаем память от превью
+        postData.imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+
+        setIsOpen(false);
+        setError(null);
+        setPostData({
+            title: '',
+            content: '',
+            categoryId: '',
+            images: [],
+            imagePreviews: []
+        });
+    };
+
+
 
     const handleCreatePost = async (authorId) => {
         if (!postData.title.trim() || !postData.content.trim() || !postData.categoryId) {

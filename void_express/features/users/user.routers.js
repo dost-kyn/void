@@ -34,4 +34,5 @@ router.get('/:id', UserController.getUserById)
 router.delete('/:id', UserController.delProfile)   
 router.patch('/:id', upload.single('photo'), UserController.updateUser);
 
+
 module.exports = router

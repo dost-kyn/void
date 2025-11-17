@@ -92,3 +92,28 @@ exports.rejectFriendRequest = async (req, res, next) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+
+
+// Отправить заявку в друзья
+exports.sendFriendRequest = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user1Id = decoded.id; // отправитель
+        
+        const { user2_id } = req.body; // получатель
+
+        await FriendsService.sendFriendRequest(user1Id, user2_id);
+        res.status(200).json({ message: 'Заявка отправлена' });
+    } catch (error) {
+        console.error('Error in sendFriendRequest:', error);
+        
+        if (error.message === 'Заявка уже существует') {
+            return res.status(400).json({ error: error.message });
+        }
+        
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

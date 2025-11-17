@@ -173,3 +173,31 @@ exports.rejectFriendRequest = async (friendshipId, userId) => {
     console.log('Заявка удалена:', result);
     return result;
 };
+
+
+
+// Отправить заявку в друзья
+exports.sendFriendRequest = async (user1Id, user2Id) => {
+    // Проверяем, не существует ли уже связи
+    const existingFriendship = await bd.friends.findFirst({
+        where: {
+            OR: [
+                { user1_id: parseInt(user1Id), user2_id: parseInt(user2Id) },
+                { user1_id: parseInt(user2Id), user2_id: parseInt(user1Id) }
+            ]
+        }
+    });
+
+    if (existingFriendship) {
+        throw new Error('Заявка уже существует');
+    }
+
+    // Создаем новую заявку
+    return await bd.friends.create({
+        data: {
+            user1_id: parseInt(user1Id),
+            user2_id: parseInt(user2Id),
+            status: 'Expectation'
+        }
+    });
+};
