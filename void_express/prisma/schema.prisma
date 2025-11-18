@@ -18,12 +18,25 @@ enum UserRole {
   Admin
 }
 
+enum User_status {
+  Not_banned
+  Ban
+}
+
 enum Friend_status {
   None
   Expectation
   Accepted
   Rejected
 }
+
+enum Post_status {
+  Expectation
+  Published
+  Rejected
+}
+
+
 
 model User {
   id         Int      @id @default(autoincrement())
@@ -35,6 +48,7 @@ model User {
   password   String
   avatar     String?
   created_at DateTime @default(now())
+  status User_status @default(Not_banned)
 
   id_category Category[] @relation("UserCategories")
 
@@ -60,6 +74,7 @@ model Post {
   title      String
   text       String
   created_at DateTime @default(now())
+  status Post_status @default(Expectation)
 
   category_id        Int
   post_category_ship Category @relation(fields: [category_id], references: [id])
@@ -97,6 +112,7 @@ model Chat {
 
   user1_id Int
   user2_id Int
+  created_at DateTime @default(now())
 
   user1 Friends @relation("ChatUser1", fields: [user1_id], references: [id])
   user2 Friends @relation("ChatUser2", fields: [user2_id], references: [id])

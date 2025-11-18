@@ -80,3 +80,5 @@ export const sendFriendRequest = async (user2Id) => {
     return await response.json();
 };
 
+
+

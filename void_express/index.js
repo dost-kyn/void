@@ -30,17 +30,15 @@ const upload = multer({
     }
 });
 
-
 const errorHandler = require("./middlewear/errorHandler");
 
 const userRoutes = require('./features/users/user.routers')
 const PostRouters = require('./features/posts/posts.routers')
 const CategoriesRouters = require('./features/categories/categories.routers')
 const friendsRouter = require('./features/friends/friends.routers');
+const ChatRouter = require('./features/chat/chat.routers') // Теперь файл существует
 
 app.use(express.json());
-
-
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -48,12 +46,10 @@ app.use('/api/posts', PostRouters);
 app.use('/api/users', userRoutes)
 app.use('/api/categories', CategoriesRouters)
 app.use('/api/friends', friendsRouter);
+app.use('/api/chat', ChatRouter);
 app.use(errorHandler)
-
-
-
-
 
 app.listen(process.env.PORT, () => {
   console.log("сервер запущен на порту " + process.env.PORT);
+  console.log("Система чата доступна по пути /api/chat");
 });

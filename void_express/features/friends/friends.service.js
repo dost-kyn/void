@@ -33,7 +33,6 @@ exports.getUserFriends = async (userId) => {
         }
     });
 
-    // ✅ Преобразуем чтобы вернуть только информацию о друге (не о текущем пользователе)
     return friends.map(friendship => {
         const friend = friendship.user1_id === parseInt(userId) ? friendship.user2 : friendship.user1;
         return {
@@ -52,11 +51,11 @@ exports.getUserFriends = async (userId) => {
 exports.getFriendRequests = async (userId) => {
     const requests = await bd.friends.findMany({
         where: {
-            user2_id: parseInt(userId), // заявки где текущий пользователь - получатель
+            user2_id: parseInt(userId),
             status: 'Expectation'
         },
         include: {
-            user1: { // отправитель заявки
+            user1: {
                 select: {
                     id: true,
                     name: true,
@@ -68,7 +67,7 @@ exports.getFriendRequests = async (userId) => {
             }
         },
         orderBy: {
-            id: 'desc' // сортировка по дате (новые сначала)
+            id: 'desc'
         }
     });
 
@@ -88,11 +87,11 @@ exports.getFriendRequests = async (userId) => {
 exports.getSentFriendRequests = async (userId) => {
     const sentRequests = await bd.friends.findMany({
         where: {
-            user1_id: parseInt(userId), // заявки где текущий пользователь - отправитель
+            user1_id: parseInt(userId),
             status: 'Expectation'
         },
         include: {
-            user2: { // получатель заявки
+            user2: {
                 select: {
                     id: true,
                     name: true,
@@ -120,30 +119,97 @@ exports.getSentFriendRequests = async (userId) => {
     }));
 };
 
-// Принять заявку в друзья
-exports.acceptFriendRequest = async (friendshipId, userId) => {
-    const friendship = await bd.friends.findFirst({
-        where: {
-            id: parseInt(friendshipId),
-            user2_id: parseInt(userId), // проверяем что заявка адресована текущему пользователю
-            status: 'Expectation'
+
+
+
+// Функция создания чата между двумя пользователями
+const createChatBetweenUsers = async (user1Id, user2Id) => {
+    try {
+        console.log('🔄 Создание чата между:', user1Id, user2Id);
+        
+        // Упорядочиваем ID чтобы избежать дубликатов
+        const sortedUsers = [parseInt(user1Id), parseInt(user2Id)].sort((a, b) => a - b);
+
+        // Проверяем не существует ли уже чат
+        const existingChat = await bd.chat.findFirst({
+            where: {
+                user1_id: sortedUsers[0],
+                user2_id: sortedUsers[1]
+            }
+        });
+
+        if (existingChat) {
+            console.log('ℹ️ Чат уже существует, ID:', existingChat.id);
+            return existingChat;
         }
-    });
 
-    if (!friendship) {
-        throw new Error('Заявка не найдена');
+        // Создаем новый чат
+        const newChat = await bd.chat.create({
+            data: {
+                user1_id: sortedUsers[0],
+                user2_id: sortedUsers[1]
+            }
+        });
+
+        console.log('✅ Создан новый чат, ID:', newChat.id);
+        return newChat;
+
+    } catch (error) {
+        console.error('❌ Ошибка при создании чата:', error);
+        throw error;
     }
-
-    return await bd.friends.update({
-        where: { id: parseInt(friendshipId) },
-        data: { status: 'Accepted' }
-    });
 };
+
+// Принять заявку в друзья
+exports.acceptFriendRequest = async (friendshipId, acceptorId) => {
+    try {
+        console.log('Принятие заявки:', { friendshipId, acceptorId });
+
+        // Находим заявку в друзья
+        const friendship = await bd.friends.findFirst({
+            where: { 
+                id: parseInt(friendshipId),
+                user2_id: parseInt(acceptorId),
+                status: 'Expectation'
+            }
+        });
+
+        if (!friendship) {
+            throw new Error('Заявка не найдена');
+        }
+
+        // Обновляем статус заявки на "принято"
+        const updatedFriendship = await bd.friends.update({
+            where: { id: parseInt(friendshipId) },
+            data: { status: 'Accepted' }
+        });
+
+        console.log('✅ Заявка принята, обновленная запись:', updatedFriendship);
+
+        // СОЗДАЕМ ЧАТ МЕЖДУ ПОЛЬЗОВАТЕЛЯМИ
+        try {
+            await createChatBetweenUsers(friendship.user1_id, friendship.user2_id);
+            console.log('✅ Чат успешно создан');
+        } catch (chatError) {
+            console.error('⚠️ Ошибка при создании чата, но дружба установлена:', chatError.message);
+            // Не прерываем выполнение - дружба уже установлена
+        }
+
+        return updatedFriendship;
+
+    } catch (error) {
+        console.error('❌ Ошибка при принятии заявки:', error);
+        throw error;
+    }
+};
+
+
+exports.createChatBetweenUsers = createChatBetweenUsers;
 
 // Отклонить заявку в друзья
 exports.rejectFriendRequest = async (friendshipId, userId) => {
-    console.log('Поиск заявки:', { friendshipId, userId });
-    
+    console.log('Отклонение заявки:', { friendshipId, userId });
+
     const friendship = await bd.friends.findFirst({
         where: {
             id: parseInt(friendshipId),
@@ -152,29 +218,17 @@ exports.rejectFriendRequest = async (friendshipId, userId) => {
         }
     });
 
-    console.log('Найдена заявка:', friendship);
-
     if (!friendship) {
-        // Проверим, существует ли заявка вообще
-        const anyFriendship = await bd.friends.findFirst({
-            where: {
-                id: parseInt(friendshipId)
-            }
-        });
-        console.log('Любая заявка с этим ID:', anyFriendship);
-        
         throw new Error('Заявка не найдена');
     }
 
     const result = await bd.friends.delete({
         where: { id: parseInt(friendshipId) }
     });
-    
+
     console.log('Заявка удалена:', result);
     return result;
 };
-
-
 
 // Отправить заявку в друзья
 exports.sendFriendRequest = async (user1Id, user2Id) => {
