@@ -316,50 +316,105 @@ exports.deletePostImage = async (req, res) => {
 
 // DELETE /api/posts/:id - удалить пост
 exports.deletePost = async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        console.log('🗑️ Удаляем пост ID:', id);
+  try {
+    const { id } = req.params;
 
-        // Проверяем существование поста
-        const existingPost = await PostsService.findPostById(id);
-        if (!existingPost) {
-            console.log('❌ Пост не найден');
-            return res.status(404).json({ error: 'Пост не найден' });
-        }
+    console.log('🗑️ Удаляем пост ID:', id);
 
-        console.log('✅ Пост найден:', existingPost.title);
-
-        // Сначала удаляем все фото поста (если есть)
-        const postImages = await PostsService.getPostImages(id);
-        if (postImages.length > 0) {
-            console.log('🗑️ Удаляем фото поста:', postImages.length);
-            
-            // TODO: Можно добавить удаление файлов с диска
-            const fs = require('fs').promises;
-            for (const image of postImages) {
-                try {
-                    await fs.unlink('.' + image.image_url);
-                } catch (fileError) {
-                    console.warn('⚠️ Не удалось удалить файл:', fileError.message);
-                }
-            }
-            
-            // Удаляем фото из БД
-            await PostsService.deletePostImagesByPostId(id);
-        }
-
-        // Удаляем сам пост
-        await PostsService.deletePost(id);
-
-        console.log('✅ Пост удален из БД');
-
-        res.json({
-            message: 'Пост успешно удален'
-        });
-
-    } catch (error) {
-        console.error('❌ Ошибка удаления поста:', error);
-        res.status(500).json({ error: 'Ошибка сервера при удалении поста' });
+    // Проверяем существование поста
+    const existingPost = await PostsService.findPostById(id);
+    if (!existingPost) {
+      console.log('❌ Пост не найден');
+      return res.status(404).json({ error: 'Пост не найден' });
     }
+
+    console.log('✅ Пост найден:', existingPost.title);
+
+    // Сначала удаляем все фото поста (если есть)
+    const postImages = await PostsService.getPostImages(id);
+    if (postImages.length > 0) {
+      console.log('🗑️ Удаляем фото поста:', postImages.length);
+
+      // TODO: Можно добавить удаление файлов с диска
+      const fs = require('fs').promises;
+      for (const image of postImages) {
+        try {
+          await fs.unlink('.' + image.image_url);
+        } catch (fileError) {
+          console.warn('⚠️ Не удалось удалить файл:', fileError.message);
+        }
+      }
+
+      // Удаляем фото из БД
+      await PostsService.deletePostImagesByPostId(id);
+    }
+
+    // Удаляем сам пост
+    await PostsService.deletePost(id);
+
+    console.log('✅ Пост удален из БД');
+
+    res.json({
+      message: 'Пост успешно удален'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка удаления поста:', error);
+    res.status(500).json({ error: 'Ошибка сервера при удалении поста' });
+  }
+};
+
+
+
+
+// ======= ДЛЯ АДМИНКИ =======
+
+//=============== получить все посты для админки
+exports.getAllPostsForAdmin = async (req, res) => {
+  try {
+    // console.log('🔄 [ADMIN] Запрос всех постов для админки');
+    const posts = await PostsService.getAllPostsForAdmin();
+    // console.log(`✅ [ADMIN] Успешно загружено ${posts.length} постов`);
+    res.json(posts);
+  } catch (error) {
+    // console.error('❌ [ADMIN] Ошибка загрузки постов для админки:', error);
+    // console.error('❌ [ADMIN] Stack trace:', error.stack);
+    res.status(500).json({
+      error: error.message,
+      details: 'Ошибка сервера при загрузке постов для админки'
+    });
+  }
+};
+
+//=============== обновить статус поста
+exports.updatePostStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    console.log('🔄 [CONTROLLER] Обновление статуса поста:', { id, status });
+
+    if (!id) {
+      console.log('❌ [CONTROLLER] ID поста не указан');
+      return res.status(400).json({ error: 'ID поста обязателен' });
+    }
+
+    if (!status) {
+      console.log('❌ [CONTROLLER] Статус не указан');
+      return res.status(400).json({ error: 'Статус обязателен' });
+    }
+
+    const updatedPost = await PostsService.updatePostStatus(id, status);
+
+    console.log('✅ [CONTROLLER] Статус успешно обновлен:', updatedPost);
+    res.json(updatedPost);
+
+  } catch (error) {
+    console.error('❌ [CONTROLLER] Ошибка обновления статуса:', error);
+    console.error('❌ [CONTROLLER] Stack trace:', error.stack);
+    res.status(500).json({
+      error: error.message,
+      details: 'Внутренняя ошибка сервера при обновлении статуса'
+    });
+  }
 };

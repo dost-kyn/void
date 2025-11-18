@@ -108,6 +108,7 @@ input[type=checkbox]:checked::before {
 }
 .Link{
     text-decoration: none;
+    color: var(--text-color);
 }
 .Link:hover{
     text-decoration: underline;

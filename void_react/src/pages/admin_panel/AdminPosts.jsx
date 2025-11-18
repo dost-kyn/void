@@ -1,42 +1,43 @@
 import React from 'react'
 import '../../css/Admin_panel.css'
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Добавил useEffect
 import Naw_Admin_panel from '../../components/Naw_Admin_panel'
+
+const API_URL = 'http://localhost:5000/api';
 
 export default function AdminPosts() {
     const [selectedPost, setSelectedPost] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const [posts, setPosts] = useState([
-        {
-            id: 1,
-            name: 'Мировое созвание',
-            text: 'Состоялся релиз масштабной сюжетной модификации Lordbound для The Elder Scrolls V: Skyrim. Команда энтузиастов занималась разработкой.',
-            images: [
-                'https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400',
-                'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=400',
-                'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400',
-                'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400'
-            ],
-            user: 'Stalin',
-            categorie: 'Котики',
-            date: '12.09.22',
-            status: 'pending' // Изменил на строку для селекта
-        },
-        {
-            id: 2,
-            name: 'Новости игр',
-            text: 'Состоялся релиз масштабной сюжетной модификации Lordbound для The Elder Scrolls V: Skyrim. Команда энтузиастов занималась разработкой.',
-            images: [
-                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400',
-                'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=400'
-            ],
-            user: 'Stalin',
-            categorie: 'Новости',
-            date: '12.09.22',
-            status: 'published' // Изменил на строку для селекта
+    // Функция загрузки постов из БД
+    const fetchPosts = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await fetch(`${API_URL}/posts/all`); // Создадим этот роут на сервере
+
+            if (!response.ok) {
+                throw new Error(`Ошибка загрузки постов: ${response.status}`);
+            }
+
+            const postsData = await response.json();
+            setPosts(postsData);
+        } catch (err) {
+            console.error('Ошибка при загрузке постов:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-    ]);
+    };
+
+    // Загружаем посты при монтировании компонента
+    useEffect(() => {
+        fetchPosts();
+    }, []);
 
     // Функция открытия модального окна поста
     const openPostModal = (post) => {
@@ -50,32 +51,111 @@ export default function AdminPosts() {
         setIsModalOpen(false);
     };
 
-    // Функция изменения статуса поста
-    const handleStatusChange = (newStatus) => {
+    // Функция изменения статуса поста (для модального окна)
+    const handleStatusChange = async (newStatus) => {
         if (selectedPost) {
-            console.log(`Изменен статус поста ${selectedPost.id} на: ${newStatus}`);
+            try {
+                // Маппинг значений для фронтенда
+                const statusMap = {
+                    'pending': 'Expectation',
+                    'published': 'Published',
+                    'rejected': 'Rejected'
+                };
 
-            // Обновляем локальное состояние
-            setSelectedPost({
-                ...selectedPost,
-                status: newStatus
-            });
+                const normalizedStatus = statusMap[newStatus] || newStatus;
+                console.log(`Изменен статус поста ${selectedPost.id} на: ${normalizedStatus}`);
 
-            // Обновляем также в основном массиве постов
-            setPosts(posts.map(post =>
-                post.id === selectedPost.id
-                    ? { ...post, status: newStatus }
-                    : post
-            ));
+                const response = await fetch(`${API_URL}/posts/${selectedPost.id}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: normalizedStatus })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при обновлении статуса');
+                }
+
+                // Обновляем локальное состояние
+                setSelectedPost({
+                    ...selectedPost,
+                    status: normalizedStatus
+                });
+
+                setPosts(posts.map(post =>
+                    post.id === selectedPost.id
+                        ? { ...post, status: normalizedStatus }
+                        : post
+                ));
+
+                console.log('Статус успешно обновлен на сервере');
+
+            } catch (error) {
+                console.error('Ошибка при обновлении статуса:', error);
+                alert('Ошибка при обновлении статуса');
+            }
         }
     };
 
-    const toggleBan = (postId) => {
-        setPosts(posts.map(post =>
-            post.id === postId
-                ? { ...post, status: !post.status }
-                : post
-        ));
+    // Функция для изменения статуса из таблицы
+    const handleTableStatusChange = async (postId, newStatus) => {
+        try {
+            // Маппинг значений для фронтенда
+            const statusMap = {
+                'pending': 'Expectation',
+                'published': 'Published',
+                'rejected': 'Rejected'
+            };
+
+            const normalizedStatus = statusMap[newStatus] || newStatus;
+            console.log(`🔄 Изменяем статус поста ${postId} на: ${normalizedStatus}`);
+
+            const response = await fetch(`${API_URL}/posts/${postId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: normalizedStatus })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('❌ Ошибка сервера:', response.status, errorData);
+                throw new Error(`Ошибка ${response.status}: ${errorData.error || 'Неизвестная ошибка сервера'}`);
+            }
+
+            const updatedPost = await response.json();
+            console.log('✅ Статус успешно обновлен:', updatedPost);
+
+            // Обновляем локальное состояние
+            setPosts(posts.map(post =>
+                post.id === postId
+                    ? { ...post, status: normalizedStatus }
+                    : post
+            ));
+
+        } catch (error) {
+            console.error('❌ Ошибка при обновлении статуса:', error);
+            alert(`Ошибка при обновлении статуса: ${error.message}`);
+        }
+    };
+
+
+    // Функция для форматирования даты
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU');
+    };
+
+    // Функция для получения текста статуса на русском
+    const getStatusText = (status) => {
+        const statusMap = {
+            'Expectation': 'Ожидание',
+            'Published': 'Опубликован',
+            'Rejected': 'Отклонен'
+        };
+        return statusMap[status] || status;
     };
 
     return (
@@ -85,72 +165,97 @@ export default function AdminPosts() {
 
                 <div className="AdminPosts">
                     <h1 className="adminPosts_title">Посты</h1>
+
+                    {/* Состояние загрузки */}
+                    {loading && (
+                        <div className="loading_message">
+                            <p>Загрузка постов...</p>
+                        </div>
+                    )}
+
+                    {/* Состояние ошибки */}
+                    {error && (
+                        <div className="error_message">
+                            <p>Ошибка: {error}</p>
+                            <button onClick={fetchPosts} className="retry_btn">
+                                Попробовать снова
+                            </button>
+                        </div>
+                    )}
+
                     <div className="adminPosts_content">
-                        <table className='table_posts'>
-                            <thead>
-                                <tr>
-                                    <th>Название</th>
-                                    <th>Текст</th>
-                                    <th>Фотографии</th>
-                                    <th>Пользователь</th>
-                                    <th>Категория</th>
-                                    <th>Дата создание</th>
-                                    <th>Статус</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {posts.map(post => (
-                                    <tr
-                                        key={post.id}
-                                        onClick={() => openPostModal(post)}
-                                        style={{ cursor: 'pointer' }}
-                                        className="post_table_row"
-                                    >
-                                        <td>{post.name}</td>
-                                        <td>{post.text.substring(0, 50)}...</td>
-                                        <td>{post.images.length} фото</td> {/* Изменил отображение */}
-                                        <td>{post.user}</td>
-                                        <td>{post.categorie}</td>
-                                        <td>{post.date}</td>
-                                        <td>
-                                            <select
-                                                className={`status_select ${post.status}`}
-                                                value={post.status}
-                                                onChange={(e) => {
-                                                    e.stopPropagation();
-                                                    handleStatusChange(post.id, e.target.value);
-                                                }}
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <option value="pending">Ожидание</option>
-                                                <option value="published">Опубликован</option>
-                                                <option value="cancelled">Отменен</option>
-                                            </select>
-                                        </td>
+                        {!loading && !error && (
+                            <table className='table_posts'>
+                                <thead>
+                                    <tr>
+                                        <th>Название</th>
+                                        <th>Текст</th>
+                                        <th>Фотографии</th>
+                                        <th>Пользователь</th>
+                                        <th>Категория</th>
+                                        <th>Дата создание</th>
+                                        <th>Статус</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {posts.map(post => (
+                                        <tr
+                                            key={post.id}
+                                            onClick={() => openPostModal(post)}
+                                            style={{ cursor: 'pointer' }}
+                                            className="post_table_row"
+                                        >
+                                            <td>{post.title}</td>
+                                            <td>{post.text ? post.text.substring(0, 50) + '...' : 'Нет текста'}</td>
+                                            <td>{post.images ? post.images.length : 0} фото</td>
+                                            <td>{post.user_post_ship?.login || 'Неизвестно'}</td>
+                                            <td>{post.post_category_ship?.name || 'Без категории'}</td>
+                                            <td>{formatDate(post.created_at)}</td>
+                                            <td>
+                                                <select
+                                                    className={`status_select ${post.status}`}
+                                                    value={post.status}
+                                                    onChange={(e) => {
+                                                        e.stopPropagation();
+                                                        handleTableStatusChange(post.id, e.target.value);
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <option value="Expectation">Ожидание</option>
+                                                    <option value="Published">Опубликован</option>
+                                                    <option value="Rejected">Отклонен</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+
+                        {/* Сообщение если нет постов */}
+                        {!loading && !error && posts.length === 0 && (
+                            <div className="no_posts_message">
+                                <p>Нет постов для модерации</p>
+                            </div>
+                        )}
                     </div>
 
                     {isModalOpen && selectedPost && (
                         <>
                             <div className="modal_overlay" onClick={closePostModal}>
                                 <div className="post_view_modal" onClick={(e) => e.stopPropagation()}>
-                                    <h1 className="post_view_title">{selectedPost.name}</h1>
-
-
+                                    <h1 className="post_view_title">{selectedPost.title}</h1>
 
                                     {/* Категория */}
                                     <div className="post_category">
-                                        <strong>Категория:</strong> {selectedPost.categorie}
+                                        <strong>Категория:</strong> {selectedPost.post_category_ship?.name || 'Без категории'}
                                     </div>
 
                                     {/* Текст поста */}
                                     <div className="post_content">
                                         <h3>Текст поста:</h3>
                                         <div className="admin_post_text">
-                                            {selectedPost.text}
+                                            {selectedPost.text || 'Текст отсутствует'}
                                         </div>
                                     </div>
 
@@ -162,7 +267,7 @@ export default function AdminPosts() {
                                                 {selectedPost.images.map((image, index) => (
                                                     <div key={index} className="gallery_item">
                                                         <img
-                                                            src={image}
+                                                            src={`http://localhost:5000${image.image_url}`}
                                                             alt={`Изображение ${index + 1}`}
                                                             className="gallery_image"
                                                             onError={(e) => {
@@ -177,8 +282,9 @@ export default function AdminPosts() {
 
                                     {/* Информация о посте */}
                                     <div className="post_info">
-                                        <p><strong>Автор:</strong> {selectedPost.user}</p>
-                                        <p><strong>Дата создания:</strong> {selectedPost.date}</p>
+                                        <p><strong>Автор:</strong> {selectedPost.user_post_ship?.login || 'Неизвестно'}</p>
+                                        <p><strong>Дата создания:</strong> {formatDate(selectedPost.created_at)}</p>
+                                        <p><strong>Текущий статус:</strong> {getStatusText(selectedPost.status)}</p>
                                     </div>
 
                                     {/* Кнопки управления */}
@@ -190,15 +296,14 @@ export default function AdminPosts() {
                                             Закрыть
                                         </button>
                                         <div className="post_status_section">
-                                            {/* <label className="post_status_label">Статус:</label> */}
                                             <select
                                                 className="post_status_select"
                                                 value={selectedPost.status || "pending"}
                                                 onChange={(e) => handleStatusChange(e.target.value)}
                                             >
-                                                <option value="pending">Ожидание</option>
-                                                <option value="published">Опубликован</option>
-                                                <option value="cancelled">Отменен</option>
+                                                <option value="Expectation">Ожидание</option>
+                                                <option value="Published">Опубликован</option>
+                                                <option value="Rejected">Отклонен</option>
                                             </select>
                                         </div>
                                     </div>
