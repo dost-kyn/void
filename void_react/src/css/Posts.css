@@ -116,7 +116,7 @@
 }
 /* Если нет фото, уменьшаем отступы */
 .Posts_posts_post:not(:has(.post_slider)) {
-    padding-top: 30px; 
+    padding-top: 10px; 
 }
 .post_slider {
     position: relative;
@@ -234,6 +234,7 @@
 
 .post_title {
     margin-top: 0;
+    margin-bottom: 0;
 }
 
 /* .post_text{

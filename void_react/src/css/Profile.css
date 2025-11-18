@@ -363,15 +363,16 @@
 
 .post_actions {
     position: relative;
-    /* top: 7px;
-    right: 7px;
+    top: 7px;
+    /* right: 7px; */
     display: flex;
-    gap: 10px; */
+    gap: 3px;
     z-index: 10;
+    /* top: -30px; */
 }
 /*========  кнопка редактора в слайдере  =======*/
 .post_slider_button_edit {
-    padding: 10px;
+    padding: 3px;
     position: absolute;
     z-index: 100;
     right: 0;
@@ -379,6 +380,9 @@
 }
 .post_slider_btn_edit {
     background-color: var(--fon);
+    border-radius: 50%;
+    height: 28px;
+    width: 28px;
 }
 .post_slider_btn_edit_img {
     width: 100%;
@@ -387,18 +391,34 @@
 
 /*========  кнопка удаления в слайдере  =======*/
 .post_slider_button_delete {
-    padding: 10px;
+    padding: 3px;
     position: absolute;
     z-index: 100;
-    right: 50px;
+    right: 34px;
 
 }
 .post_slider_btn_delete {
     background-color: var(--fon);
+    border-radius: 50%;
+    height: 28px;
+    width: 28px;
 }
 .post_slider_btn_delete_img {
     width: 100%;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*========  создание поста  =======*/
