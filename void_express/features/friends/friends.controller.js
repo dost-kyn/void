@@ -3,7 +3,6 @@ const FriendsService = require("./friends.service");
 // Получить список друзей
 exports.getFriends = async (req, res, next) => {
     try {
-        // Получаем ID из токена в заголовке
         const token = req.header('Authorization')?.replace('Bearer ', '');
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -58,12 +57,15 @@ exports.acceptFriendRequest = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
         
-        await FriendsService.acceptFriendRequest(friendshipId, userId);
-        res.status(200).json({ message: 'Заявка принята' });
+        const result = await FriendsService.acceptFriendRequest(friendshipId, userId);
+        res.status(200).json({ 
+            message: 'Заявка принята',
+            friendship: result 
+        });
     } catch (error) {
         console.error('Error in acceptFriendRequest:', error);
         
-        if (error.message === 'Заявка не найдена') {
+        if (error.message === 'Заявка не найдена' || error.message === 'Нельзя принять эту заявку') {
             return res.status(404).json({ error: error.message });
         }
         
@@ -93,17 +95,15 @@ exports.rejectFriendRequest = async (req, res, next) => {
     }
 };
 
-
-
 // Отправить заявку в друзья
 exports.sendFriendRequest = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user1Id = decoded.id; // отправитель
+        const user1Id = decoded.id;
         
-        const { user2_id } = req.body; // получатель
+        const { user2_id } = req.body;
 
         await FriendsService.sendFriendRequest(user1Id, user2_id);
         res.status(200).json({ message: 'Заявка отправлена' });

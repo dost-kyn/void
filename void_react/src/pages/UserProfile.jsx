@@ -12,6 +12,8 @@ import {
 } from '../components/UI/profile/useUserProfile';
 import '../css/Profile.css';
 
+
+
 export default function UserProfile() {
     const { id } = useParams();
     const { 
@@ -29,15 +31,13 @@ export default function UserProfile() {
     const handleBecomeFriend = async () => {
         try {
             const result = await BecomeFriend(user.id, updateRequestStatus);
-            console.log('Заявка отправлена:', result);
+
             alert('Заявка в друзья отправлена!');
             
-            // Не нужно вызывать refetch() - статус уже обновлен через updateRequestStatus
         } catch (error) {
             console.error('Ошибка:', error);
             if (error.message === 'Заявка уже существует') {
                 alert('Вы уже отправили заявку этому пользователю');
-                // Обновляем статус если заявка уже существует
                 updateRequestStatus(true);
             } else {
                 alert('Ошибка при отправке заявки');
@@ -46,14 +46,23 @@ export default function UserProfile() {
     };
 
     // Обработчик перехода в чат
-    const handleSendMessage = () => {
-        try {
-            SendMessage(user.id);
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Ошибка при переходе в чат');
+const handleSendMessage = async () => {
+    try {
+        const canChat = await checkIfCanChat(user.id);
+        
+        if (!canChat) {
+            alert('Вы можете писать сообщения только друзьям');
+            return;
         }
-    };
+
+        // Перенаправляем в чат
+        navigate(`/chat/${user.id}`);
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка при переходе в чат');
+    }
+};
 
     // Проверяем, это мой профиль или нет
     const myProfile = isMyProfile(id);
@@ -85,6 +94,31 @@ export default function UserProfile() {
         );
     }
 
+
+
+// Функция проверки возможности чата
+const checkIfCanChat = async (targetUserId) => {
+    try {
+        const response = await fetch(`http://localhost:5000/api/chat/can-chat/${targetUserId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Ошибка проверки чата');
+        }
+        
+        const result = await response.json();
+        return result.canChat;
+        
+    } catch (error) {
+        console.error('Ошибка проверки чата:', error);
+        return false;
+    }
+};
+
+
     return (
         <div className="body">
             <Naw />
@@ -104,8 +138,8 @@ export default function UserProfile() {
                             />
                         </div>
                         <div className="profile_info">
-                            <p className="ProfileUser_avatar_info_p profile_login">@{user.login}</p>
-                            <p className="ProfileUser_avatar_info_p profile_email">{user.email}</p>
+                            <p className="ProfileUser_avatar_info_p profile_login">{user.login}</p>
+                            {/* <p className="ProfileUser_avatar_info_p profile_email">{user.email}</p> */}
                             <p className="ProfileUser_avatar_info_p profile_joined">
                                 Зарегистрирован: {formatDate(user.created_at)}
                             </p>

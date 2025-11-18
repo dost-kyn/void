@@ -23,7 +23,7 @@ function App() {
     <>
       <Routes>
         <Route  path='/posts' element={<Posts/>}/>
-        <Route  path='/chat' element={<Chat/>}/>
+        <Route  path='/chat/:id' element={<Chat/>}/>
         <Route  path='/profile/:id' element={<Profile/>}/>
         <Route path="/user/:id" element={<UserProfile />} /> 
         <Route  path='/' element={<Screensaver/>}/>
