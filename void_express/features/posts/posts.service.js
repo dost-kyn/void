@@ -58,7 +58,19 @@ exports.getUserPosts = async (userId) => {
 //===============  вызвать пост по ID
 exports.getPostById = async (id) => {
     try {
-        console.log('🔍 Сервис: ищем пост ID:', postId);
+        console.log('🔍 Сервис: ищем пост ID:', id); // Исправлено: используем id вместо postId
+
+        if (!id) {
+            console.log('❌ ID поста не передан');
+            return null;
+        }
+
+        const postId = parseInt(id); // Теперь объявляем до использования
+
+        if (isNaN(postId)) {
+            console.log('❌ Неверный формат ID поста:', id);
+            return null;
+        }
         if (id) {
             const postId = parseInt(id)
             const post = await bd.post.findUnique({
@@ -76,6 +88,14 @@ exports.getPostById = async (id) => {
                         select: {
                             name: true
                         }
+                    },
+                    images: {
+                        select: {
+                            id: true,
+                            image_url: true,
+                            image_order: true
+                        },
+                        orderBy: { image_order: 'asc' }
                     }
                 }
             })
@@ -114,7 +134,8 @@ exports.createPost = async (postData) => {
             title: postData.title,
             text: postData.content,
             category_id: parseInt(postData.categoryId),
-            user_id: parseInt(postData.authorId)
+            user_id: parseInt(postData.authorId),
+            status: 'Expectation'
         }
     })
     return post
@@ -143,17 +164,37 @@ exports.addPostImage = async (postId, imageUrl, order) => {
 }
 
 
-//===============  найти пост по ID
-exports.findPostById = async (id) => {
-    if (id) {
-        const postId = parseInt(id)
+//===============  вызвать пост по ID
+exports.getPostById = async (id) => {
+    try {
+        // console.log('🔍 Сервис: ищем пост ID:', id); // Исправлено: используем id вместо postId
+
+        // if (!id) {
+        //     console.log('❌ ID поста не передан');
+        //     return null;
+        // }
+
+        const postId = parseInt(id); // Теперь объявляем до использования
+
+        if (isNaN(postId)) {
+            console.log('❌ Неверный формат ID поста:', id);
+            return null;
+        }
+
         const post = await bd.post.findUnique({
             where: { id: postId },
             include: {
+                user_post_ship: {
+                    select: {
+                        login: true,
+                        name: true,
+                        last_name: true,
+                        avatar: true
+                    }
+                },
                 post_category_ship: {
                     select: {
-                        name: true,
-                        id: true
+                        name: true
                     }
                 },
                 images: {
@@ -166,9 +207,15 @@ exports.findPostById = async (id) => {
                 }
             }
         })
+
+        console.log('✅ Сервис: пост найден:', post ? post.title : 'null');
+        console.log('🖼️ Сервис: изображения:', post ? post.images : 'null');
         return post
+
+    } catch (error) {
+        console.error('❌ Сервис: ошибка поиска поста:', error);
+        throw error;
     }
-    return null
 }
 
 //===============  обновление поста
@@ -185,16 +232,16 @@ exports.updatePost = async (id, postData) => {
 }
 
 //===============  добавление фото к посту
-exports.addPostImage = async (postId, imageUrl, imageOrder = 0) => {
-    const postImage = await bd.post_image.create({
-        data: {
-            image_url: imageUrl,
-            image_order: imageOrder,
-            post_id: parseInt(postId)
-        }
-    })
-    return postImage
-}
+// exports.addPostImage = async (postId, imageUrl, imageOrder = 0) => {
+//     const postImage = await bd.post_image.create({
+//         data: {
+//             image_url: imageUrl,
+//             image_order: imageOrder,
+//             post_id: parseInt(postId)
+//         }
+//     })
+//     return postImage
+// }
 
 //===============  удаление фото поста
 exports.deletePostImage = async (imageId) => {
@@ -255,3 +302,98 @@ exports.deletePostImagesByPostId = async (postId) => {
     })
     return images
 }
+
+
+
+// ======= ДЛЯ АДМИНКИ =======
+
+//=============== получить все посты для админки
+exports.getAllPostsForAdmin = async () => {
+    try {
+        // console.log('🔄 [SERVICE] Получаем все посты для админки...');
+
+        const posts = await bd.post.findMany({
+            include: {
+                images: {
+                    orderBy: { image_order: 'asc' }
+                },
+                user_post_ship: {
+                    select: {
+                        id: true,
+                        login: true
+                    }
+                },
+                post_category_ship: {
+                    select: {
+                        // id: true,
+                        name: true
+                    }
+                }
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
+
+        // console.log(`✅ [SERVICE] Найдено ${posts.length} постов`);
+        return posts;
+
+    } catch (error) {
+        console.error('❌ [SERVICE] Ошибка получения постов для админки:', error);
+        throw new Error(error.message);
+    }
+};
+
+//=============== обновить статус поста
+exports.updatePostStatus = async (postId, status) => {
+    try {
+        console.log('🔄 [SERVICE] Обновление статуса поста:', { postId, status });
+
+        const parsedPostId = parseInt(postId);
+        if (isNaN(parsedPostId)) {
+            throw new Error(`Неверный формат ID поста: ${postId}`);
+        }
+
+        // Валидация статуса для enum (используем правильные значения)
+        const validStatuses = ['Expectation', 'Published', 'Rejected'];
+        if (!validStatuses.includes(status)) {
+            throw new Error(`Неверный статус: ${status}. Допустимые значения: ${validStatuses.join(', ')}`);
+        }
+
+        console.log('📝 [SERVICE] Выполняем запрос к БД...');
+
+        const updatedPost = await bd.post.update({
+            where: { id: parsedPostId },
+            data: {
+                status: status // Передаем значение с заглавной буквы
+            },
+            include: {
+                images: true,
+                user_post_ship: {
+                    select: {
+                        id: true,
+                        login: true
+                    }
+                },
+                post_category_ship: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+
+        console.log('✅ [SERVICE] Пост успешно обновлен:', updatedPost);
+        return updatedPost;
+
+    } catch (error) {
+        console.error('❌ [SERVICE] Ошибка обновления статуса:', error);
+
+        if (error.code === 'P2025') {
+            throw new Error(`Пост с ID ${postId} не найден`);
+        }
+
+        throw new Error(`Ошибка базы данных: ${error.message}`);
+    }
+};

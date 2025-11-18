@@ -93,7 +93,7 @@ export default function Messages() {
                             <div className="no-chats">
                                 <p>У вас пока нет чатов</p>
                                 <p className="no-chats-hint">Начните общение с друзьями!</p>
-                                <Link to="/friends" className="go-to-friends-btn">
+                                <Link to="/friends" className="Link">
                                     Перейти к друзьям
                                 </Link>
                             </div>
