@@ -31,7 +31,6 @@ export default function Profile() {
     const { FileChange, selectedFileName } = useFileName("")
     const { OpenModal, CloseModal, selectedImage } = useImage(null)
 
-
     // хук
     const {
         isOpen: createPostOpen,

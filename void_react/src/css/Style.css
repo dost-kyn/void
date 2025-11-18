@@ -234,6 +234,111 @@ body {
 
 
 
+
+
+
+
+
+
+
+/*=============   Alert   ============*/
+/* 
+.Alert{
+    max-width: 350px;
+    background-color: var(--element);
+    padding: 10px 20px;
+}
+.Alert_container{
+    color: var(--text-color);
+}
+.Alert_container_text{
+    font-size: 18px;
+}
+.Alert_container_btn{
+    width: 100%;
+}
+.Alert_container_button{
+    color: var(--text-color);
+    background-color: var(--accent);
+} */
+
+/*=============   Alert   ============*/
+
+.Alert {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 400px;
+    width: 90%;
+    background-color: var(--element);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    animation: alertSlideIn 0.3s ease-out;
+    text-align: center;
+}
+
+.Alert--success {
+    border-left: 4px solid #4CAF50;
+}
+
+.Alert--error {
+    border-left: 4px solid #f44336;
+}
+
+.Alert--info {
+    border-left: 4px solid #2196F3;
+}
+
+.Alert--warning {
+    border-left: 4px solid #ff9800;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.Alert_container{
+    color: var(--text-color);
+}
+
+.Alert_container_text{
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.Alert_container_btn{
+    width: 100%;
+    text-align: right;
+}
+
+.Alert_container_button{
+    color: var(--text-color);
+    background-color: var(--accent);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.Alert_container_button:hover {
+    background-color: var(--accent-hover);
+}
+
+
+
 /*=============  адаптив  =============*/
 @media (max-width: 1200px) {
     .body {

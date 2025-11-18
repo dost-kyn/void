@@ -2,25 +2,21 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import '../css/Friends.css'
 import Naw from '../components/Naw'
-import { useFriends } from '../hooks/useFriends'
 import { useStartChatWithFriend } from '../hooks/useChat';
+import { 
+    useFriends, 
+    filterFriends, 
+    filterFriendRequests, 
+    filterSentRequests, 
+    formatDate, 
+    getAvatarUrl 
+} from '../hooks/useFriends'
 
 export default function Friends() {
-    const {
-        friends,
-        friendRequests,
-        sentRequests,
-        loading,
-        error,
-        acceptFriendRequest,
-        rejectFriendRequest
-    } = useFriends();
-
-    const { startChat, loading: chatLoading, error: chatError } = useStartChatWithFriend();
+    const { friends, friendRequests,  sentRequests, error, acceptFriendRequest, rejectFriendRequest } = useFriends();
+    const { startChat, error: chatError } = useStartChatWithFriend();
     const navigate = useNavigate();
-
     const [searchTerm, setSearchTerm] = useState('');
-
     const getAvatarUrl = (avatarPath) => {
         if (!avatarPath) return '../src/uploads/avatars/default-avatar.jpg';
         if (avatarPath.startsWith('http')) return avatarPath;
@@ -31,8 +27,6 @@ export default function Friends() {
     const handleStartChat = async (friendId) => {
         try {
             const chat = await startChat(friendId);
-            console.log('✅ Чат создан/найден:', chat);
-            // Перенаправляем в чат
             navigate(`/chat/${chat.id}`);
         } catch (err) {
             console.error('Error starting chat:', err);
@@ -41,35 +35,10 @@ export default function Friends() {
     };
 
     // Фильтрация
-    const filteredFriends = (friends || []).filter(friend => {
-        if (!friend) return false;
-        const name = friend.name || '';
-        const login = friend.login || '';
-        const search = searchTerm.toLowerCase();
+    const filteredFriends = filterFriends(friends, searchTerm);
+    const filteredRequests = filterFriendRequests(friendRequests, searchTerm);
+    const filteredSentRequests = filterSentRequests(sentRequests, searchTerm);
 
-        return name.toLowerCase().includes(search) ||
-            login.toLowerCase().includes(search);
-    });
-
-    const filteredRequests = (friendRequests || []).filter(request => {
-        if (!request) return false;
-        const name = request.name || '';
-        const login = request.login || '';
-        const search = searchTerm.toLowerCase();
-
-        return name.toLowerCase().includes(search) ||
-            login.toLowerCase().includes(search);
-    });
-
-    const filteredSentRequests = (sentRequests || []).filter(request => {
-        if (!request) return false;
-        const name = request.name || '';
-        const login = request.login || '';
-        const search = searchTerm.toLowerCase();
-
-        return name.toLowerCase().includes(search) ||
-            login.toLowerCase().includes(search);
-    });
 
     // Форматирование даты
     const formatDate = (dateString) => {
@@ -81,16 +50,6 @@ export default function Friends() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="body">
-                <Naw />
-                <div className="loading">Загрузка друзей...</div>
-            </div>
-        );
-    }
-
-    // Добавьте также проверку error
     if (error) {
         return (
             <div className="body">
@@ -99,8 +58,6 @@ export default function Friends() {
             </div>
         );
     }
-
-
 
     return (
         <>
@@ -225,13 +182,11 @@ export default function Friends() {
                                         </Link>
                                     </div>
                                     <div className="friend_buttons">
-                                        {/* <button className='friend_but_chat'>Написать</button> */}
                                         <button
                                             className='friend_but_chat'
                                             onClick={() => handleStartChat(friend.id)}
-                                            disabled={chatLoading}
                                         >
-                                            {chatLoading ? '...' : 'Написать'}
+                                            {'Написать'}
                                         </button>
 
                                     </div>

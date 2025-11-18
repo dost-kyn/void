@@ -1,145 +1,48 @@
 import React from 'react'
 import '../css/Authorization.css'
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { validateRegistration } from '../components/UI/auth/registr';
-import { registerUser } from '../api/users.api.js';
-
-import { useFilter } from '../components/UI/posts/filter'
+import { useRegistration } from '../hooks/useRegistration';
+import { 
+    handleFileChange, 
+    handleChange, 
+    handleSubmit, 
+    getSelectedCategoryNames 
+} from '../hooks/useRegistration';
 
 export default function Registration() {
-    // категории 
-        const {
-            sostFilter,
-            OpenFilter,
-            CloseFilter,
-            categories,
-            categoriesLoading,
-            categoriesError,
-            selectedCategories,
-            handleCategorySelect,
-            clearFilter,
-            applyFilter
-        } = useFilter()
+    const {
+        // Состояния
+        preview,
+        formData,
+        errors,
+        loading,
+        
+        // Функции состояния
+        setPreview,
+        setFormData,
+        setErrors,
+        setLoading,
+        
+        // Функции фильтра
+        sostFilter,
+        OpenFilter,
+        CloseFilter,
+        categories,
+        categoriesError,
+        selectedCategories,
+        handleCategorySelect
+    } = useRegistration();
 
-
-    const [preview, setPreview] = useState(null);
-    const [formData, setFormData] = useState({
-        firstName: '',
-        surname: '',
-        login: '',
-        email: '',
-        password: '',
-        repeatPassword: '',
-        category: '',
-        avatar: null,
-        agree: false
-    });
-    const [errors, setErrors] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
-
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-            setFormData(prev => ({
-                ...prev,
-                avatar: file
-            }));
-        }
-    };
-
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-
-        if (type === 'checkbox') {
-            setFormData(prev => ({
-                ...prev,
-                [name]: checked
-            }));
-        } else {
-            setFormData(prev => ({
-                ...prev,
-                [name]: value
-            }));
-        }
-
-        // Очищаем ошибку при вводе
-        if (errors[name]) {
-            setErrors(prev => ({
-                ...prev,
-                [name]: ''
-            }));
-        }
-    };
-
- const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-
-        try {
-            const validationErrors = await validateRegistration(formData);
-
-            if (Object.keys(validationErrors).length === 0) {
-                console.log('Регистрация успешна! Данные:', formData);
-
-                // FORMDATA ДЛЯ ОТПРАВКИ ФАЙЛА
-                const formDataToSend = new FormData();
-                formDataToSend.append('name', formData.firstName);
-                formDataToSend.append('last_name', formData.surname);
-                formDataToSend.append('login', formData.login);
-                formDataToSend.append('email', formData.email);
-                formDataToSend.append('password', formData.password);
-                formDataToSend.append('repeatPassword', formData.repeatPassword);
-
-                // Добавляем выбранные категории
-                selectedCategories.forEach(categoryId => {
-                    formDataToSend.append('categories[]', categoryId);
-                });
-
-                if (formData.avatar) {
-                    formDataToSend.append('avatar', formData.avatar);
-                }
-
-                const result = await registerUser(formDataToSend);
-
-                if (result.token) {
-                    localStorage.setItem('token', result.token);
-                    window.location.href = '/posts';
-                } else {
-                    setErrors({ general: result.message || 'Ошибка регистрации' });
-                }
-            }
-            else {
-                setErrors(validationErrors);
-            }
-        } catch (error) {
-            console.error('Ошибка регистрации:', error);
-            setErrors({ general: 'Произошла ошибка при регистрации' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // ✅ Получаем названия выбранных категорий
-    const getSelectedCategoryNames = () => {
-        return selectedCategories.map(catId => {
-            const category = categories.find(cat => cat.id === catId);
-            return category ? category.name : '';
-        }).filter(name => name !== '');
-    };
-
+    // Оборачиваем функции для передачи параметров
+    const handleFileChangeLocal = (e) => handleFileChange(e, setPreview, setFormData);
+    const handleChangeLocal = (e) => handleChange(e, formData, setFormData, errors, setErrors);
+    const handleSubmitLocal = (e) => handleSubmit(e, formData, selectedCategories, setErrors, setLoading);
 
     return (
         <>
             <div className="body">
                 <div className="Auth">
-                    <form className='form' onSubmit={handleSubmit}>
+                    <form className='form' onSubmit={handleSubmitLocal}>
                         <h1 className='title'>Регистрация пилота</h1>
 
                         {/* Имя */}
@@ -149,8 +52,9 @@ export default function Registration() {
                             name="firstName"
                             placeholder='Имя'
                             value={formData.firstName}
-                            onChange={handleChange}
+                            onChange={handleChangeLocal}
                             required
+                            disabled={loading}
                         />
                         {errors.firstName && <div className="error_message">{errors.firstName}</div>}
 
@@ -161,8 +65,9 @@ export default function Registration() {
                             name="surname"
                             placeholder='Фамилия'
                             value={formData.surname}
-                            onChange={handleChange}
+                            onChange={handleChangeLocal}
                             required
+                            disabled={loading}
                         />
                         {errors.surname && <div className="error_message">{errors.surname}</div>}
 
@@ -173,8 +78,9 @@ export default function Registration() {
                             name="login"
                             placeholder='Логин'
                             value={formData.login}
-                            onChange={handleChange}
+                            onChange={handleChangeLocal}
                             required
+                            disabled={loading}
                         />
                         {errors.login && <div className="error_message">{errors.login}</div>}
 
@@ -185,8 +91,9 @@ export default function Registration() {
                             name="email"
                             placeholder='Email'
                             value={formData.email}
-                            onChange={handleChange}
+                            onChange={handleChangeLocal}
                             required
+                            disabled={loading}
                         />
                         {errors.email && <div className="error_message">{errors.email}</div>}
 
@@ -197,8 +104,9 @@ export default function Registration() {
                             name="password"
                             placeholder='Пароль'
                             value={formData.password}
-                            onChange={handleChange}
+                            onChange={handleChangeLocal}
                             required
+                            disabled={loading}
                         />
                         {errors.password && <div className="error_message">{errors.password}</div>}
 
@@ -209,8 +117,9 @@ export default function Registration() {
                             name="repeatPassword"
                             placeholder='Повторите пароль'
                             value={formData.repeatPassword}
-                            onChange={handleChange}
+                            onChange={handleChangeLocal}
                             required
+                            disabled={loading}
                         />
                         {errors.repeatPassword && <div className="error_message">{errors.repeatPassword}</div>}
 
@@ -222,7 +131,7 @@ export default function Registration() {
                                 type="button" 
                                 className="Reg_category_btn" 
                                 onClick={OpenFilter}
-                                disabled={selectedCategories.length >= 3} 
+                                disabled={selectedCategories.length >= 3 || loading} 
                             >
                                 {selectedCategories.length === 0 
                                     ? 'Выберите категории' 
@@ -241,9 +150,7 @@ export default function Registration() {
                                     </div>
 
                                     <div className="filter_modal_punkts">
-                                        {categoriesLoading ? (
-                                            <div className="loading">Загрузка категорий...</div>
-                                        ) : categoriesError ? (
+                                        {categoriesError ? (
                                             <div className="error">{categoriesError}</div>
                                         ) : (
                                             categories.map(category => (
@@ -253,7 +160,7 @@ export default function Registration() {
                                                         className="filter_modal_punkt_inp"
                                                         checked={selectedCategories.includes(category.id)}
                                                         onChange={() => handleCategorySelect(category.id)}
-                                                        disabled={selectedCategories.length >= 3 && !selectedCategories.includes(category.id)} // ✅ Блокируем новые выборы при лимите
+                                                        disabled={selectedCategories.length >= 3 && !selectedCategories.includes(category.id)}
                                                     />
                                                     <p className="Reg_category_modal_punkt_p">{category.name}</p>
                                                 </div>
@@ -264,9 +171,6 @@ export default function Registration() {
                             )}
                         </div>
 
-
-
-
                         {/* Аватар */}
                         <p className='p_select2'>Фото профиля (не обязательно)</p>
                         <div className="avatar_upload">
@@ -274,10 +178,11 @@ export default function Registration() {
                                 Выберите файл
                                 <input
                                     type="file"
-                                    onChange={handleFileChange}
+                                    onChange={handleFileChangeLocal}
                                     accept="image/*"
                                     className="file_input"
                                     name="avatar"
+                                    disabled={loading}
                                 />
                             </label>
 
@@ -295,7 +200,8 @@ export default function Registration() {
                                 className={`checkbox ${errors.agree ? 'error' : ''}`}
                                 name="agree"
                                 checked={formData.agree}
-                                onChange={handleChange}
+                                onChange={handleChangeLocal}
+                                disabled={loading}
                             />
                             <p className="checkbox_p">Согласие на обработку персональных данных</p>
                         </div>
@@ -309,9 +215,9 @@ export default function Registration() {
                             <button
                                 className='btn'
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={loading}
                             >
-                                {isLoading ? 'Загрузка...' : 'Запуск!'}
+                                {loading ? 'Регистрируем...' : 'Запуск!'}
                             </button>
                         </div>
 

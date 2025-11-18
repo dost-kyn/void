@@ -275,9 +275,7 @@
 
 @media (max-width: 1024px) {
     .Chat_body {
-        padding: 0 15px;
         max-width: 100%;
-        /* ← меняем на 100% */
         box-sizing: border-box;
     }
 

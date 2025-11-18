@@ -6,25 +6,17 @@ import '../css/Chat.css'
 import { useAutoResizeTextarea } from '../components/UI/chat/textarea'
 import { useNaw } from '../components/UI/chat/naw'
 import { useChat } from '../hooks/useChat';
+import Alert from '../components/Alert';
+import { useAlert } from '../components/UI/alert';
 
 export default function Chat() {
-    const { id } = useParams(); // Измените chatId на id
+    const { id } = useParams();
     const { textareaRef, adjustHeight, resetHeight } = useAutoResizeTextarea();
     const [inputText, setInputText] = useState('');
     const isMobile = useNaw();
-
-    // Используем хук чата для работы с бэкендом
-    const {
-        currentChat,
-        messages,
-        loading,
-        error,
-        sendMessage,
-        loadChatMessages
-    } = useChat();
-
+    const { alert, showActionAlert, closeAlert } = useAlert();
+    const { currentChat, messages, error, sendMessage, loadChatMessages } = useChat();
     const messagesEndRef = useRef(null);
-
 
     // Прокрутка к последнему сообщению
     const scrollToBottom = () => {
@@ -36,24 +28,24 @@ export default function Chat() {
         if (id) {
             loadChatMessages(parseInt(id));
         }
-    }, [id]); 
+    }, [id]);
 
     // Прокрутка при изменении сообщений
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
-    // Обработчик отправки сообщения
+    // Обработчик отправки сообщения 
     const handleSendMessage = async () => {
-        if (inputText.trim() === '' || !id) return; 
+        if (inputText.trim() === '' || !id) return;
 
         try {
-            await sendMessage(parseInt(id), inputText); 
+            await sendMessage(parseInt(id), inputText);
             setInputText('');
             resetHeight();
         } catch (err) {
             console.error('Ошибка отправки сообщения:', err);
-            alert('Не удалось отправить сообщение');
+            showActionAlert('message_error', 'error');
         }
     };
 
@@ -80,25 +72,14 @@ export default function Chat() {
     const formatTime = (dateString) => {
         if (!dateString) return '';
         try {
-            return new Date(dateString).toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            return new Date(dateString).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
             });
         } catch (error) {
             return '';
         }
     };
-
-    if (loading && !messages.length) {
-        return (
-            <div className="Chat_body">
-                {!isMobile && <Naw />}
-                <div className="Chat">
-                    <div className="loading">Загрузка чата...</div>
-                </div>
-            </div>
-        );
-    }
 
     if (error) {
         return (
@@ -115,10 +96,16 @@ export default function Chat() {
     return (
         <>
             <div className="Chat_body">
-                {!isMobile && <Naw />}
+                <Naw />
+                <Alert
+                    isOpen={alert.isOpen}
+                    text={alert.text}
+                    type={alert.type}
+                    onClose={closeAlert}
+                />
+
                 <div className="Chat">
 
-                    {/* Заголовок чата с информацией о друге */}
                     <div className="Chat_header">
                         <div className="Chat_header_container">
                             <button className="Chat_header_btn">
@@ -131,10 +118,10 @@ export default function Chat() {
                                 <>
                                     <div className="Chat_user_avatar">
                                         <Link to={`/user/${currentChat.friend.id}`}>
-                                            <img 
-                                                src={getAvatarUrl(currentChat.friend.avatar)} 
+                                            <img
+                                                src={getAvatarUrl(currentChat.friend.avatar)}
                                                 alt={`${currentChat.friend.name} ${currentChat.friend.last_name}`}
-                                                className="Chat_user_avatar_img" 
+                                                className="Chat_user_avatar_img"
                                             />
                                         </Link>
                                     </div>
@@ -157,7 +144,6 @@ export default function Chat() {
                         </div>
                     </div>
 
-                    {/* Область сообщений */}
                     <div className="Chat_chat">
                         <div className="Chat_messages">
                             {messages.length === 0 ? (
@@ -167,21 +153,12 @@ export default function Chat() {
                             ) : (
                                 messages.map(message => {
                                     const isMyMessage = message.sender?.is_me;
-                                    
+
                                     return (
-                                        <div 
-                                            key={message.id} 
+                                        <div
+                                            key={message.id}
                                             className={`Chat_message ${isMyMessage ? 'my-message' : 'friend-message'}`}
                                         >
-                                            {/* {!isMyMessage && (
-                                                <div className="message-avatar">
-                                                    <img 
-                                                        src={getAvatarUrl(message.sender?.avatar)} 
-                                                        alt={message.sender?.name} 
-                                                        className="message-avatar-img"
-                                                    />
-                                                </div>
-                                            )} */}
                                             <div className="message-content">
                                                 <p className='Chat_message_text'>{message.text}</p>
                                                 <span className='Chat_message_time'>
@@ -207,18 +184,13 @@ export default function Chat() {
                                 value={inputText}
                                 onInput={handleInputChange}
                                 onKeyPress={handleKeyPress}
-                                disabled={loading}
                             />
-                            <button 
-                                className="Chat_chat_btn" 
+                            <button
+                                className="Chat_chat_btn"
                                 onClick={handleSendMessage}
-                                disabled={loading || !inputText.trim()}
+                                disabled={!inputText.trim()}
                             >
-                                {loading ? (
-                                    <div className="loading-spinner"></div>
-                                ) : (
-                                    <img src="../src/uploads/posts/strelka.svg" alt="Отправить" className="Chat_chat_btn_img" />
-                                )}
+                                <img src="../src/uploads/posts/strelka.svg" alt="Отправить" className="Chat_chat_btn_img" />
                             </button>
                         </div>
                     </div>
