@@ -17,46 +17,132 @@ exports.getAllUsers = async (req, res, next) => {
 };
 
 
-//===============  регистрация
 exports.createUser = async (req, res, next) => {
-    const { name, last_name, login, email, password, repeatPassword } = req.body;
+    try {
+        const { name, last_name, login, email, password, repeatPassword, categories } = req.body;
+        const avatarPath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const avatarPath = req.file ? `/uploads/${req.file.filename}` : null;
+        console.log('📨 Регистрация - полученные данные:', {
+            name, last_name, login, email,
+            categories: categories || 'не указаны'
+        });
 
-    const VerifyCreateUser = await UserService.VerifyCreateUser(
-        name, last_name, login, email, password, repeatPassword
-    );
-
-    const VerifyPasswords = await UserService.VerifyPasswords(password, repeatPassword);
-    const GetUsersByEmail = await UserService.GetUsersByEmail(email);
-    const GetUsersByLogin = await UserService.GetUsersByLogin(login);
-
-    if (VerifyCreateUser) return res.status(400).json({ message: VerifyCreateUser });
-    if (VerifyPasswords) return res.status(400).json({ message: VerifyPasswords });
-    if (GetUsersByEmail) return res.status(400).json({ message: GetUsersByEmail });
-    if (GetUsersByLogin) return res.status(400).json({ message: GetUsersByLogin });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await UserService.createUser({
-        name, last_name, login, email, hashedPassword, avatar: avatarPath
-    });
-
-
-    const token = jwt.sign(
-        {
-            id: newUser.id,
-            role: newUser.role,
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "5h",
+        // Обработка категорий
+        let categoryIds = [];
+        if (categories) {
+            if (Array.isArray(categories)) {
+                categoryIds = categories.map(id => parseInt(id)).filter(id => !isNaN(id));
+            } else if (typeof categories === 'string') {
+                categoryIds = [parseInt(categories)].filter(id => !isNaN(id));
+            }
         }
-    );
 
-    res.status(200).json({ message: "Пользователь зарегистрирован", token });
+        console.log('🎯 Обработанные категории:', categoryIds);
 
+        // Валидации - УБРАЛ categories из вызова VerifyCreateUser
+        const VerifyCreateUser = await UserService.VerifyCreateUser(
+            name, last_name, login, email, password, repeatPassword
+            // categories больше не передаем сюда
+        );
+        const VerifyPasswords = await UserService.VerifyPasswords(password, repeatPassword);
+        const GetUsersByEmail = await UserService.GetUsersByEmail(email);
+        const GetUsersByLogin = await UserService.GetUsersByLogin(login);
+
+        if (VerifyCreateUser) return res.status(400).json({ message: VerifyCreateUser });
+        if (VerifyPasswords) return res.status(400).json({ message: VerifyPasswords });
+        if (GetUsersByEmail) return res.status(400).json({ message: GetUsersByEmail });
+        if (GetUsersByLogin) return res.status(400).json({ message: GetUsersByLogin });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Создаем пользователя с категориями
+        const newUser = await UserService.createUser({
+            name,
+            last_name,
+            login,
+            email,
+            hashedPassword,
+            avatar: avatarPath,
+            categories: categoryIds
+        });
+
+        const token = jwt.sign(
+            {
+                id: newUser.id,
+                role: newUser.role,
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "5h",
+            }
+        );
+
+        console.log('✅ Пользователь зарегистрирован с категориями:', newUser.id_category);
+
+        res.status(200).json({
+            message: "Пользователь зарегистрирован",
+            token,
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                login: newUser.login,
+                categories: newUser.id_category
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка регистрации:', error);
+
+        if (error.code === 'P2025') {
+            return res.status(400).json({ message: "Одна из выбранных категорий не найдена" });
+        }
+
+        res.status(500).json({ message: "Ошибка сервера при регистрации" });
+    }
 };
+
+
+
+//===============  регистрация
+// exports.createUser = async (req, res, next) => {
+//     const { name, last_name, login, email, password, repeatPassword } = req.body;
+
+//     const avatarPath = req.file ? `/uploads/${req.file.filename}` : null;
+
+//     const VerifyCreateUser = await UserService.VerifyCreateUser(
+//         name, last_name, login, email, password, repeatPassword
+//     );
+
+//     const VerifyPasswords = await UserService.VerifyPasswords(password, repeatPassword);
+//     const GetUsersByEmail = await UserService.GetUsersByEmail(email);
+//     const GetUsersByLogin = await UserService.GetUsersByLogin(login);
+
+//     if (VerifyCreateUser) return res.status(400).json({ message: VerifyCreateUser });
+//     if (VerifyPasswords) return res.status(400).json({ message: VerifyPasswords });
+//     if (GetUsersByEmail) return res.status(400).json({ message: GetUsersByEmail });
+//     if (GetUsersByLogin) return res.status(400).json({ message: GetUsersByLogin });
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const newUser = await UserService.createUser({
+//         name, last_name, login, email, hashedPassword, avatar: avatarPath
+//     });
+
+
+//     const token = jwt.sign(
+//         {
+//             id: newUser.id,
+//             role: newUser.role,
+//         },
+//         process.env.JWT_SECRET,
+//         {
+//             expiresIn: "5h",
+//         }
+//     );
+
+//     res.status(200).json({ message: "Пользователь зарегистрирован", token });
+
+// };
 
 
 
@@ -136,20 +222,20 @@ exports.updateUser = async (req, res, next) => {
     try {
         const userId = req.params.id;
         const updateData = req.body;
-        
+
         console.log('Обновление пользователя:', userId, updateData);
         console.log('Файл:', req.file);
 
         // Если есть файл, добавляем путь к аватару
         if (req.file) {
-            updateData.avatar = '/uploads/' + req.file.filename; 
+            updateData.avatar = '/uploads/' + req.file.filename;
         }
 
         const updatedUser = await UserService.updateUser(userId, updateData);
-        
-        res.status(200).json({ 
-            message: "Данные обновлены", 
-            user: updatedUser 
+
+        res.status(200).json({
+            message: "Данные обновлены",
+            user: updatedUser
         });
     } catch (error) {
         console.error('Ошибка в updateUser:', error);

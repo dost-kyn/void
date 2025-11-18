@@ -137,9 +137,9 @@ export default function Posts() {
                             <button className="Posts_tools_filter_button" onClick={openFilter}>
                                 <img src="../src/uploads/filter.svg" alt="" className="Posts_tools_filter_img" />
                                 <h2 className="Posts_tools_filter_title">Фильтр</h2>
-                                {selectedCategories.length > 0 && (
+                                {/* {selectedCategories.length > 0 && (
                                     <span className="filter_badge">{selectedCategories.length}</span>
-                                )}
+                                )} */}
                             </button>
 
                             {/* Модальное окно фильтра */}
@@ -169,13 +169,13 @@ export default function Posts() {
                                     </div>
 
                                     <div className="filter_modal_actions">
-                                        <button 
+                                        {/* <button 
                                             className="clear_filter_btn" 
                                             onClick={clearFilter}
                                             disabled={selectedCategories.length === 0}
                                         >
                                             Сбросить
-                                        </button>
+                                        </button> */}
                                         <button 
                                             className="apply_filter_btn" 
                                             onClick={applyFilter}
@@ -193,14 +193,14 @@ export default function Posts() {
                     </div>
 
                     {/* Индикатор активного фильтра */}
-                    {selectedCategories.length > 0 && (
+                    {/* {selectedCategories.length > 0 && (
                         <div className="active_filter_info">
                             <p>Активный фильтр: {selectedCategories.length} категорий</p>
                             <button onClick={clearFilter} className="clear_filter_small_btn">
                                 Сбросить
                             </button>
                         </div>
-                    )}
+                    )} */}
 
                     <div className="Posts_posts">
                         {/* Состояние загрузки */}
@@ -229,11 +229,11 @@ export default function Posts() {
                                         : 'Пока нет постов'
                                     }
                                 </p>
-                                {selectedCategories.length > 0 && (
-                                    <button onClick={clearFilter} className="retry_btn">
+                                {/* {selectedCategories.length > 0 && (
+                                    <button onClick={clearFilter} className="Link">
                                         Показать все посты
                                     </button>
-                                )}
+                                )} */}
                             </div>
                         )}
                         
