@@ -11,6 +11,7 @@ import Messages from './pages/Messages'
 import Authorization from './pages/Authorization'
 import Registration from './pages/Registration'
 import Profile from './pages/Profile'
+import UserProfile from './pages/UserProfile'
 
 import AdminUsers from './pages/admin_panel/AdminUsers'
 import AdminPosts from './pages/admin_panel/AdminPosts'
@@ -24,11 +25,13 @@ function App() {
         <Route  path='/posts' element={<Posts/>}/>
         <Route  path='/chat' element={<Chat/>}/>
         <Route  path='/profile/:id' element={<Profile/>}/>
+        <Route path="/user/:id" element={<UserProfile />} /> 
         <Route  path='/' element={<Screensaver/>}/>
         <Route  path='/friends' element={<Friends/>}/>
         <Route  path='/messages' element={<Messages/>}/>
         <Route  path='/authorization' element={<Authorization/>}/>
         <Route  path='/registration' element={<Registration/>}/>
+
 
         <Route  path='/adminUsers' element={<AdminUsers/>}/>
         <Route  path='/adminPosts' element={<AdminPosts/>}/>

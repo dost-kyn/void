@@ -117,7 +117,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-bottom: 20px;
 }
 .friend_title{
@@ -178,7 +178,41 @@
 
 
 
+.request_status{
+    color: var(--text-color);
+    font-family: "Advent Pro";
+}
 
+.request_avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.request_avatar_img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Также для аватаров друзей */
+.friend_avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.friend_avatar_img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
 
 /* адаптив */
 @media (max-width: 900px){

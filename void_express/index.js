@@ -32,9 +32,11 @@ const upload = multer({
 
 
 const errorHandler = require("./middlewear/errorHandler");
+
 const userRoutes = require('./features/users/user.routers')
 const PostRouters = require('./features/posts/posts.routers')
 const CategoriesRouters = require('./features/categories/categories.routers')
+const friendsRouter = require('./features/friends/friends.routers');
 
 app.use(express.json());
 
@@ -45,7 +47,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/posts', PostRouters);
 app.use('/api/users', userRoutes)
 app.use('/api/categories', CategoriesRouters)
-
+app.use('/api/friends', friendsRouter);
 app.use(errorHandler)
 
 

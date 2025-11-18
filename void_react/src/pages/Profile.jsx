@@ -2,6 +2,7 @@ import React from 'react'
 import Naw from '../components/Naw'
 import '../css/Profile.css'
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom';
 
 import { useSlider } from '../components/UI/posts/slider'
 import { useCreate } from '../components/UI/profile/create'
@@ -21,6 +22,8 @@ import { useReadMore } from '../components/UI/posts/read_more'
 import { useDeletePostModal } from '../hooks/useDeletePostModal';
 
 export default function Profile() {
+    const { id } = useParams();
+    const [isMyProfile, setIsMyProfile] = useState(true);
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
     const { sostCategories, OpenCategories, CloseCategories } = useCategories(false)
     const { sostEditProfile, OpenEditProfile, CloseEditProfile } = useEditProfile(false)
@@ -354,10 +357,13 @@ export default function Profile() {
         }
     }, [sostEditProfile])
 
-    // console.log('User data:', user)
-    // console.log('User avatar:', user?.avatar)
+//     // console.log('User data:', user)
+//     // console.log('User avatar:', user?.avatar)
 
 
+//     loadUserData();
+//     fetchCategories();
+// }, [id]);
     return (
         <>
             <div className="body">

@@ -99,8 +99,6 @@
 }
 
 .Profile_user_avatar_file_label {
-
-
     display: inline-block;
     background-color: var(--accent);
     color: var(--text-color);
@@ -630,6 +628,24 @@
 }
 
 
+
+
+.ProfileUser_avatar_info_p{
+    font-size: 20px;
+    margin: 10px 0;
+    font-weight: 600;
+}
+
+.ProfileUser_column_button_btn{
+    background-color: var(--accent);
+    color: var(--text-color);
+    padding: 10px 15px;
+    width: 230px;
+    text-align: center;
+    height: 40px;
+    font-size: 16px;
+    border-radius: 5px;
+}
 
 
 
