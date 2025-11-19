@@ -12,6 +12,13 @@ exports.getAllUsers = async () => {
 
 //===============  регистрация
 exports.createUser = async (userData) => {
+const { categories = [], ...userDataWithoutCategories } = userData;
+    
+    console.log('📝 Создание пользователя с категориями:', { 
+        categories, 
+        userData: userDataWithoutCategories 
+    });
+
     const user = await bd.user.create({
         data: {
             name: userData.name,
@@ -20,7 +27,19 @@ exports.createUser = async (userData) => {
             email: userData.email,
             password: userData.hashedPassword,
             avatar: userData.avatar,
+            // Подключаем категории через связь
+            id_category: {
+                connect: categories.map(categoryId => ({ id: parseInt(categoryId) }))
+            }
         },
+        include: {
+            id_category: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
     });
     return user;
 };
@@ -105,7 +124,15 @@ exports.findUserById = async (id) => {
     const userId = parseInt(id);
 
     const user = await bd.user.findUnique({
-        where: { id: userId }
+        where: { id: userId },
+        include: {
+            id_category: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
     });
 
     return user;
