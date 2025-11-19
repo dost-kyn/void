@@ -1,3 +1,28 @@
+/* Profile.css - добавьте в конец */
+.ban_message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+}
+
+.ban_text {
+    color: #721c24;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.ban_subtext {
+    color: #721c24;
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+
+
 .Profile {
     width: 100%;
 }

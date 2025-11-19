@@ -1,16 +1,36 @@
 const API_URL = 'http://localhost:5000/api';
 
+
 export const createPost = async (postData) => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        throw new Error('Токен не найден');
+    }
+
     const response = await fetch(`${API_URL}/posts/create`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(postData)
     });
 
-    if (!response.ok) throw new Error('Failed to create post');
-    return await response.json();
+    if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            errorData = { error: `HTTP error! status: ${response.status}` };
+        }
+        
+        // Пробрасываем сообщение об ошибке от сервера
+        throw new Error(errorData.error || `Ошибка создания поста: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
 };
 
 export const getUserPosts = async (userId) => {

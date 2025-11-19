@@ -3,35 +3,41 @@ import { delProfile } from '../../api/users.api';
 
 export const useDeleteProfile = (showActionAlert) => {
     const deleteProfile = async (userId) => {
-        console.log('🗑️ useDeleteProfile: Начинаем удаление профиля userId:', userId);
+
         try {
             const result = await delProfile(userId);
-            console.log('✅ useDeleteProfile: Профиль удален:', result);
-            
-            // Успешное удаление
             localStorage.removeItem('token');
-            console.log('🔓 useDeleteProfile: Токен удален из localStorage');
-            
+            localStorage.removeItem('user'); 
+
             if (showActionAlert) {
-                showActionAlert('success_generic', 'success', { message: 'Профиль успешно удален' });
+                showActionAlert('success_generic', 'success', { 
+                    message: 'Профиль успешно удален' 
+                });
             }
             
             setTimeout(() => {
-                console.log('🔄 useDeleteProfile: Перенаправляем на главную страницу');
                 window.location.href = '/';
             }, 1500);
             
         } catch (error) {
-            console.error('❌ useDeleteProfile: Ошибка удаления профиля:', error);
+            console.error('useDeleteProfile: Ошибка удаления профиля:', error);
+            let alertAction = 'error_generic';
+            let alertData = { message: 'Ошибка удаления профиля' };
             
-            // НЕ удаляем токен при ошибке!
-            console.log('⚠️ useDeleteProfile: Токен НЕ удален из-за ошибки');
-            
-            if (showActionAlert) {
-                showActionAlert('error_generic', 'error', { message: 'Ошибка удаления профиля: ' + error.message });
+            if (error.message.includes('403')) {
+                alertAction = 'error_generic';
+                alertData = { message: 'Нельзя удалить чужой профиль' };
+            }  else if (error.message.includes('404')) {
+                alertAction = 'error_generic';
+                alertData = { message: 'Пользователь не найден' };
+            } else {
+                alertData = { message: `Ошибка удаления профиля: ${error.message}` };
             }
             
-            // Пробрасываем ошибку дальше, чтобы компонент знал об ошибке
+            if (showActionAlert) {
+                showActionAlert(alertAction, 'error', alertData);
+            }
+            
             throw error;
         }
     };

@@ -116,8 +116,6 @@ const handleSendMessageClick = async () => {
     return (
         <div className="body">
             <Naw />
-            
-            {/* Alert компонент */}
             <Alert 
                 isOpen={alert.isOpen}
                 text={alert.text}

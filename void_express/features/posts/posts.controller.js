@@ -30,7 +30,8 @@ exports.getUserPosts = async (req, res) => {
   }
 };
 
-// POST /api/posts/create - создать пост
+
+
 exports.createPost = async (req, res) => {
   try {
     console.log('📨 Получен запрос на создание поста:', req.body);
@@ -40,30 +41,37 @@ exports.createPost = async (req, res) => {
     // Валидация
     const validationError = await PostsService.VerifyCreatePost({
       title, content, categoryId, authorId
-    })
+    });
     if (validationError) {
       console.log('❌ Ошибка валидации:', validationError);
-      return res.status(400).json({ error: validationError })
+      return res.status(400).json({ error: validationError });
     }
 
     console.log('🔍 Создаем пост в БД...');
     const newPost = await PostsService.createPost({
       title, content, categoryId, authorId
-    })
+    });
 
     console.log('✅ Пост создан:', newPost);
     res.status(201).json({
       message: 'Пост успешно создан',
       post: newPost
-    })
+    });
 
   } catch (error) {
     console.error('❌ Ошибка создания поста:', error);
-    res.status(500).json({ error: 'Ошибка сервера при создании поста' })
+    
+    // Обрабатываем ошибку бана отдельно
+    if (error.message.includes('забанен')) {
+      return res.status(403).json({ 
+        error: 'Вы не можете публиковать посты, так как ваш аккаунт забанен за нарушение правил публикации постов' 
+      });
+    }
+    
+    res.status(500).json({ error: 'Ошибка сервера при создании поста' });
   }
 }
 
-// GET /api/posts/:id - получить пост по ID
 exports.getPostById = async (req, res) => {
   try {
     const { id } = req.params;

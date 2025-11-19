@@ -8,37 +8,38 @@ import { useSlider } from '../components/UI/posts/slider'
 import { useCreate } from '../components/UI/profile/create'
 import { useCategories } from '../components/UI/profile/categories'
 import { useEditProfile } from '../components/UI/profile/edit_user'
-import { useDeleteProfile } from '../components/UI/profile/delete_profile'
+import { useDeleteProfile as useDeleteProfileModal } from '../components/UI/profile/delete_profile'
 import { useFileName } from '../components/UI/profile/file_avatar_name'
-import { findUser, delProfile, updateUser, updateUserWithPhoto } from '../api/users.api'
-
 import { getUserPosts } from '../api/posts.api'
 import { getAllCategories } from '../api/categories.api'
-import { useCreatePost } from '../hooks/useCreatePost'
-import { useEditPost } from '../hooks/useEditPost';
-import { useDeletePost } from '../hooks/useDeletePost';
 import { useImage } from '../components/UI/posts/post_image'
 import { useReadMore } from '../components/UI/posts/read_more'
 import { useDeletePostModal } from '../hooks/useDeletePostModal';
 
-
-
-
 import { useFetchUserProfile } from '../hooks/profile/UserProfile';
 import { useGetUserIdFromToken } from '../hooks/profile/GetUserIdFromToken';
-import { useDeleteProfile as useDeleteProfileHook } from '../hooks/profile/DeleteProfile';
+import { useUserBan } from '../hooks/profile/useUserBan';
+import { useCreatePost } from '../hooks/useCreatePost';
+import { useEditPost } from '../hooks/useEditPost';
+import { useDeletePost } from '../hooks/useDeletePost';
 
 export default function Profile() {
     const { id } = useParams();
+    
+    // Хук для проверки бана
+    const { isBanned } = useUserBan();
+    
+    // Хук для модального окна удаления профиля
+    const { isDeleteModalOpen, OpenDelete, CloseDelete } = useDeleteProfileModal(false)
+    
     const [isMyProfile, setIsMyProfile] = useState(true);
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
     const { sostCategories, OpenCategories, CloseCategories } = useCategories(false)
     const { sostEditProfile, OpenEditProfile, CloseEditProfile } = useEditProfile(false)
-    const { isDeleteModalOpen, OpenDelete, CloseDelete, DeleteProfile, СancelDeleteProfile } = useDeleteProfile(false)
     const { FileChange, selectedFileName } = useFileName("")
     const { OpenModal, CloseModal, selectedImage } = useImage(null)
 
-    // хук
+    // Хук для создания поста
     const {
         isOpen: createPostOpen,
         loading: createPostLoading,
@@ -48,8 +49,9 @@ export default function Profile() {
         CloseCreate: closeCreatePost,
         handleInputChange: handlePostInputChange,
         handleFileChange: handlePostFileChange,
+        removeImage,
         handleCreatePost
-    } = useCreatePost(false)
+    } = useCreatePost(false);
 
     const {
         isOpen: editPostOpen,
@@ -81,54 +83,17 @@ export default function Profile() {
     } = useDeletePostModal(false);
 
     const [categories, setCategories] = useState([])
-    // const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(false)
     const [photo, setPhoto] = useState(null)
     const [userPosts, setUserPosts] = useState([])
-
     const [expandedPosts, setExpandedPosts] = useState({})
     const [currentImageIndexes, setCurrentImageIndexes] = useState({})
 
-
-    // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПРОФИЛЯ
-    // const fetchUserProfile = async (userId) => {
-    //     try {
-    //         const userData = await findUser(userId)
-    //         setUser(userData)
-    //     } catch (error) {
-    //         console.error('Ошибка загрузки профиля:', error)
-    //     }
-    // }
     // Хук для получения профиля пользователя
     const { user, setUser, fetchUserProfile } = useFetchUserProfile();
 
     // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ТОКЕНА
-    // const getUserIdFromToken = () => {
-    //     const token = localStorage.getItem('token')
-    //     if (token) {
-    //         const payload = JSON.parse(atob(token.split('.')[1]))
-    //         return payload.id
-    //     }
-    //     return null
-    // }
     const { getUserIdFromToken } = useGetUserIdFromToken();
-
-
-
-
-    // ФУНКЦИЯ ДЛЯ УДАЛЕНИЯ ПРОФИЛЯ
-    // const deleteProfile = async (userId) => {
-    //     try {
-    //         const result = await delProfile(userId)
-    //         localStorage.removeItem('token')
-    //         window.location.href = '/'
-    //     } catch (error) {
-    //         console.error('Ошибка удаления профиля:', error)
-    //     }
-    // }
-    const { deleteProfile } = useDeleteProfileHook();
-
-
 
     // ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ПРОФИЛЯ
     const handleUpdateProfile = async (e) => {
@@ -252,67 +217,19 @@ export default function Profile() {
         }
     };
 
-    // Функция для переключения "Читать далее"
-    const handleToggleExpand = (postId) => {
-        setExpandedPosts(prev => ({
-            ...prev,
-            [postId]: !prev[postId]
-        }))
-    }
-
-    // Функции для слайдера
-    const handleNextImage = (postId) => {
-        setCurrentImageIndexes(prev => {
-            const currentIndex = prev[postId] || 0
-            const post = userPosts.find(p => p.id === postId)
-            const imagesCount = post?.images?.length || 0
-            return {
-                ...prev,
-                [postId]: imagesCount > 0 ? (currentIndex + 1) % imagesCount : 0
+    // Функция для удаления профиля
+    const handleDeleteProfile = async () => {
+        const userId = getUserIdFromToken();
+        if (userId) {
+            console.log('🔄 Profile: Запускаем удаление профиля...');
+            try {
+                await deleteProfile(userId);
+                console.log('✅ Profile: Удаление профиля завершено успешно');
+            } catch (error) {
+                console.error('❌ Profile: Ошибка при удалении профиля:', error);
             }
-        })
-    }
-
-    const handlePrevImage = (postId) => {
-        setCurrentImageIndexes(prev => {
-            const currentIndex = prev[postId] || 0
-            const post = userPosts.find(p => p.id === postId)
-            const imagesCount = post?.images?.length || 0
-            return {
-                ...prev,
-                [postId]: imagesCount > 0 ? (currentIndex - 1 + imagesCount) % imagesCount : 0
-            }
-        })
-    }
-
-    const handleSetImageIndex = (postId, index) => {
-        setCurrentImageIndexes(prev => ({
-            ...prev,
-            [postId]: index
-        }))
-    }
-
-    // Функция для удаления поста
-    const handleDeletePost = async () => {
-        const postId = ConfirmDeletePost();
-        if (!postId) return;
-
-        console.log('🗑️ Удаляем пост ID:', postId);
-
-        const success = await deletePostAction(postId);
-
-        if (success) {
-            console.log('✅ Пост удален, обновляем список...');
-            const userId = getUserIdFromToken();
-            if (userId) {
-                await fetchUserPosts(userId);
-            }
-            console.log('✅ Список постов обновлен');
-        } else {
-            alert('Ошибка при удалении поста');
         }
     };
-
 
     // Загружаем данные пользователя при монтировании компонента
     useEffect(() => {
@@ -331,11 +248,11 @@ export default function Profile() {
         }
     }, [sostEditProfile])
 
-
     return (
         <>
             <div className="body">
                 <Naw />
+
                 <div className="Profile">
                     <h1 className="Posts_title">Профиль</h1>
 
@@ -473,17 +390,12 @@ export default function Profile() {
                                                     <h3 className='Profile_delete_modal_title'>Подтверждение удаления</h3>
                                                     <p>Вы действительно хотите удалить профиль? Это действие нельзя отменить.</p>
                                                     <div className="Profile_modal_buttons">
-                                                        <button onClick={СancelDeleteProfile} className="Profile_cancel_btn">
+                                                        <button onClick={CloseDelete} className="Profile_cancel_btn">
                                                             Отмена
                                                         </button>
                                                         <button
                                                             className="Profile_delete_btn"
-                                                            onClick={() => {
-                                                                const userId = getUserIdFromToken()
-                                                                if (userId) {
-                                                                    deleteProfile(userId)
-                                                                }
-                                                            }}
+                                                            onClick={handleDeleteProfile}
                                                         >
                                                             Удалить
                                                         </button>
@@ -536,7 +448,18 @@ export default function Profile() {
 
                     <div className="Profile_tools">
                         <h2 className="Profile_tools_title">Мои посты</h2>
-                        <button className="Profile_tools_btn" onClick={openCreatePost}>Создать новый пост</button>
+                        
+                        {/* ПРОСТОЕ РЕШЕНИЕ: если забанен - показываем сообщение, если нет - кнопку */}
+                        {isBanned ? (
+                            <div className="ban_message">
+                                <p className="ban_text">❌ Ваш аккаунт забанен за нарушение правил публикации постов</p>
+                                <p className="ban_subtext">Вы не можете создавать новые посты</p>
+                            </div>
+                        ) : (
+                            <button className="Profile_tools_btn" onClick={openCreatePost}>
+                                Создать новый пост
+                            </button>
+                        )}
 
                         {/* модальное окно - создание поста */}
                         {createPostOpen && (
@@ -638,6 +561,7 @@ export default function Profile() {
                             </>
                         )}
                     </div>
+
 
 
 

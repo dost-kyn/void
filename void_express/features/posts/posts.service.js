@@ -129,6 +129,21 @@ exports.VerifyCreatePost = async (postData) => {
 
 //===============  создание поста
 exports.createPost = async (postData) => {
+    // Сначала проверяем, не забанен ли пользователь
+    const user = await bd.user.findUnique({
+        where: { id: parseInt(postData.authorId) },
+        select: { status: true }
+    });
+
+    if (!user) {
+        throw new Error('Пользователь не найден');
+    }
+
+    if (user.status === 'Ban') {
+        throw new Error('Вы не можете публиковать посты, так как ваш аккаунт забанен за нарушение правил публикации постов');
+    }
+
+    // Если пользователь не забанен, создаем пост
     const post = await bd.post.create({
         data: {
             title: postData.title,
@@ -137,10 +152,9 @@ exports.createPost = async (postData) => {
             user_id: parseInt(postData.authorId),
             status: 'Expectation'
         }
-    })
-    return post
+    });
+    return post;
 }
-
 
 //===============  добавить фото к посту
 exports.addPostImage = async (postId, imageUrl, order) => {
