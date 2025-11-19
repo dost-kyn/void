@@ -69,13 +69,55 @@ export const findUser = async(userId) => {
 
 
 
-// удаление профиля
-export const delProfile = async(userId) => {
-    const response = await fetch(`${API_URL}/users/${userId}`, {
-        method: 'DELETE'
-    })
-    return await response.json()
-}
+// // удаление профиля
+// export const delProfile = async(userId) => {
+//     const response = await fetch(`${API_URL}/users/${userId}`, {
+//         method: 'DELETE'
+//     })
+//     return await response.json()
+// }
+export const delProfile = async (userId) => {
+    try {
+        console.log(`🗑️ API: Удаляем профиль userId: ${userId}`);
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('Токен не найден');
+        }
+
+        const response = await fetch(`${API_URL}/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log(`📡 API: Статус ответа: ${response.status}`);
+        
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                errorData = { message: `HTTP error! status: ${response.status}` };
+            }
+            console.error('❌ API: Ошибка сервера:', errorData);
+            throw new Error(errorData.message || `Ошибка удаления профиля: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ API: Удаление успешно:', data);
+        return data;
+
+    } catch (error) {
+        console.error('❌ API: Ошибка при удалении профиля:', error);
+        throw error;
+    }
+};
+
+
+
 
 
 // Обновление данных пользователя

@@ -24,7 +24,6 @@ export const getFriendRequests = async () => {
     return await response.json();
 };
 
-// Получить отправленные заявки
 export const getSentFriendRequests = async () => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/friends/sent-requests`, {
@@ -37,10 +36,11 @@ export const getSentFriendRequests = async () => {
     return await response.json();
 };
 
+// ОБНОВЛЕНО: Используем POST вместо PUT
 export const acceptFriendRequest = async (friendshipId) => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/friends/requests/accept/${friendshipId}`, {
-        method: 'PUT',
+        method: 'POST', // Изменено с PUT на POST
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -63,9 +63,6 @@ export const rejectFriendRequest = async (friendshipId) => {
     return await response.json();
 };
 
-
-
-// Отправить заявку в друзья
 export const sendFriendRequest = async (user2Id) => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/friends/request`, {
@@ -79,6 +76,3 @@ export const sendFriendRequest = async (user2Id) => {
     if (!response.ok) throw new Error('Failed to send friend request');
     return await response.json();
 };
-
-
-

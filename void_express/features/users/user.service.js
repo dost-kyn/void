@@ -140,18 +140,110 @@ exports.findUserById = async (id) => {
 
 
 
+// //===============  удаление профиля
+// exports.delProfileId = async (id) => {
+//     if (id) {
+//         const userId = parseInt(id)
+
+//         const user = await bd.user.delete({
+//             where: { id: userId }
+//         })
+//         return user
+//     }
+//     return null
+// }
 //===============  удаление профиля
+// user.service
+// user.service - полная версия с ручным удалением
 exports.delProfileId = async (id) => {
     if (id) {
-        const userId = parseInt(id)
+        const userId = parseInt(id);
 
-        const user = await bd.user.delete({
-            where: { id: userId }
-        })
-        return user
+        try {
+            const result = await bd.$transaction(async (tx) => {
+                console.log(`🗑️ Начинаем удаление пользователя ID: ${userId}`);
+
+                // Порядок важен: удаляем от самых глубоких зависимостей к пользователю
+
+                // 1. Удаляем сообщения пользователя
+                console.log('1. Удаляем сообщения...');
+                await tx.message.deleteMany({
+                    where: { sender_id: userId }
+                });
+
+                // 2. Удаляем чаты, где пользователь является участником
+                console.log('2. Удаляем чаты...');
+                await tx.chat.deleteMany({
+                    where: {
+                        OR: [
+                            { user1_id: userId },
+                            { user2_id: userId }
+                        ]
+                    }
+                });
+
+                // 3. Удаляем дружеские связи
+                console.log('3. Удаляем дружеские связи...');
+                await tx.friends.deleteMany({
+                    where: {
+                        OR: [
+                            { user1_id: userId },
+                            { user2_id: userId }
+                        ]
+                    }
+                });
+
+                // 4. Удаляем изображения постов и сами посты
+                console.log('4. Удаляем посты и изображения...');
+                const userPosts = await tx.post.findMany({
+                    where: { user_id: userId },
+                    select: { id: true }
+                });
+                
+                const postIds = userPosts.map(post => post.id);
+                
+                if (postIds.length > 0) {
+                    await tx.post_image.deleteMany({
+                        where: { post_id: { in: postIds } }
+                    });
+                }
+
+                await tx.post.deleteMany({
+                    where: { user_id: userId }
+                });
+
+                // 5. Разрываем связи с категориями
+                console.log('5. Разрываем связи с категориями...');
+                await tx.user.update({
+                    where: { id: userId },
+                    data: {
+                        id_category: {
+                            set: []
+                        }
+                    }
+                });
+
+                // 6. Удаляем пользователя
+                console.log('6. Удаляем пользователя...');
+                const deletedUser = await tx.user.delete({
+                    where: { id: userId }
+                });
+
+                console.log('✅ Пользователь успешно удален');
+                return deletedUser;
+            });
+
+            return result;
+
+        } catch (error) {
+            console.error('❌ Ошибка при удалении пользователя:', error);
+            throw error;
+        }
     }
-    return null
+    return null;
 }
+
+
 
 
 

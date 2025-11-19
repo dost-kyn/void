@@ -21,6 +21,13 @@ import { useImage } from '../components/UI/posts/post_image'
 import { useReadMore } from '../components/UI/posts/read_more'
 import { useDeletePostModal } from '../hooks/useDeletePostModal';
 
+
+
+
+import { useFetchUserProfile } from '../hooks/profile/UserProfile';
+import { useGetUserIdFromToken } from '../hooks/profile/GetUserIdFromToken';
+import { useDeleteProfile as useDeleteProfileHook } from '../hooks/profile/DeleteProfile';
+
 export default function Profile() {
     const { id } = useParams();
     const [isMyProfile, setIsMyProfile] = useState(true);
@@ -74,48 +81,54 @@ export default function Profile() {
     } = useDeletePostModal(false);
 
     const [categories, setCategories] = useState([])
-    const [user, setUser] = useState(null)
+    // const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(false)
     const [photo, setPhoto] = useState(null)
     const [userPosts, setUserPosts] = useState([])
 
-    // const [selectedPostImage, setSelectedPostImage] = useState(null)
     const [expandedPosts, setExpandedPosts] = useState({})
     const [currentImageIndexes, setCurrentImageIndexes] = useState({})
 
 
     // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПРОФИЛЯ
-    const fetchUserProfile = async (userId) => {
-        try {
-            const userData = await findUser(userId)
-            setUser(userData)
-        } catch (error) {
-            console.error('Ошибка загрузки профиля:', error)
-        }
-    }
+    // const fetchUserProfile = async (userId) => {
+    //     try {
+    //         const userData = await findUser(userId)
+    //         setUser(userData)
+    //     } catch (error) {
+    //         console.error('Ошибка загрузки профиля:', error)
+    //     }
+    // }
+    // Хук для получения профиля пользователя
+    const { user, setUser, fetchUserProfile } = useFetchUserProfile();
 
     // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ТОКЕНА
-    const getUserIdFromToken = () => {
-        const token = localStorage.getItem('token')
-        if (token) {
-            const payload = JSON.parse(atob(token.split('.')[1]))
-            return payload.id
-        }
-        return null
-    }
+    // const getUserIdFromToken = () => {
+    //     const token = localStorage.getItem('token')
+    //     if (token) {
+    //         const payload = JSON.parse(atob(token.split('.')[1]))
+    //         return payload.id
+    //     }
+    //     return null
+    // }
+    const { getUserIdFromToken } = useGetUserIdFromToken();
+
+
+
 
     // ФУНКЦИЯ ДЛЯ УДАЛЕНИЯ ПРОФИЛЯ
-    const deleteProfile = async (userId) => {
-        try {
-            const result = await delProfile(userId)
-            console.log('Профиль удален:', result)
+    // const deleteProfile = async (userId) => {
+    //     try {
+    //         const result = await delProfile(userId)
+    //         localStorage.removeItem('token')
+    //         window.location.href = '/'
+    //     } catch (error) {
+    //         console.error('Ошибка удаления профиля:', error)
+    //     }
+    // }
+    const { deleteProfile } = useDeleteProfileHook();
 
-            localStorage.removeItem('token')
-            window.location.href = '/'
-        } catch (error) {
-            console.error('Ошибка удаления профиля:', error)
-        }
-    }
+
 
     // ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ПРОФИЛЯ
     const handleUpdateProfile = async (e) => {
@@ -148,7 +161,6 @@ export default function Profile() {
                         formDataObj.append(key, updateData[key])
                     }
                 })
-
                 result = await updateUserWithPhoto(userId, formDataObj)
             } else {
                 // Если нет фото, отправляем JSON
@@ -190,8 +202,6 @@ export default function Profile() {
         }))
     }
 
-
-
     // Функция для получения категорий
     const fetchCategories = async () => {
         try {
@@ -202,16 +212,10 @@ export default function Profile() {
         }
     }
 
-
     // Функция для получения постов пользователя
     const fetchUserPosts = async (userId) => {
         try {
-            console.log('🔄 Загружаю посты пользователя...');
             const posts = await getUserPosts(userId);
-            console.log('📥 Загружены посты:', posts);
-            if (posts.length > 0) {
-                console.log('🖼️ Первый пост имеет изображения:', posts[0].images);
-            }
             setUserPosts(posts);
         } catch (error) {
             console.error('❌ Ошибка загрузки постов:', error);
@@ -226,16 +230,10 @@ export default function Profile() {
             alert('Ошибка: пользователь не авторизован')
             return
         }
-
-        console.log('🔄 Создаем пост, userId:', userId);
-
         const success = await handleCreatePost(userId)
 
         if (success) {
-            console.log('✅ Пост создан, перезагружаем посты...');
-            // Обновляем список постов после успешного создания
             await fetchUserPosts(userId);
-            console.log('✅ Посты перезагружены');
         } else {
             console.log('❌ Ошибка при создании поста');
         }
@@ -243,36 +241,16 @@ export default function Profile() {
 
     // Функция для обновления поста
     const handleSubmitEditPost = async () => {
-        console.log('💾 Сохраняем изменения поста...');
-
         const updatedPost = await handleUpdatePost();
-
         if (updatedPost) {
-            console.log('✅ Пост обновлен, перезагружаем посты...');
-
             const userId = getUserIdFromToken();
             if (userId) {
                 await fetchUserPosts(userId);
             }
-
-            console.log('🔄 Посты перезагружены');
         } else {
             console.log('❌ Ошибка при обновлении поста');
         }
     };
-
-
-
-
-    // Функция для открытия модального окна с изображением
-    // const handleImageModalOpen = (imageUrl) => {
-    //     console.log('🖼️ Открываем модалку с изображением:', imageUrl)
-    //     setSelectedPostImage(imageUrl)
-    // }
-
-    // const handleImageModalClose = () => {
-    //     setSelectedPostImage(null)
-    // }
 
     // Функция для переключения "Читать далее"
     const handleToggleExpand = (postId) => {
@@ -314,7 +292,6 @@ export default function Profile() {
         }))
     }
 
-
     // Функция для удаления поста
     const handleDeletePost = async () => {
         const postId = ConfirmDeletePost();
@@ -337,8 +314,6 @@ export default function Profile() {
     };
 
 
-
-
     // Загружаем данные пользователя при монтировании компонента
     useEffect(() => {
         const userId = getUserIdFromToken()
@@ -355,9 +330,6 @@ export default function Profile() {
             setPhoto(null)
         }
     }, [sostEditProfile])
-
-    //     // console.log('User data:', user)
-    //     // console.log('User avatar:', user?.avatar)
 
 
     return (
@@ -947,10 +919,21 @@ export default function Profile() {
                                     </button>
                                     <button
                                         className="Profile_delete_btn"
-                                        onClick={handleDeletePost}
-                                        disabled={deletePostLoading}
+                                        onClick={async () => {
+                                            const userId = getUserIdFromToken();
+                                            if (userId) {
+                                                console.log('🔄 Profile: Запускаем удаление профиля...');
+                                                try {
+                                                    await deleteProfile(userId);
+                                                    console.log('✅ Profile: Удаление профиля завершено успешно');
+                                                } catch (error) {
+                                                    console.error('❌ Profile: Ошибка при удалении профиля:', error);
+
+                                                }
+                                            }
+                                        }}
                                     >
-                                        {deletePostLoading ? 'Удаление...' : 'Удалить'}
+                                        Удалить
                                     </button>
                                 </div>
                             </div>

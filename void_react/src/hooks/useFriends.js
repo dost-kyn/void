@@ -4,8 +4,9 @@ import {
     getFriends,
     getFriendRequests,
     getSentFriendRequests,
-    acceptFriendRequest,
-    rejectFriendRequest
+    acceptFriendRequest as apiAcceptFriendRequest,
+    rejectFriendRequest as apiRejectFriendRequest,
+    sendFriendRequest as apiSendFriendRequest
 } from '../api/friends.api';
 
 export const useFriends = (autoUpdateInterval = 5000) => {
@@ -74,6 +75,8 @@ export const useFriends = (autoUpdateInterval = 5000) => {
 
     const acceptFriendRequest = useCallback(async (friendshipId) => {
         try {
+            
+            // Используем правильный endpoint - POST вместо PUT
             const response = await fetch(`http://localhost:5000/api/friends/requests/accept/${friendshipId}`, {
                 method: 'POST',
                 headers: {
@@ -90,16 +93,46 @@ export const useFriends = (autoUpdateInterval = 5000) => {
 
             // Обновляем локальное состояние
             setFriendRequests(prev => prev.filter(req => req.friendship_id !== friendshipId));
-            setFriends(prev => [...prev, {
-                ...result.friendship,
-                friendship_id: result.friendship.id
-            }]);
+            
+            // Перезагружаем данные для обновления списка друзей
+            await loadFriendsData();
 
             return result;
 
-        } catch (error) {
-            console.error('Ошибка:', error);
-            throw error;
+        } catch (err) {
+            setError('Ошибка при принятии заявки');
+            console.error('Error accepting friend request:', err);
+            return false;
+        }
+    }, [loadFriendsData]);
+
+    // // Отклонить заявку в друзья
+    // const handleRejectRequest = async (friendshipId) => {
+    //     try {
+    //         setError(null);
+    //         await apiRejectFriendRequest(friendshipId);
+
+    //         // Обновляем список заявок
+    //         await loadFriendsData();
+    //         return true;
+    //     } catch (err) {
+    //         setError('Ошибка при отклонении заявки');
+    //         console.error('Error rejecting friend request:', err);
+    //         return false;
+    //     }
+    // };
+
+    // Отправить заявку в друзья
+    const handleSendRequest = useCallback(async (user2Id) => {
+        try {
+            setError(null);
+            await apiSendFriendRequest(user2Id);
+            await loadFriendsData(); // Обновляем список отправленных заявок
+            return true;
+        } catch (err) {
+            setError('Ошибка при отправке заявки');
+            console.error('Error sending friend request:', err);
+            return false;
         }
     }, [loadFriendsData]);
 
@@ -122,21 +155,23 @@ export const useFriends = (autoUpdateInterval = 5000) => {
         lastUpdate,
         loadFriendsData,
         acceptFriendRequest: handleAcceptRequest,
-        rejectFriendRequest: handleRejectRequest
+        rejectFriendRequest: handleRejectRequest,
+        sendFriendRequest: handleSendRequest
     };
 };
-
 
 // Экспортируем функции фильтрации отдельно
 export const filterFriends = (friends, searchTerm) => {
     return (friends || []).filter(friend => {
         if (!friend) return false;
         const name = friend.name || '';
+        const lastName = friend.last_name || '';
         const login = friend.login || '';
         const search = searchTerm.toLowerCase();
 
         return name.toLowerCase().includes(search) ||
-            login.toLowerCase().includes(search);
+               lastName.toLowerCase().includes(search) ||
+               login.toLowerCase().includes(search);
     });
 };
 
@@ -144,11 +179,13 @@ export const filterFriendRequests = (friendRequests, searchTerm) => {
     return (friendRequests || []).filter(request => {
         if (!request) return false;
         const name = request.name || '';
+        const lastName = request.last_name || '';
         const login = request.login || '';
         const search = searchTerm.toLowerCase();
 
         return name.toLowerCase().includes(search) ||
-            login.toLowerCase().includes(search);
+               lastName.toLowerCase().includes(search) ||
+               login.toLowerCase().includes(search);
     });
 };
 
@@ -156,11 +193,13 @@ export const filterSentRequests = (sentRequests, searchTerm) => {
     return (sentRequests || []).filter(request => {
         if (!request) return false;
         const name = request.name || '';
+        const lastName = request.last_name || '';
         const login = request.login || '';
         const search = searchTerm.toLowerCase();
 
         return name.toLowerCase().includes(search) ||
-            login.toLowerCase().includes(search);
+               lastName.toLowerCase().includes(search) ||
+               login.toLowerCase().includes(search);
     });
 };
 
