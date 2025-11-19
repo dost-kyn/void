@@ -55,61 +55,6 @@ exports.getUserPosts = async (userId) => {
     return posts
 }
 
-//===============  вызвать пост по ID
-exports.getPostById = async (id) => {
-    try {
-        console.log('🔍 Сервис: ищем пост ID:', id); // Исправлено: используем id вместо postId
-
-        if (!id) {
-            console.log('❌ ID поста не передан');
-            return null;
-        }
-
-        const postId = parseInt(id); // Теперь объявляем до использования
-
-        if (isNaN(postId)) {
-            console.log('❌ Неверный формат ID поста:', id);
-            return null;
-        }
-        if (id) {
-            const postId = parseInt(id)
-            const post = await bd.post.findUnique({
-                where: { id: postId },
-                include: {
-                    user_post_ship: {
-                        select: {
-                            login: true,
-                            name: true,
-                            last_name: true,
-                            avatar: true
-                        }
-                    },
-                    post_category_ship: {
-                        select: {
-                            name: true
-                        }
-                    },
-                    images: {
-                        select: {
-                            id: true,
-                            image_url: true,
-                            image_order: true
-                        },
-                        orderBy: { image_order: 'asc' }
-                    }
-                }
-            })
-            console.log('✅ Сервис: пост найден:', post ? post.title : 'null');
-            console.log('🖼️ Сервис: изображения:', post ? post.images : 'null');
-            return post
-        }
-        return null
-    } catch (error) {
-        console.error('❌ Сервис: ошибка поиска поста:', error);
-        throw error;
-    }
-}
-
 //===============  валидация создания поста
 exports.VerifyCreatePost = async (postData) => {
     if (!postData.title) {
@@ -177,24 +122,41 @@ exports.addPostImage = async (postId, imageUrl, order) => {
     }
 }
 
+exports.findPostById = async (id) => {
+    try {
+        const postId = parseInt(id);
+        if (isNaN(postId)) return null;
+
+        const post = await bd.post.findUnique({
+            where: { id: postId }
+        });
+        
+        return post;
+    } catch (error) {
+        console.error('❌ Сервис: Ошибка поиска поста:', error);
+        throw error;
+    }
+}
 
 //===============  вызвать пост по ID
 exports.getPostById = async (id) => {
     try {
-        // console.log('🔍 Сервис: ищем пост ID:', id); // Исправлено: используем id вместо postId
+        console.log('🔍 Сервис: ищем пост ID:', id);
+        console.log('🔍 Сервис: тип ID:', typeof id);
 
-        // if (!id) {
-        //     console.log('❌ ID поста не передан');
-        //     return null;
-        // }
-
-        const postId = parseInt(id); // Теперь объявляем до использования
-
-        if (isNaN(postId)) {
-            console.log('❌ Неверный формат ID поста:', id);
+        if (!id) {
+            console.log('❌ Сервис: ID поста не передан');
             return null;
         }
 
+        // Убедимся, что id - число
+        const postId = parseInt(id);
+        if (isNaN(postId)) {
+            console.log('❌ Сервис: Неверный формат ID поста:', id);
+            return null;
+        }
+
+        console.log('🔄 Сервис: Выполняем запрос к БД...');
         const post = await bd.post.findUnique({
             where: { id: postId },
             include: {
@@ -220,17 +182,21 @@ exports.getPostById = async (id) => {
                     orderBy: { image_order: 'asc' }
                 }
             }
-        })
+        });
 
+        console.log('✅ Сервис: запрос выполнен');
         console.log('✅ Сервис: пост найден:', post ? post.title : 'null');
         console.log('🖼️ Сервис: изображения:', post ? post.images : 'null');
-        return post
+        
+        return post;
 
     } catch (error) {
         console.error('❌ Сервис: ошибка поиска поста:', error);
+        console.error('❌ Сервис: Stack trace:', error.stack);
         throw error;
     }
 }
+
 
 //===============  обновление поста
 exports.updatePost = async (id, postData) => {

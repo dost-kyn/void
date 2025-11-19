@@ -1,10 +1,9 @@
 /* Profile.css - добавьте в конец */
 .ban_message {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+    background-color: #dbc4c6;
     border-radius: 8px;
     padding: 16px;
-    margin-top: 10px;
+
 }
 
 .ban_text {

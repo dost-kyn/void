@@ -75,23 +75,40 @@ exports.createPost = async (req, res) => {
 exports.getPostById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('🔍 Получаем пост ID:', id);
+    console.log('🔍 Контроллер: Получаем пост ID:', id);
+    console.log('🔍 Контроллер: Тип ID:', typeof id);
 
-    const post = await PostsService.findPostById(id);
+    if (!id) {
+      console.log('❌ Контроллер: ID не предоставлен');
+      return res.status(400).json({ error: 'ID поста обязателен' });
+    }
+
+    // Проверяем, что ID - число
+    const postId = parseInt(id);
+    if (isNaN(postId)) {
+      console.log('❌ Контроллер: Неверный формат ID:', id);
+      return res.status(400).json({ error: 'Неверный формат ID поста' });
+    }
+
+    console.log('🔄 Контроллер: Вызываем сервис...');
+    const post = await PostsService.getPostById(postId);
 
     if (!post) {
-      console.log('❌ Пост не найден');
+      console.log('❌ Контроллер: Пост не найден в БД');
       return res.status(404).json({ error: 'Пост не найден' });
     }
 
-    console.log('✅ Пост найден:', post.title);
-    console.log('🖼️ Изображения поста:', post.images);
+    console.log('✅ Контроллер: Пост найден:', post.title);
+    console.log('🖼️ Контроллер: Изображения поста:', post.images);
 
     res.json(post);
   } catch (error) {
-    console.error('❌ Ошибка получения поста:', error);
-    console.error('❌ Stack:', error.stack);
-    res.status(500).json({ error: 'Ошибка сервера при получении поста' });
+    console.error('❌ Контроллер: Ошибка получения поста:', error);
+    console.error('❌ Контроллер: Stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Ошибка сервера при получении поста',
+      details: error.message 
+    });
   }
 };
 
@@ -210,60 +227,68 @@ exports.createPostWithImages = async (req, res) => {
   }
 }
 
-
-// PUT /api/posts/update-with-images/:id - обновить пост с фото
 exports.updatePostWithImages = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Получаем данные из FormData
     const { title, content, categoryId } = req.body;
 
-    console.log('🔄 Обновляем пост с фото ID:', id);
-    console.log('📝 Данные:', { title, content, categoryId });
-    console.log('📸 Файлы:', req.files);
-    console.log('📸 Количество файлов:', req.files ? req.files.length : 0);
+    console.log('🔄 Контроллер: Обновляем пост с фото ID:', id);
+    console.log('📝 Контроллер: Данные:', { title, content, categoryId });
+    console.log('📸 Контроллер: Файлы:', req.files);
+    console.log('📸 Контроллер: Количество файлов:', req.files ? req.files.length : 0);
 
     // Проверяем существование поста
     const existingPost = await PostsService.findPostById(id);
     if (!existingPost) {
-      console.log('❌ Пост не найден');
+      console.log('❌ Контроллер: Пост не найден');
       return res.status(404).json({ error: 'Пост не найден' });
     }
 
-    console.log('✅ Пост найден:', existingPost.title);
+    console.log('✅ Контроллер: Пост найден:', existingPost.title);
+
+    // Валидация обязательных полей
+    if (!title || !content || !categoryId) {
+      console.log('❌ Контроллер: Не все обязательные поля заполнены');
+      return res.status(400).json({ error: 'Заполните все обязательные поля' });
+    }
 
     // Обновляем пост
-    console.log('📝 Обновляем данные поста...');
+    console.log('📝 Контроллер: Обновляем данные поста...');
     const updatedPost = await PostsService.updatePost(id, {
-      title, content, categoryId
+      title, 
+      content, 
+      categoryId: parseInt(categoryId)
     });
-    console.log('✅ Пост обновлен:', updatedPost);
+    console.log('✅ Контроллер: Пост обновлен:', updatedPost);
 
     // Добавляем новые фото если есть
     if (req.files && req.files.length > 0) {
-      console.log('➕ Добавляем новые фото к посту');
+      console.log('➕ Контроллер: Добавляем новые фото к посту');
 
-      // Получаем текущее количество фото для порядка
+      // Получаем текущие фото для определения порядка
       const currentImages = await PostsService.getPostImages(id);
-      console.log('📊 Текущие фото поста:', currentImages);
-      console.log('📊 Количество текущих фото:', currentImages.length);
+      console.log('📊 Контроллер: Текущие фото поста:', currentImages);
+      console.log('📊 Контроллер: Количество текущих фото:', currentImages.length);
 
       const startOrder = currentImages.length;
-      console.log('🔢 Начинаем порядок с:', startOrder);
+      console.log('🔢 Контроллер: Начинаем порядок с:', startOrder);
 
       for (let i = 0; i < req.files.length; i++) {
         const imageUrl = '/uploads/posts/' + req.files[i].filename;
-        console.log(`🖼️ Добавляем фото ${i}:`, imageUrl);
-        console.log(`🔢 Порядок фото: ${startOrder + i}`);
+        console.log(`🖼️ Контроллер: Добавляем фото ${i}:`, imageUrl);
+        console.log(`🔢 Контроллер: Порядок фото: ${startOrder + i}`);
 
         await PostsService.addPostImage(id, imageUrl, startOrder + i);
-        console.log(`✅ Фото ${i} добавлено`);
+        console.log(`✅ Контроллер: Фото ${i} добавлено`);
       }
     }
 
     // Получаем обновленный пост с фото
-    console.log('🔍 Получаем обновленный пост...');
+    console.log('🔍 Контроллер: Получаем обновленный пост...');
     const postWithImages = await PostsService.findPostById(id);
-    console.log('🎉 Пост полностью обновлен:', postWithImages);
+    console.log('🎉 Контроллер: Пост полностью обновлен');
 
     res.json({
       message: 'Пост успешно обновлен',
@@ -271,9 +296,12 @@ exports.updatePostWithImages = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Ошибка обновления поста с фото:', error);
-    console.error('❌ Stack trace:', error.stack);
-    res.status(500).json({ error: 'Ошибка сервера при обновлении поста' });
+    console.error('❌ Контроллер: Ошибка обновления поста с фото:', error);
+    console.error('❌ Контроллер: Stack trace:', error.stack);
+    res.status(500).json({ 
+      error: 'Ошибка сервера при обновлении поста',
+      details: error.message 
+    });
   }
 }
 

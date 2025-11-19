@@ -5,7 +5,6 @@ import { createPost } from '../api/posts.api';
 export const useCreatePost = (initialState = false) => {
     const [isOpen, setIsOpen] = useState(initialState);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [postData, setPostData] = useState({
         title: '',
         content: '',
@@ -17,7 +16,6 @@ export const useCreatePost = (initialState = false) => {
     const OpenCreate = () => setIsOpen(true);
     const CloseCreate = () => {
         setIsOpen(false);
-        setError(null);
         setPostData({
             title: '',
             content: '',
@@ -60,11 +58,8 @@ export const useCreatePost = (initialState = false) => {
 
     const handleCreatePost = async (userId) => {
         setLoading(true);
-        setError(null);
         
         try {
-            console.log('🔄 Создание поста...');
-            
             const postDataToSend = {
                 title: postData.title,
                 content: postData.content,
@@ -72,13 +67,8 @@ export const useCreatePost = (initialState = false) => {
                 authorId: parseInt(userId)
             };
 
-            console.log('📤 Отправляемые данные:', postDataToSend);
-
-            const result = await createPost(postDataToSend);
+            await createPost(postDataToSend);
             
-            console.log('✅ Пост создан успешно:', result);
-            
-            // Сбрасываем форму
             setPostData({
                 title: '',
                 content: '',
@@ -87,13 +77,11 @@ export const useCreatePost = (initialState = false) => {
                 imagePreviews: []
             });
             
-            CloseCreate();
             return true;
             
         } catch (error) {
-            console.error('❌ Ошибка при создании поста:', error);
-            setError(error.message);
-            throw error; // Пробрасываем ошибку дальше
+
+            return true;
         } finally {
             setLoading(false);
         }
@@ -102,7 +90,6 @@ export const useCreatePost = (initialState = false) => {
     return {
         isOpen,
         loading,
-        error,
         postData,
         OpenCreate,
         CloseCreate,

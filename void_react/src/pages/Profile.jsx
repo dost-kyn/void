@@ -25,13 +25,13 @@ import { useDeletePost } from '../hooks/useDeletePost';
 
 export default function Profile() {
     const { id } = useParams();
-    
+
     // Хук для проверки бана
     const { isBanned } = useUserBan();
-    
+
     // Хук для модального окна удаления профиля
     const { isDeleteModalOpen, OpenDelete, CloseDelete } = useDeleteProfileModal(false)
-    
+
     const [isMyProfile, setIsMyProfile] = useState(true);
     const { sostCreate, OpenCreate, CloseCreate } = useCreate(false)
     const { sostCategories, OpenCategories, CloseCategories } = useCategories(false)
@@ -191,17 +191,11 @@ export default function Profile() {
     // Функция для создания поста
     const handleSubmitPost = async () => {
         const userId = getUserIdFromToken()
-        if (!userId) {
-            alert('Ошибка: пользователь не авторизован')
-            return
-        }
-        const success = await handleCreatePost(userId)
 
-        if (success) {
-            await fetchUserPosts(userId);
-        } else {
-            console.log('❌ Ошибка при создании поста');
-        }
+        await handleCreatePost(userId);
+
+        await fetchUserPosts(userId);
+        closeCreatePost();
     };
 
     // Функция для обновления поста
@@ -448,11 +442,10 @@ export default function Profile() {
 
                     <div className="Profile_tools">
                         <h2 className="Profile_tools_title">Мои посты</h2>
-                        
-                        {/* ПРОСТОЕ РЕШЕНИЕ: если забанен - показываем сообщение, если нет - кнопку */}
+
                         {isBanned ? (
                             <div className="ban_message">
-                                <p className="ban_text">❌ Ваш аккаунт забанен за нарушение правил публикации постов</p>
+                                <p className="ban_text">Ваш аккаунт забанен за нарушение правил публикации постов</p>
                                 <p className="ban_subtext">Вы не можете создавать новые посты</p>
                             </div>
                         ) : (
@@ -592,7 +585,7 @@ export default function Profile() {
                                             <div className="post_slider_button_edit">
                                                 <button
                                                     className="post_slider_btn_edit"
-                                                    onClick={() => openEditPost(post.id)}
+                                                    onClick={() => openEditPost(post.id, userPosts)}
                                                 >
                                                     <img src="../src/uploads/profile/btn_edit.svg" alt="" className="post_slider_btn_edit_img" />
                                                 </button>
