@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback  } from 'react';
 
 import {
     getFriends,
@@ -8,15 +8,16 @@ import {
     rejectFriendRequest
 } from '../api/friends.api';
 
-export const useFriends = () => {
+export const useFriends = (autoUpdateInterval = 5000) => {
     const [friends, setFriends] = useState([]);
     const [friendRequests, setFriendRequests] = useState([]);
     const [sentRequests, setSentRequests] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [lastUpdate, setLastUpdate] = useState(null);
 
     // Загрузить друзей и заявки
-    const loadFriendsData = async () => {
+    const loadFriendsData = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -30,16 +31,17 @@ export const useFriends = () => {
             setFriends(friendsData);
             setFriendRequests(requestsData);
             setSentRequests(sentRequestsData);
+            setLastUpdate(new Date());
         } catch (err) {
             setError('Ошибка при загрузке друзей');
             console.error('Error loading friends:', err);
         } finally {
             setLoading(false);
         }
-    };
+    }, []); // ← Пустой массив зависимостей
 
     // Принять заявку в друзья
-    const handleAcceptRequest = async (friendshipId) => {
+    const handleAcceptRequest = useCallback(async (friendshipId) => {
         try {
             setError(null);
             await acceptFriendRequest(friendshipId);
@@ -52,10 +54,10 @@ export const useFriends = () => {
             console.error('Error accepting friend request:', err);
             return false;
         }
-    };
+    }, [loadFriendsData]);
 
     // Отклонить заявку в друзья
-    const handleRejectRequest = async (friendshipId) => {
+    const handleRejectRequest = useCallback(async (friendshipId) => {
         try {
             setError(null);
             await rejectFriendRequest(friendshipId);
@@ -68,8 +70,9 @@ export const useFriends = () => {
             console.error('Error rejecting friend request:', err);
             return false;
         }
-    };
-    const acceptFriendRequest = async (friendshipId) => {
+    }, [loadFriendsData]);
+
+    const acceptFriendRequest = useCallback(async (friendshipId) => {
         try {
             const response = await fetch(`http://localhost:5000/api/friends/requests/accept/${friendshipId}`, {
                 method: 'POST',
@@ -98,11 +101,17 @@ export const useFriends = () => {
             console.error('Ошибка:', error);
             throw error;
         }
-    };
+    }, [loadFriendsData]);
 
     useEffect(() => {
         loadFriendsData();
-    }, []);
+    // Автоматическое обновление каждые N секунд
+        const intervalId = setInterval(loadFriendsData, autoUpdateInterval);
+        
+        // Очистка интервала при размонтировании компонента
+        return () => clearInterval(intervalId);
+    }, [loadFriendsData, autoUpdateInterval]); // ← Добавил зависимости
+
 
     return {
         friends,
@@ -110,6 +119,7 @@ export const useFriends = () => {
         sentRequests,
         loading,
         error,
+        lastUpdate,
         loadFriendsData,
         acceptFriendRequest: handleAcceptRequest,
         rejectFriendRequest: handleRejectRequest
