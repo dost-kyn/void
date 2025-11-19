@@ -117,8 +117,6 @@ exports.findUserByLogin = async (login) => {
 
 
 
-
-
 //===============  найти пользователя по id
 exports.findUserById = async (id) => {
     const userId = parseInt(id);
@@ -140,39 +138,19 @@ exports.findUserById = async (id) => {
 
 
 
-// //===============  удаление профиля
-// exports.delProfileId = async (id) => {
-//     if (id) {
-//         const userId = parseInt(id)
-
-//         const user = await bd.user.delete({
-//             where: { id: userId }
-//         })
-//         return user
-//     }
-//     return null
-// }
 //===============  удаление профиля
-// user.service
-// user.service - полная версия с ручным удалением
 exports.delProfileId = async (id) => {
     if (id) {
         const userId = parseInt(id);
 
         try {
             const result = await bd.$transaction(async (tx) => {
-                console.log(`🗑️ Начинаем удаление пользователя ID: ${userId}`);
-
-                // Порядок важен: удаляем от самых глубоких зависимостей к пользователю
-
                 // 1. Удаляем сообщения пользователя
-                console.log('1. Удаляем сообщения...');
                 await tx.message.deleteMany({
                     where: { sender_id: userId }
                 });
 
                 // 2. Удаляем чаты, где пользователь является участником
-                console.log('2. Удаляем чаты...');
                 await tx.chat.deleteMany({
                     where: {
                         OR: [
@@ -183,7 +161,6 @@ exports.delProfileId = async (id) => {
                 });
 
                 // 3. Удаляем дружеские связи
-                console.log('3. Удаляем дружеские связи...');
                 await tx.friends.deleteMany({
                     where: {
                         OR: [
@@ -194,7 +171,6 @@ exports.delProfileId = async (id) => {
                 });
 
                 // 4. Удаляем изображения постов и сами посты
-                console.log('4. Удаляем посты и изображения...');
                 const userPosts = await tx.post.findMany({
                     where: { user_id: userId },
                     select: { id: true }
@@ -213,7 +189,6 @@ exports.delProfileId = async (id) => {
                 });
 
                 // 5. Разрываем связи с категориями
-                console.log('5. Разрываем связи с категориями...');
                 await tx.user.update({
                     where: { id: userId },
                     data: {
@@ -224,19 +199,16 @@ exports.delProfileId = async (id) => {
                 });
 
                 // 6. Удаляем пользователя
-                console.log('6. Удаляем пользователя...');
                 const deletedUser = await tx.user.delete({
                     where: { id: userId }
                 });
-
-                console.log('✅ Пользователь успешно удален');
                 return deletedUser;
             });
 
             return result;
 
         } catch (error) {
-            console.error('❌ Ошибка при удалении пользователя:', error);
+            console.error('Ошибка при удалении пользователя:', error);
             throw error;
         }
     }
@@ -245,11 +217,7 @@ exports.delProfileId = async (id) => {
 
 
 
-
-
-
 //===============  изменения данных
-
 exports.updateUser = async (userId, updateData) => {
     try {
         console.log('Обновление пользователя в сервисе:', userId, updateData);
@@ -266,4 +234,38 @@ exports.updateUser = async (userId, updateData) => {
         console.error('Ошибка в updateUser service:', error);
         throw error;
     }
+};
+
+
+
+//===============  Бан пользователя
+exports.banUserById = async (id) => {
+    if (id) {
+        const userId = parseInt(id);
+
+        const user = await bd.user.update({
+            where: { id: userId },
+            data: { 
+                status: 'Ban'
+            }
+        });
+        return user;
+    }
+    return null;
+};
+
+//===============  Разбан пользователя
+exports.unbanUserById = async (id) => {
+    if (id) {
+        const userId = parseInt(id);
+
+        const user = await bd.user.update({
+            where: { id: userId },
+            data: { 
+                status: 'Not_banned'
+            }
+        });
+        return user;
+    }
+    return null;
 };

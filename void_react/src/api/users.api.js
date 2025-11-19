@@ -70,12 +70,6 @@ export const findUser = async(userId) => {
 
 
 // // удаление профиля
-// export const delProfile = async(userId) => {
-//     const response = await fetch(`${API_URL}/users/${userId}`, {
-//         method: 'DELETE'
-//     })
-//     return await response.json()
-// }
 export const delProfile = async (userId) => {
     try {
         console.log(`🗑️ API: Удаляем профиль userId: ${userId}`);
@@ -147,4 +141,80 @@ export const updateUserWithPhoto = async (userId, formData) => {
         body: formData // FormData сам установит Content-Type с boundary
     });
     return await response.json();
+};
+
+
+
+
+
+// Бан пользователя
+export const banUser = async (userId) => {
+    try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('Токен не найден');
+        }
+
+        const response = await fetch(`${API_URL}/users/${userId}/ban`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                errorData = { message: `HTTP error! status: ${response.status}` };
+            }
+            throw new Error(errorData.message || `Ошибка бана пользователя: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('❌ API: Ошибка при бане пользователя:', error);
+        throw error;
+    }
+};
+
+// Разбан пользователя
+export const unbanUser = async (userId) => {
+    try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('Токен не найден');
+        }
+
+        const response = await fetch(`${API_URL}/users/${userId}/unban`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                errorData = { message: `HTTP error! status: ${response.status}` };
+            }
+            throw new Error(errorData.message || `Ошибка разбана пользователя: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('❌ API: Ошибка при разбане пользователя:', error);
+        throw error;
+    }
 };

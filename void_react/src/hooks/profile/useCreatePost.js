@@ -1,79 +1,101 @@
 // hooks/useCreatePost.js
-const handleCreatePost = async (userId) => {
-    if (!userId) {
-        showActionAlert('error_generic', 'error', { message: 'Пользователь не авторизован' });
-        return false;
-    }
+import { useState } from 'react';
+import { createPost } from '../api/posts.api';
 
-    // Валидация
-    if (!postData.title.trim() || !postData.content.trim() || !postData.categoryId) {
-        showActionAlert('error_generic', 'error', { message: 'Заполните все обязательные поля' });
-        return false;
-    }
+export const useCreatePost = (initialState = false) => {
+    const [isOpen, setIsOpen] = useState(initialState);
+    const [loading, setLoading] = useState(false);
+    const [postData, setPostData] = useState({
+        title: '',
+        content: '',
+        categoryId: '',
+        images: [],
+        imagePreviews: []
+    });
 
-    setLoading(true);
-    setError(null);
-
-    try {
-        console.log('🔄 Создаем пост...');
-        console.log('📊 Состояние postData:', postData);
-
-        const formData = new FormData();
-        
-        // Добавляем основные данные
-        formData.append('title', postData.title);
-        formData.append('content', postData.content);
-        formData.append('categoryId', postData.categoryId);
-        formData.append('userId', userId);
-
-        // Добавляем изображения
-        if (postData.images.length > 0) {
-            console.log('📸 Создаем пост с фото');
-            postData.images.forEach((image, index) => {
-                console.log(`➕ Добавляем фото ${index}:`, image.name);
-                formData.append('images', image);
-            });
-        }
-
-        console.log('📨 FormData создан, отправляем запрос...');
-
-        const response = await fetch('http://localhost:5000/api/posts/create-with-images', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
-            body: formData
+    const OpenCreate = () => setIsOpen(true);
+    const CloseCreate = () => {
+        setIsOpen(false);
+        setPostData({
+            title: '',
+            content: '',
+            categoryId: '',
+            images: [],
+            imagePreviews: []
         });
+    };
 
-        console.log('📡 Статус ответа:', response.status);
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setPostData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        const newImages = [...postData.images, ...files];
+        const newPreviews = newImages.map(file => URL.createObjectURL(file));
         
-        if (!response.ok) {
-            // Попробуем получить текст ошибки от сервера
-            let errorText;
-            try {
-                const errorData = await response.json();
-                errorText = errorData.message || `HTTP error! status: ${response.status}`;
-                console.error('❌ Ошибка сервера (JSON):', errorData);
-            } catch (e) {
-                errorText = await response.text();
-                console.error('❌ Ошибка сервера (text):', errorText);
-            }
-            throw new Error(errorText);
+        setPostData(prev => ({
+            ...prev,
+            images: newImages,
+            imagePreviews: newPreviews
+        }));
+    };
+
+    const removeImage = (index) => {
+        const newImages = postData.images.filter((_, i) => i !== index);
+        const newPreviews = postData.imagePreviews.filter((_, i) => i !== index);
+        
+        setPostData(prev => ({
+            ...prev,
+            images: newImages,
+            imagePreviews: newPreviews
+        }));
+    };
+
+    const handleCreatePost = async (userId) => {
+        setLoading(true);
+        
+        try {
+            const postDataToSend = {
+                title: postData.title,
+                content: postData.content,
+                categoryId: parseInt(postData.categoryId),
+                authorId: parseInt(userId)
+            };
+
+            await createPost(postDataToSend);
+            
+            setPostData({
+                title: '',
+                content: '',
+                categoryId: '',
+                images: [],
+                imagePreviews: []
+            });
+            
+            return true;
+            
+        } catch (error) {
+
+            return true;
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const data = await response.json();
-        console.log('✅ Пост создан успешно:', data);
-        showActionAlert('post_created', 'success');
-        CloseCreate();
-        return true;
-
-    } catch (error) {
-        console.error('❌ Error creating post:', error);
-        const errorMessage = error.message || 'Ошибка при создании поста';
-        setError(errorMessage);
-        showActionAlert('error_generic', 'error', { message: errorMessage });
-        return false;
-    } finally {
-        setLoading(false);
-    }
+    return {
+        isOpen,
+        loading,
+        postData,
+        OpenCreate,
+        CloseCreate,
+        handleInputChange,
+        handleFileChange,
+        removeImage,
+        handleCreatePost
+    };
 };

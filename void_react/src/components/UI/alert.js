@@ -34,8 +34,8 @@ export const useAlert = () => {
                 return 'Заявка в друзья принята!';
             case 'friend_request_rejected':
                 return 'Заявка в друзья отклонена';
-            
-            
+
+
             // Посты
             case 'post_created':
                 return 'Пост успешно создан!';
@@ -43,19 +43,36 @@ export const useAlert = () => {
                 return 'Пост успешно обновлен!';
             case 'post_deleted':
                 return 'Пост удален';
-            
+
             // Профиль
             case 'profile_updated':
                 return 'Профиль успешно обновлен!';
             case 'avatar_updated':
                 return 'Аватар обновлен';
-            
+            case 'profile_deleted':
+                return 'Профиль успешно удален';
+            case 'profile_delete_error':
+                return data.message || 'Ошибка при удалении профиля';
+            case 'profile_updated':
+                return 'Данные профиля успешно обновлены!';
+            case 'avatar_updated':
+                return 'Аватар успешно обновлен!';
+
+            // Бан пользователей
+            case 'user_banned':
+                return `Пользователь ${data.userName} забанен за нарушение правил публикации постов`;
+            case 'user_unbanned':
+                return `Пользователь ${data.userName} разбанен`;
+            case 'cannot_create_post_banned':
+                return 'Вы не можете публиковать посты, так как ваш аккаунт забанен за нарушение правил';
+
+
 
             case 'logout_success':
                 return 'Выход выполнен успешно!';
             case 'registration_success':
                 return 'Регистрация прошла успешно!';
-            
+
             // Общие
             case 'error_generic':
                 return data.message || 'Произошла ошибка';
@@ -63,7 +80,7 @@ export const useAlert = () => {
                 return data.message || 'Операция выполнена успешно';
             case 'warning_generic':
                 return data.message || 'Внимание';
-            
+
             default:
                 return 'Действие выполнено';
         }

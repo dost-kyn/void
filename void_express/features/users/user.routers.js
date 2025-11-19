@@ -34,6 +34,7 @@ router.get('/:id', UserController.getUserById)
 router.delete('/:id', UserController.delProfile)   
 router.patch('/:id', upload.single('photo'), UserController.updateUser);
 
-
+router.post('/:id/ban', UserController.banUser);
+router.post('/:id/unban', UserController.unbanUser);
 
 module.exports = router

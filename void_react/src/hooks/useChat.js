@@ -268,14 +268,45 @@ export const useChat = () => {
 };
 
 
+// hooks/useChat.js
 export const getChatInfo = async (chatId) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/chat/${chatId}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+    try {
+        console.log('🔄 API: Получаем информацию о чате ID:', chatId);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Токен не найден. Пожалуйста, войдите в систему.');
         }
-    });
-    if (!response.ok) throw new Error('Failed to fetch chat info');
-    return await response.json();
+
+        const response = await fetch(`${API_URL}/chat/${chatId}`, { // Используем chatId в URL
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ API Error response:', errorText);
+            
+            if (response.status === 403) {
+                throw new Error('Доступ запрещен. У вас нет прав для просмотра этого чата.');
+            } else if (response.status === 404) {
+                throw new Error('Чат не найден');
+            } else if (response.status === 401) {
+                throw new Error('Ошибка авторизации. Пожалуйста, войдите снова.');
+            } else {
+                throw new Error(`Ошибка: ${response.status}`);
+            }
+        }
+
+        const data = await response.json();
+        console.log('✅ API: Информация о чате успешно получена:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('❌ API Error fetching chat info:', error);
+        throw error;
+    }
 };

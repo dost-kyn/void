@@ -16,7 +16,7 @@ exports.getAllUsers = async (req, res, next) => {
     res.status(200).json(users);
 };
 
-
+//===============  регистрация
 exports.createUser = async (req, res, next) => {
     try {
         const { name, last_name, login, email, password, repeatPassword, categories } = req.body;
@@ -103,48 +103,6 @@ exports.createUser = async (req, res, next) => {
 
 
 
-//===============  регистрация
-// exports.createUser = async (req, res, next) => {
-//     const { name, last_name, login, email, password, repeatPassword } = req.body;
-
-//     const avatarPath = req.file ? `/uploads/${req.file.filename}` : null;
-
-//     const VerifyCreateUser = await UserService.VerifyCreateUser(
-//         name, last_name, login, email, password, repeatPassword
-//     );
-
-//     const VerifyPasswords = await UserService.VerifyPasswords(password, repeatPassword);
-//     const GetUsersByEmail = await UserService.GetUsersByEmail(email);
-//     const GetUsersByLogin = await UserService.GetUsersByLogin(login);
-
-//     if (VerifyCreateUser) return res.status(400).json({ message: VerifyCreateUser });
-//     if (VerifyPasswords) return res.status(400).json({ message: VerifyPasswords });
-//     if (GetUsersByEmail) return res.status(400).json({ message: GetUsersByEmail });
-//     if (GetUsersByLogin) return res.status(400).json({ message: GetUsersByLogin });
-
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     const newUser = await UserService.createUser({
-//         name, last_name, login, email, hashedPassword, avatar: avatarPath
-//     });
-
-
-//     const token = jwt.sign(
-//         {
-//             id: newUser.id,
-//             role: newUser.role,
-//         },
-//         process.env.JWT_SECRET,
-//         {
-//             expiresIn: "5h",
-//         }
-//     );
-
-//     res.status(200).json({ message: "Пользователь зарегистрирован", token });
-
-// };
-
-
 
 //===============  авторизация
 exports.loginUsers = async (req, res, next) => {
@@ -200,20 +158,6 @@ exports.getUserById = async (req, res, next) => {
 }
 
 
-
-// //===============  удаление профиля
-// exports.delProfile = async (req, res, next) => {
-//     const { id } = req.params
-
-//     const user = await UserService.findUserById(id)
-//     if (!user) {
-//         return res.status(404).json({ message: 'Пользователь не найден' })
-//     }
-
-//     await UserService.delProfileId(id);
-
-//     res.status(200).json(userWithoutPassword);
-// }
 
 //===============  удаление профиля
 exports.delProfile = async (req, res, next) => {
@@ -285,5 +229,60 @@ exports.updateUser = async (req, res, next) => {
     } catch (error) {
         console.error('Ошибка в updateUser:', error);
         res.status(500).json({ message: "Ошибка обновления: " + error.message });
+    }
+};
+
+
+
+
+//=============== Бан пользователя
+exports.banUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await UserService.findUserById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Пользователь не найден' });
+        }
+
+        const bannedUser = await UserService.banUserById(id);
+
+        res.status(200).json({ 
+            message: 'Пользователь забанен',
+            user: bannedUser 
+        });
+
+    } catch (error) {
+        console.error('Ошибка при бане пользователя:', error);
+        res.status(500).json({ 
+            message: 'Ошибка при бане пользователя',
+            error: error.message 
+        });
+    }
+};
+
+//=============== Разбан пользователя
+exports.unbanUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await UserService.findUserById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Пользователь не найден' });
+        }
+
+        const unbannedUser = await UserService.unbanUserById(id);
+
+        res.status(200).json({ 
+            message: 'Пользователь разбанен',
+            user: unbannedUser 
+        });
+
+    } catch (error) {
+        console.error('Ошибка при разбане пользователя:', error);
+        res.status(500).json({ 
+            message: 'Ошибка при разбане пользователя',
+            error: error.message 
+        });
     }
 };
