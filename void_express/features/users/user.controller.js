@@ -115,19 +115,64 @@ exports.getUserById = async (req, res, next) => {
 
 
 
+// //===============  удаление профиля
+// exports.delProfile = async (req, res, next) => {
+//     const { id } = req.params
+
+//     const user = await UserService.findUserById(id)
+//     if (!user) {
+//         return res.status(404).json({ message: 'Пользователь не найден' })
+//     }
+
+//     await UserService.delProfileId(id);
+
+//     res.status(200).json(userWithoutPassword);
+// }
+
 //===============  удаление профиля
 exports.delProfile = async (req, res, next) => {
-    const { id } = req.params
+    try {
+        const { id } = req.params;
+        console.log('🗑️ Сервер: Удаление профиля ID:', id);
 
-    const user = await UserService.findUserById(id)
-    if (!user) {
-        return res.status(404).json({ message: 'Пользователь не найден' })
+        // Проверяем существование пользователя
+        const user = await UserService.findUserById(id);
+        if (!user) {
+            console.log('❌ Сервер: Пользователь не найден');
+            return res.status(404).json({ message: 'Пользователь не найден' });
+        }
+
+        console.log('✅ Сервер: Пользователь найден, удаляем...');
+        
+        // Удаляем пользователя
+        await UserService.delProfileId(id);
+
+        console.log('✅ Сервер: Пользователь удален');
+
+        // Возвращаем успешный ответ
+        res.status(200).json({ 
+            message: 'Профиль успешно удален',
+            deletedUser: { id: user.id, login: user.login }
+        });
+
+    } catch (error) {
+        console.error('❌ Сервер: Ошибка при удалении профиля:', error);
+        
+        // Проверяем тип ошибки
+        if (error.code === 'P2003') {
+            // Ошибка foreign key constraint (если используется Prisma)
+            return res.status(400).json({ 
+                message: 'Нельзя удалить профиль. Сначала удалите связанные посты или другие данные.' 
+            });
+        }
+        
+        res.status(500).json({ 
+            message: 'Ошибка сервера при удалении профиля',
+            error: error.message 
+        });
     }
-
-    await UserService.delProfileId(id);
-
-    res.status(200).json(userWithoutPassword);
 }
+
 
 
 

@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -35,8 +31,6 @@ enum Post_status {
   Published
   Rejected
 }
-
-
 
 model User {
   id         Int      @id @default(autoincrement())
@@ -77,10 +71,10 @@ model Post {
   status Post_status @default(Expectation)
 
   category_id        Int
-  post_category_ship Category @relation(fields: [category_id], references: [id])
+  post_category_ship Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   user_id        Int
-  user_post_ship User @relation(fields: [user_id], references: [id])
+  user_post_ship User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   images Post_image[]
 }
@@ -91,7 +85,7 @@ model Post_image {
   image_order Int
 
   post_id         Int?
-  post_image_ship Post? @relation(fields: [post_id], references: [id])
+  post_image_ship Post? @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
 
 model Friends {
@@ -100,8 +94,8 @@ model Friends {
   user2_id Int
   status   Friend_status @default(None)
 
-  user1 User @relation("FriendsUser1", fields: [user1_id], references: [id])
-  user2 User @relation("FriendsUser2", fields: [user2_id], references: [id])
+  user1 User @relation("FriendsUser1", fields: [user1_id], references: [id], onDelete: Cascade)
+  user2 User @relation("FriendsUser2", fields: [user2_id], references: [id], onDelete: Cascade)
 
   chatUser1 Chat[] @relation("ChatUser1")
   chatUser2 Chat[] @relation("ChatUser2")
@@ -114,8 +108,8 @@ model Chat {
   user2_id Int
   created_at DateTime @default(now())
 
-  user1 Friends @relation("ChatUser1", fields: [user1_id], references: [id])
-  user2 Friends @relation("ChatUser2", fields: [user2_id], references: [id])
+  user1 Friends @relation("ChatUser1", fields: [user1_id], references: [id], onDelete: Cascade)
+  user2 Friends @relation("ChatUser2", fields: [user2_id], references: [id], onDelete: Cascade)
 
   messages Message[] @relation("MessageChat")
 }
@@ -127,8 +121,8 @@ model Message {
   created_at   DateTime @default(now())
 
   chat_id Int
-  chat    Chat @relation("MessageChat", fields: [chat_id], references: [id])
+  chat    Chat @relation("MessageChat", fields: [chat_id], references: [id], onDelete: Cascade)
 
   sender_id   Int
-  MessageUser User @relation("MessageUser", fields: [sender_id], references: [id])
+  MessageUser User @relation("MessageUser", fields: [sender_id], references: [id], onDelete: Cascade)
 }

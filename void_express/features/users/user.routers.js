@@ -5,7 +5,7 @@ const fs = require('fs');
 const router = express.Router()
 const upload = require('../../middlewear/upload');
 const UserController = require('./user.controller')
-
+const authMiddleware = require('../../middlewear/authenticate');
 
 //  НАСТРОЙКА ХРАНЕНИЯ ФАЙЛОВ
 const storage = multer.diskStorage({
@@ -33,6 +33,7 @@ router.post('/login', UserController.loginUsers)
 router.get('/:id', UserController.getUserById)
 router.delete('/:id', UserController.delProfile)   
 router.patch('/:id', upload.single('photo'), UserController.updateUser);
+
 
 
 module.exports = router

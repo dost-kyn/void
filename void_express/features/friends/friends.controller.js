@@ -3,16 +3,30 @@ const FriendsService = require("./friends.service");
 // Получить список друзей
 exports.getFriends = async (req, res, next) => {
     try {
+        console.log('🔍 Получение списка друзей...');
         const token = req.header('Authorization')?.replace('Bearer ', '');
+        
+        if (!token) {
+            console.log('❌ Токен отсутствует');
+            return res.status(401).json({ error: 'Token required' });
+        }
+        
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
         
+        console.log(`👤 ID пользователя: ${userId}`);
+        
         const friends = await FriendsService.getUserFriends(userId);
+        console.log(`✅ Найдено друзей: ${friends.length}`);
+        
         res.status(200).json(friends);
     } catch (error) {
-        console.error('Error in getFriends:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('❌ Error in getFriends:', error);
+        res.status(500).json({ 
+            error: 'Internal server error',
+            message: error.message 
+        });
     }
 };
 
