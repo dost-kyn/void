@@ -1,16 +1,19 @@
 import React from 'react'
 import '../css/Authorization.css'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Добавьте useNavigate
 import { useState } from 'react';
 import { autoUser } from '../api/users.api'
+import Alert from '../components/Alert';
+import { useAlert } from '../components/UI/alert'; // Исправьте путь
 
 export default function Auth() {
     const [formData, setFormData] = useState({
         login: '',
         password: ''
     })
-    const [error, setError] = useState({})
+    const navigate = useNavigate(); // Используйте navigate вместо window.location
 
+    const { alert, showActionAlert, closeAlert } = useAlert();
 
     const onInputChange = (e) => {
         const { name, value } = e.target
@@ -18,65 +21,89 @@ export default function Auth() {
             ...prev,
             [name]: value
         }))
-
-        // Очищаем ошибку при вводе
-        if(error[name]){
-            setError(prev =>({
-                ...prev,
-                [name] : ''
-            }))
-        }
     }
 
-    const handleSubmit = async (e) =>{
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!formData.login || !formData.password) {
+            showActionAlert('login_empty_fields', 'warning');
+            return;
+        }
+        try {
+            const result = await autoUser(formData.login, formData.password); 
 
-        try{
-            const result = await autoUser({
-                login: formData.login,
-                password: formData.password
-            })
-
-            if (result.token){
+            if (result.token) {
                 localStorage.setItem('token', result.token);
-                
 
                 try {
                     const tokenPayload = JSON.parse(atob(result.token.split('.')[1]));
                     const userRole = tokenPayload.role;
                     
-                    alert('Авторизация успешна!');
                     
-                    if (userRole === 'Admin') {
-                        window.location.href = '/adminUsers';
-                    } else {
-                        window.location.href = '/posts';
-                    }
+                        if (userRole === 'Admin') {
+                            navigate('/adminUsers');
+                        } else {
+                            navigate('/posts');
+                        }
+                    
+                    
                 } catch (decodeError) {
                     console.error('Ошибка декодирования токена:', decodeError);
-                    setError({ general: 'Ошибка обработки токена' });
+                    showActionAlert('error_generic', 'error', { message: 'Ошибка обработки токена' });
                 }
 
             } else {
-                setError({ general: result.message || 'Ошибка авторизации' });
+                showActionAlert('login_error', 'error');
             }
 
-        } catch (error){
+        } catch (error) {
             console.error('Ошибка авторизации:', error);
-            setError({ general: 'Произошла ошибка при авторизации' });
+            // Используем сообщение из ошибки или общее сообщение
+            if (error.message) {
+                showActionAlert('error_generic', 'error', { message: error.message });
+            } else {
+                showActionAlert('login_error', 'error');
+            }
         } 
     }
 
     return (
         <>
             <div className="body">
+                <Alert 
+                    isOpen={alert.isOpen}
+                    text={alert.text}
+                    type={alert.type}
+                    onClose={closeAlert}
+                />
                 <div className="Auth">
                     <form className='form' onSubmit={handleSubmit}>
                         <h1 className='title'>Авторизация пилота</h1>
-                        <input className='login' name='login' type="text" placeholder='Логин' value={formData.login} onChange={onInputChange} required />
-                        <input className='password' name='password' type="password" placeholder='Пароль' value={formData.password} onChange={onInputChange} required />
+                        <input 
+                            className='login' 
+                            name='login' 
+                            type="text" 
+                            placeholder='Логин' 
+                            value={formData.login} 
+                            onChange={onInputChange} 
+                            required 
+                        />
+                        <input 
+                            className='password' 
+                            name='password' 
+                            type="password" 
+                            placeholder='Пароль' 
+                            value={formData.password} 
+                            onChange={onInputChange} 
+                            required 
+                        />
                         <div className="button">
-                            <button className='btn'>Полетели!</button>
+                            <button 
+                                className='btn' 
+                                type="submit"
+                            >
+                                Полетели!
+                            </button>
                         </div>
                         <p className='already'>Нет аккаунта? <Link to="/registration" className='link_already'>Зарегистрироваться</Link></p>
                     </form>

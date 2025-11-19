@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { findUser } from '../../../api/users.api';
 import { getUserPosts } from '../../../api/posts.api';
 import { getFriends, getSentFriendRequests, sendFriendRequest } from '../../../api/friends.api';
+import { getOrCreateChat } from '../../../api/chat.api'; 
 
 // Хук для данных профиля
 export const useUserProfile = (userId) => {
@@ -105,10 +106,7 @@ export const getCurrentUserId = () => {
 // Функция для отправки заявки в друзья
 export const BecomeFriend = async (userId, updateRequestStatus) => {
     try {
-        console.log('Отправка заявки дружбы пользователю:', userId);
-        const result = await sendFriendRequest(userId);
-        console.log('Результат отправки заявки:', result);
-        
+        const result = await sendFriendRequest(userId); 
         // Обновляем статус заявки
         if (updateRequestStatus) {
             updateRequestStatus(true);
@@ -121,17 +119,15 @@ export const BecomeFriend = async (userId, updateRequestStatus) => {
     }
 };
 
-// Функция для перехода в чат
-export const SendMessage = (userId) => {
-    try {
-        console.log('Переход в чат с пользователем:', userId);
-        alert(`Переход в чат с пользователем ID: ${userId}`);
-        return { success: true, message: 'Переход в чат' };
-    } catch (error) {
-        console.error('Ошибка при переходе в чат:', error);
-        throw error;
-    }
-};
+// // Функция для перехода в чат
+// export const SendMessage = (userId) => {
+//     try {
+//         return { success: true, message: 'Переход в чат' };
+//     } catch (error) {
+//         console.error('Ошибка при переходе в чат:', error);
+//         throw error;
+//     }
+// };
 
 // Функция для аватаров
 export const getAvatarUrl = (avatarPath) => {
@@ -156,4 +152,29 @@ export const formatDate = (dateString) => {
 export const isMyProfile = (profileUserId) => {
     const currentUserId = getCurrentUserId();
     return currentUserId && currentUserId === parseInt(profileUserId);
+};
+
+
+// Функция для перехода в чат
+export const handleSendMessage = async (friendId, isFriend, showAlertCallback = null) => {
+    try {
+        // Используем уже имеющуюся информацию о дружбе
+        if (!isFriend) {
+            if (showAlertCallback) {
+                showAlertCallback('chat_not_available', 'warning');
+            }
+            return;
+        }
+
+        // Если друзья - создаем/получаем чат и переходим в него
+        const chat = await getOrCreateChat(friendId);
+        return chat;
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        if (showAlertCallback) {
+            showAlertCallback('chat_error', 'error');
+        }
+        throw error;
+    }
 };

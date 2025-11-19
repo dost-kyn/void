@@ -9,7 +9,6 @@ import '../css/Messages.css'
 export default function Messages() {
     const {
         chats,
-        loading,
         error,
         loadChats
     } = useChat();
@@ -58,19 +57,6 @@ export default function Messages() {
         return text.substring(0, maxLength) + '...';
     };
 
-    if (loading) {
-        return (
-            <div className="body">
-                <Naw />
-                <div className="Messages">
-                    <div className="messages_tools">
-                        <h1 className='messages_title'>Чаты</h1>
-                    </div>
-                    <div className="loading">Загрузка чатов...</div>
-                </div>
-            </div>
-        );
-    }
 
     if (error) {
         return (

@@ -11,18 +11,47 @@ export const registerUser = async (formData) => {
 
 
 // Авторизация
-export const autoUser = async (userData) => {
-    console.log('Отправляю данные:', userData);
-    
-    const response = await fetch(`${API_URL}/users/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(userData)
-    })
-    return await response.json()
-}
+export const autoUser = async (login, password) => {
+    try {
+        console.log('Отправляю данные:', { login, password });
+        
+        const response = await fetch(`${API_URL}/users/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ login, password })
+        });
+        
+        if (!response.ok) {
+            let errorMessage = 'Ошибка при авторизации';
+            
+            try {
+                // Пытаемся получить JSON с ошибкой
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorData.message || `Ошибка: ${response.status}`;
+            } catch (jsonError) {
+                // Если не получается распарсить JSON, используем статус
+                if (response.status === 400) {
+                    errorMessage = 'Неверный логин или пароль';
+                } else if (response.status === 404) {
+                    errorMessage = 'Пользователь не найден';
+                } else {
+                    errorMessage = `Ошибка сервера: ${response.status}`;
+                }
+            }
+            
+            throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Ошибка при авторизации:', error);
+        throw error;
+    }
+};
 
 // Получить всех пользователей
 export const getAllUsers = async() => {

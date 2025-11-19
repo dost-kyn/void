@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+
 import {
     getFriends,
     getFriendRequests,
@@ -113,4 +114,59 @@ export const useFriends = () => {
         acceptFriendRequest: handleAcceptRequest,
         rejectFriendRequest: handleRejectRequest
     };
+};
+
+
+// Экспортируем функции фильтрации отдельно
+export const filterFriends = (friends, searchTerm) => {
+    return (friends || []).filter(friend => {
+        if (!friend) return false;
+        const name = friend.name || '';
+        const login = friend.login || '';
+        const search = searchTerm.toLowerCase();
+
+        return name.toLowerCase().includes(search) ||
+            login.toLowerCase().includes(search);
+    });
+};
+
+export const filterFriendRequests = (friendRequests, searchTerm) => {
+    return (friendRequests || []).filter(request => {
+        if (!request) return false;
+        const name = request.name || '';
+        const login = request.login || '';
+        const search = searchTerm.toLowerCase();
+
+        return name.toLowerCase().includes(search) ||
+            login.toLowerCase().includes(search);
+    });
+};
+
+export const filterSentRequests = (sentRequests, searchTerm) => {
+    return (sentRequests || []).filter(request => {
+        if (!request) return false;
+        const name = request.name || '';
+        const login = request.login || '';
+        const search = searchTerm.toLowerCase();
+
+        return name.toLowerCase().includes(search) ||
+            login.toLowerCase().includes(search);
+    });
+};
+
+// Экспортируем функцию форматирования даты
+export const formatDate = (dateString) => {
+    if (!dateString) return 'Дата не указана';
+    try {
+        return new Date(dateString).toLocaleDateString('ru-RU');
+    } catch (error) {
+        return 'Неверная дата';
+    }
+};
+
+// Экспортируем функцию получения URL аватара
+export const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath) return '../src/uploads/avatars/default-avatar.jpg';
+    if (avatarPath.startsWith('http')) return avatarPath;
+    return `http://localhost:5000${avatarPath}`;
 };

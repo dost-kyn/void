@@ -170,17 +170,13 @@ export const useChat = () => {
 
     // Получить сообщения чата и информацию о чате
     const loadChatMessages = async (chatId) => {
-        try {
-            console.log('🔄 Loading chat info and messages for chatId:', chatId);
-            
+        try {   
             // Загружаем информацию о чате
             const chatInfo = await fetchChatInfo(chatId);
-            console.log('✅ Chat info loaded:', chatInfo);
             chatState.setCurrentChat(chatInfo);
             
             // Загружаем сообщения
             const messagesData = await fetchChatMessages(chatId);
-            console.log('✅ Messages loaded:', messagesData.length);
             chatState.setMessages(messagesData);
             
         } catch (err) {
