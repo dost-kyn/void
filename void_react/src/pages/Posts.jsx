@@ -20,7 +20,10 @@ export default function Posts() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
+    // Состояние для поиска
+    const [searchTerm, setSearchTerm] = useState('');
+
     // Состояния для фильтра
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -42,8 +45,8 @@ export default function Posts() {
 
             console.log('📥 Загружено постов:', publishedPosts.length);
             console.log('📊 Категории постов:', publishedPosts.map(p => ({
-                id: p.id, 
-                category: p.category_id, 
+                id: p.id,
+                category: p.category_id,
                 title: p.title
             })));
 
@@ -86,22 +89,50 @@ export default function Posts() {
         });
     };
 
+    // Функция применения фильтров (категории + поиск)
+    const applyFilters = () => {
+        // console.log('🔍 Применяем фильтры:', {
+        //     категории: selectedCategories,
+        //     поиск: searchTerm
+        // });
+
+        let filteredPosts = allPosts;
+
+        // Фильтрация по категориям
+        if (selectedCategories.length > 0) {
+            filteredPosts = filteredPosts.filter(post =>
+                selectedCategories.includes(post.category_id)
+            );
+        }
+
+        // Фильтрация по поисковому запросу
+        if (searchTerm.trim() !== '') {
+            const searchLower = searchTerm.toLowerCase().trim();
+            filteredPosts = filteredPosts.filter(post =>
+                post.title.toLowerCase().includes(searchLower)
+            );
+        }
+
+        // console.log('📊 Отфильтровано постов:', filteredPosts.length);
+        setPosts(filteredPosts);
+    };
+
     const applyFilter = () => {
-        console.log('🔍 Применяем фильтр по категориям:', selectedCategories);
-        
+        // console.log('🔍 Применяем фильтр по категориям:', selectedCategories);
+
         if (selectedCategories.length === 0) {
             // Если не выбрано категорий - показываем все посты
             setPosts(allPosts);
-            console.log('📊 Показываем все посты:', allPosts.length);
+            // console.log('📊 Показываем все посты:', allPosts.length);
         } else {
             // Фильтруем посты по выбранным категориям
             const filteredPosts = allPosts.filter(post => {
                 const hasCategory = selectedCategories.includes(post.category_id);
-                console.log(`Пост "${post.title}" (категория ${post.category_id}) - подходит: ${hasCategory}`);
+                // console.log(`Пост "${post.title}" (категория ${post.category_id}) - подходит: ${hasCategory}`);
                 return hasCategory;
             });
-            
-            console.log('📊 Отфильтровано постов:', filteredPosts.length);
+
+            // console.log('📊 Отфильтровано постов:', filteredPosts.length);
             setPosts(filteredPosts);
         }
         closeFilter();
@@ -110,8 +141,41 @@ export default function Posts() {
     const clearFilter = () => {
         setSelectedCategories([]);
         setPosts(allPosts);
-        console.log('🔄 Фильтр сброшен, показываем все посты:', allPosts.length);
+        // console.log('🔄 Фильтр сброшен, показываем все посты:', allPosts.length);
     };
+
+
+    // Функция сброса всех фильтров
+    const clearAllFilters = () => {
+        setSelectedCategories([]);
+        setSearchTerm('');
+        setPosts(allPosts);
+        // console.log('🔄 Все фильтры сброшены, показываем все посты:', allPosts.length);
+    };
+
+    // Обработчик изменения поискового запроса
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+    };
+
+    // Обработчик поиска (при нажатии Enter или потере фокуса)
+    const handleSearch = () => {
+        applyFilters();
+    };
+
+    // Обработчик нажатия клавиши Enter в поле поиска
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    // Автоматический поиск при изменении категорий или поискового запроса
+    useEffect(() => {
+        applyFilters();
+    }, [selectedCategories, searchTerm]);
+
 
     useEffect(() => {
         fetchPosts();
@@ -176,8 +240,8 @@ export default function Posts() {
                                         >
                                             Сбросить
                                         </button> */}
-                                        <button 
-                                            className="apply_filter_btn" 
+                                        <button
+                                            className="apply_filter_btn"
                                             onClick={applyFilter}
                                         >
                                             Применить фильтр ({selectedCategories.length})
@@ -188,7 +252,15 @@ export default function Posts() {
                         </div>
 
                         <div className="Posts_tools_find">
-                            <input type="text" placeholder='Поиск по названию' className='Posts_tools_find_inp' />
+                            <input 
+                                type="text" 
+                                placeholder='Поиск по названию' 
+                                className='Posts_tools_find_inp' 
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onKeyPress={handleKeyPress}
+                                onBlur={handleSearch}
+                            />
                         </div>
                     </div>
 
@@ -224,8 +296,8 @@ export default function Posts() {
                         {!loading && !error && posts.length === 0 && (
                             <div className="posts_empty">
                                 <p>
-                                    {selectedCategories.length > 0 
-                                        ? 'Нет постов в выбранных категориях' 
+                                    {selectedCategories.length > 0
+                                        ? 'Нет постов в выбранных категориях'
                                         : 'Пока нет постов'
                                     }
                                 </p>
@@ -236,7 +308,7 @@ export default function Posts() {
                                 )} */}
                             </div>
                         )}
-                        
+
                         {!loading && !error && posts.map(post => {
                             const postImages = post.images && post.images.length > 0
                                 ? post.images.map(img => `http://localhost:5000${img.image_url}`)
