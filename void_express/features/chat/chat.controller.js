@@ -102,13 +102,16 @@ exports.getOrCreateChat = async (req, res, next) => {
 
 
 // Получить информацию о конкретном чате
+// Получить информацию о конкретном чате
 exports.getChatInfo = async (req, res, next) => {
     try {
-        const { chatId } = req.params;
+        const { chatId } = req.params; // Используйте chatId вместо id
         const token = req.header('Authorization')?.replace('Bearer ', '');
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
+        
+        console.log('🔍 Контроллер: Получаем информацию о чате ID:', chatId, 'для пользователя:', userId);
         
         const chat = await ChatService.getChatInfo(parseInt(chatId), userId);
         res.status(200).json(chat);
