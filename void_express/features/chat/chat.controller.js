@@ -48,6 +48,25 @@ exports.sendMessage = async (req, res, next) => {
         const senderId = decoded.id;
         
         const message = await ChatService.sendMessage(parseInt(chatId), senderId, message_text);
+        
+        // ДОБАВЬТЕ ЭТОТ БЛОК ДЛЯ WebSocket (после создания сообщения)
+        try {
+            const wss = req.app.get('websocket');
+            const receiverId = await ChatService.getReceiverId(parseInt(chatId), senderId);
+            
+            if (receiverId && wss) {
+                wss.sendToUser(receiverId, {
+                    type: 'new_message',
+                    message: message,
+                    chatId: chatId
+                });
+                console.log(`📨 WebSocket уведомление отправлено пользователю ${receiverId}`);
+            }
+        } catch (wsError) {
+            console.error('❌ Ошибка отправки WebSocket уведомления:', wsError);
+            // НЕ ПРЕРЫВАЕМ ОСНОВНОЙ ПОТОК
+        }
+        
         res.status(201).json(message);
     } catch (error) {
         console.error('Error in sendMessage:', error);
@@ -59,7 +78,6 @@ exports.sendMessage = async (req, res, next) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 // Пометить сообщения как прочитанные
 exports.markAsRead = async (req, res, next) => {
     try {
@@ -101,7 +119,6 @@ exports.getOrCreateChat = async (req, res, next) => {
 
 
 
-// Получить информацию о конкретном чате
 // Получить информацию о конкретном чате
 exports.getChatInfo = async (req, res, next) => {
     try {

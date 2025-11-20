@@ -1,3 +1,5 @@
+
+const http = require('http');
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
@@ -47,9 +49,15 @@ app.use('/api/users', userRoutes)
 app.use('/api/categories', CategoriesRouters)
 app.use('/api/friends', friendsRouter);
 app.use('/api/chat', ChatRouter);
+
+const server = http.createServer(app);
 app.use(errorHandler)
 
-app.listen(process.env.PORT, () => {
+const WebSocketServer = require('./websocket');
+const wss = new WebSocketServer(server);
+app.set('websocket', wss);
+
+server.listen(process.env.PORT, () => {
   console.log("сервер запущен на порту " + process.env.PORT);
   console.log("Система чата доступна по пути /api/chat");
 });

@@ -80,7 +80,14 @@ export default function Chat() {
             return '';
         }
     };
-
+// Функция для определения, мое ли сообщение
+const isMyMessage = (message) => {
+    const token = localStorage.getItem('token');
+    const currentUserId = token ? JSON.parse(atob(token.split('.')[1]))?.id : null;
+    return message.sender?.is_me !== undefined 
+        ? message.sender.is_me 
+        : message.sender?.id === currentUserId;
+};
     if (error) {
         return (
             <div className="Chat_body">

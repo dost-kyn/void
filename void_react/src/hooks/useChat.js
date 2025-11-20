@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+
 import { getChats, getChatMessages, sendMessage, getOrCreateChat, markMessagesAsRead } from '../api/chat.api';
+import { useState, useEffect, useRef } from 'react';
 const API_URL = 'http://localhost:5000/api';
 
 // Хук для управления состоянием чатов
@@ -41,6 +42,7 @@ export const useFetchChats = () => {
 
     return { fetchChats, loading, error };
 };
+
 
 // Функция для получения сообщений чата
 export const useFetchChatMessages = () => {
@@ -120,6 +122,7 @@ export const useStartChatWithFriend = () => {
 
 
 
+
 // Функция для получения информации о чате
 export const useFetchChatInfo = () => {
     const [loading, setLoading] = useState(false);
@@ -146,9 +149,87 @@ export const useFetchChatInfo = () => {
 
 
 
-// Композитный хук для полной функциональности чата (опционально)
 export const useChat = () => {
     const chatState = useChatState();
+    const ws = useRef(null); // WebSocket соединение
+
+    // WebSocket соединение
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const userId = JSON.parse(atob(token.split('.')[1])).id;
+        
+        // Подключаемся к WebSocket
+        ws.current = new WebSocket('ws://localhost:5000');
+        
+        ws.current.onopen = () => {
+            console.log('🔌 WebSocket подключен');
+            // Регистрируем пользователя
+            ws.current.send(JSON.stringify({
+                type: 'register',
+                userId: parseInt(userId)
+            }));
+        };
+
+ws.current.onmessage = (event) => {
+    try {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'new_message') {
+            console.log('📨 Получено новое сообщение через WebSocket:', data.message);
+            
+            // Получаем ID текущего пользователя из токена
+            const token = localStorage.getItem('token');
+            const userId = token ? JSON.parse(atob(token.split('.')[1]))?.id : null;
+            
+            // Добавляем флаг is_me для получателя
+            const messageWithIsMe = {
+                ...data.message,
+                sender: {
+                    ...data.message.sender,
+                    is_me: data.message.sender.id === userId
+                }
+            };
+            
+            // Добавляем новое сообщение в список
+            chatState.setMessages(prev => [...prev, messageWithIsMe]);
+            
+            // Обновляем последнее сообщение в списке чатов
+            chatState.setChats(prev => prev.map(chat => 
+                chat.id === data.chatId 
+                    ? { 
+                        ...chat, 
+                        last_message: {
+                            text: data.message.text,
+                            time: data.message.created_at,
+                            is_read: data.message.is_read,
+                            is_my_message: false // Для получателя это НЕ его сообщение
+                        }
+                    } 
+                    : chat
+            ));
+        }
+    } catch (error) {
+        console.error('❌ Ошибка обработки WebSocket сообщения:', error);
+    }
+};
+
+        ws.current.onclose = () => {
+            console.log('🔌 WebSocket отключен');
+        };
+
+        ws.current.onerror = (error) => {
+            console.error('❌ WebSocket ошибка:', error);
+        };
+
+        return () => {
+            if (ws.current) {
+                ws.current.close();
+            }
+        };
+    }, []);
+
     const { fetchChats, loading: chatsLoading, error: chatsError } = useFetchChats();
     const { fetchChatMessages, loading: messagesLoading, error: messagesError } = useFetchChatMessages();
     const { sendNewMessage, loading: sendLoading, error: sendError } = useSendMessage();
@@ -266,6 +347,7 @@ export const useChat = () => {
         setMessages: chatState.setMessages
     };
 };
+
 
 
 // hooks/useChat.js
