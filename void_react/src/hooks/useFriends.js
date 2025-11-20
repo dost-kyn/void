@@ -61,7 +61,7 @@ export const useFriends = (autoUpdateInterval = 5000) => {
     const handleRejectRequest = useCallback(async (friendshipId) => {
         try {
             setError(null);
-            await rejectFriendRequest(friendshipId);
+            await apiRejectFriendRequest(friendshipId);
 
             // Обновляем список заявок
             await loadFriendsData();

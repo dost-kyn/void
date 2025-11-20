@@ -13,7 +13,7 @@ export const registerUser = async (formData) => {
 // Авторизация
 export const autoUser = async (login, password) => {
     try {
-        console.log('Отправляю данные:', { login, password });
+        // console.log('Отправляю данные:', { login, password });
         
         const response = await fetch(`${API_URL}/users/login`, {
             method: 'POST',
@@ -72,7 +72,7 @@ export const findUser = async(userId) => {
 // // удаление профиля
 export const delProfile = async (userId) => {
     try {
-        console.log(`🗑️ API: Удаляем профиль userId: ${userId}`);
+        // console.log(`🗑️ API: Удаляем профиль userId: ${userId}`);
         const token = localStorage.getItem('token');
         
         if (!token) {
@@ -87,7 +87,7 @@ export const delProfile = async (userId) => {
             }
         });
 
-        console.log(`📡 API: Статус ответа: ${response.status}`);
+        // console.log(`📡 API: Статус ответа: ${response.status}`);
         
         if (!response.ok) {
             let errorData;
@@ -101,7 +101,7 @@ export const delProfile = async (userId) => {
         }
 
         const data = await response.json();
-        console.log('✅ API: Удаление успешно:', data);
+        // console.log('✅ API: Удаление успешно:', data);
         return data;
 
     } catch (error) {
@@ -221,7 +221,7 @@ export const unbanUser = async (userId) => {
 // Получить категории пользователя
 export const getUserCategories = async (userId) => {
     try {
-        console.log('🔄 API: Получаем категории пользователя ID:', userId);
+        // console.log('🔄 API: Получаем категории пользователя ID:', userId);
         
         const token = localStorage.getItem('token');
         if (!token) {
@@ -236,7 +236,7 @@ export const getUserCategories = async (userId) => {
             }
         });
 
-        console.log('📡 API: Статус ответа:', response.status);
+        // console.log('📡 API: Статус ответа:', response.status);
         
         if (!response.ok) {
             let errorMessage = 'Ошибка при получении категорий пользователя';
@@ -258,7 +258,7 @@ export const getUserCategories = async (userId) => {
         }
 
         const data = await response.json();
-        console.log('✅ API: Категории пользователя получены:', data);
+        // console.log('✅ API: Категории пользователя получены:', data);
         return data;
     } catch (error) {
         console.error('❌ API Error fetching user categories:', error);
@@ -269,8 +269,8 @@ export const getUserCategories = async (userId) => {
 // Обновить категории пользователя
 export const updateUserCategories = async (userId, categoryIds) => {
     try {
-        console.log('🔄 API: Обновляем категории пользователя ID:', userId);
-        console.log('📝 API: Категории для обновления:', categoryIds);
+        // console.log('🔄 API: Обновляем категории пользователя ID:', userId);
+        // console.log('📝 API: Категории для обновления:', categoryIds);
         
         const token = localStorage.getItem('token');
         if (!token) {
@@ -286,7 +286,7 @@ export const updateUserCategories = async (userId, categoryIds) => {
             body: JSON.stringify({ categories: categoryIds })
         });
 
-        console.log('📡 API: Статус ответа:', response.status);
+        // console.log('📡 API: Статус ответа:', response.status);
         
         if (!response.ok) {
             let errorMessage = 'Ошибка при обновлении категорий пользователя';
@@ -304,7 +304,7 @@ export const updateUserCategories = async (userId, categoryIds) => {
         }
 
         const data = await response.json();
-        console.log('✅ API: Категории пользователя обновлены:', data);
+        // console.log('✅ API: Категории пользователя обновлены:', data);
         return data;
     } catch (error) {
         console.error('❌ API Error updating user categories:', error);

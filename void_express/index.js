@@ -59,5 +59,4 @@ app.set('websocket', wss);
 
 server.listen(process.env.PORT, () => {
   console.log("сервер запущен на порту " + process.env.PORT);
-  console.log("Система чата доступна по пути /api/chat");
 });

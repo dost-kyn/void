@@ -15,10 +15,10 @@ exports.getFriends = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
         
-        console.log(`👤 ID пользователя: ${userId}`);
+        // console.log(`👤 ID пользователя: ${userId}`);
         
         const friends = await FriendsService.getUserFriends(userId);
-        console.log(`✅ Найдено друзей: ${friends.length}`);
+        // console.log(`✅ Найдено друзей: ${friends.length}`);
         
         res.status(200).json(friends);
     } catch (error) {

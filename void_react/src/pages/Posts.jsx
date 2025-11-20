@@ -41,12 +41,12 @@ export default function Posts() {
             const postsData = await response.json();
             const publishedPosts = postsData.filter(post => post.status === 'Published');
 
-            console.log('📥 Загружено постов:', publishedPosts.length);
-            console.log('📊 Категории постов:', publishedPosts.map(p => ({
-                id: p.id,
-                category: p.category_id,
-                title: p.title
-            })));
+            // console.log('📥 Загружено постов:', publishedPosts.length);
+            // console.log('📊 Категории постов:', publishedPosts.map(p => ({
+            //     id: p.id,
+            //     category: p.category_id,
+            //     title: p.title
+            // })));
 
             setAllPosts(publishedPosts);
             setPosts(publishedPosts);
@@ -65,7 +65,7 @@ export default function Posts() {
             const response = await fetch(`${API_URL}/categories/`);
             if (response.ok) {
                 const categoriesData = await response.json();
-                console.log('📋 Загружены категории:', categoriesData);
+                // console.log('📋 Загружены категории:', categoriesData);
                 setCategories(categoriesData);
             }
         } catch (err) {
@@ -87,12 +87,40 @@ export default function Posts() {
         });
     };
 
+    // Функция применения фильтров (категории + поиск)
+    const applyFilters = () => {
+        // console.log('🔍 Применяем фильтры:', {
+        //     категории: selectedCategories,
+        //     поиск: searchTerm
+        // });
+
+        let filteredPosts = allPosts;
+
+        // Фильтрация по категориям
+        if (selectedCategories.length > 0) {
+            filteredPosts = filteredPosts.filter(post =>
+                selectedCategories.includes(post.category_id)
+            );
+        }
+
+        // Фильтрация по поисковому запросу
+        if (searchTerm.trim() !== '') {
+            const searchLower = searchTerm.toLowerCase().trim();
+            filteredPosts = filteredPosts.filter(post =>
+                post.title.toLowerCase().includes(searchLower)
+            );
+        }
+
+        // console.log('📊 Отфильтровано постов:', filteredPosts.length);
+        setPosts(filteredPosts);
+    };
+
     const applyFilter = () => {
-        console.log('🔍 Применяем фильтр по категориям:', selectedCategories);
+        // console.log('🔍 Применяем фильтр по категориям:', selectedCategories);
 
         if (selectedCategories.length === 0) {
             setPosts(allPosts);
-            console.log('📊 Показываем все посты:', allPosts.length);
+            // console.log('📊 Показываем все посты:', allPosts.length);
         } else {
             const filteredPosts = allPosts.filter(post =>
                 selectedCategories.includes(post.category_id)
@@ -105,10 +133,46 @@ export default function Posts() {
     const clearFilter = () => {
         setSelectedCategories([]);
         setPosts(allPosts);
-        console.log('🔄 Фильтр сброшен, показываем все посты:', allPosts.length);
+        // console.log('🔄 Фильтр сброшен, показываем все посты:', allPosts.length);
     };
 
 
+    // Функция сброса всех фильтров
+    const clearAllFilters = () => {
+        setSelectedCategories([]);
+        setSearchTerm('');
+        setPosts(allPosts);
+        // console.log('🔄 Все фильтры сброшены, показываем все посты:', allPosts.length);
+    };
+
+    // Обработчик изменения поискового запроса
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+    };
+
+    // Обработчик поиска (при нажатии Enter или потере фокуса)
+    const handleSearch = () => {
+        applyFilters();
+    };
+
+    // Обработчик нажатия клавиши Enter в поле поиска
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    // Автоматический поиск при изменении категорий или поискового запроса
+    useEffect(() => {
+        applyFilters();
+    }, [selectedCategories, searchTerm]);
+
+
+    useEffect(() => {
+        fetchPosts();
+        fetchCategories();
+    }, []);
 
     // Форматирование даты
     const formatDate = (dateString) => {
@@ -242,7 +306,15 @@ export default function Posts() {
                         </div>
 
                         <div className="Posts_tools_find">
-                            <input type="text" placeholder='Поиск по названию' className='Posts_tools_find_inp' />
+                            <input 
+                                type="text" 
+                                placeholder='Поиск по названию' 
+                                className='Posts_tools_find_inp' 
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onKeyPress={handleKeyPress}
+                                onBlur={handleSearch}
+                            />
                         </div>
                     </div>
 

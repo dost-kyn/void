@@ -248,7 +248,7 @@ export default function Profile() {
         if (userId) {
             try {
                 await delProfile(userId);
-                console.log('✅ Profile: Удаление профиля завершено успешно');
+                // console.log('✅ Profile: Удаление профиля завершено успешно');
                 showActionAlert('profile_deleted', 'success');
 
                 setTimeout(() => {

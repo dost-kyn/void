@@ -16,22 +16,22 @@ export const useUserCategories = (userId) => {
             setLoading(true);
             setError(null);
 
-            console.log('🔄 Загружаем все категории...');
+            // console.log('🔄 Загружаем все категории...');
             // Загружаем все доступные категории
             const allCategories = await getAllCategories();
             setCategories(allCategories);
-            console.log('✅ Все категории загружены:', allCategories);
+            // console.log('✅ Все категории загружены:', allCategories);
 
             // Загружаем категории пользователя
             if (userId) {
-                console.log('🔄 Загружаем категории пользователя ID:', userId);
+                // console.log('🔄 Загружаем категории пользователя ID:', userId);
                 const userCats = await getUserCategories(userId);
                 setUserCategories(userCats);
                 
                 // Устанавливаем выбранные категории
                 const selectedIds = userCats.map(cat => cat.id);
                 setSelectedCategories(selectedIds);
-                console.log('✅ Категории пользователя загружены:', userCats);
+                // console.log('✅ Категории пользователя загружены:', userCats);
             }
 
         } catch (err) {
@@ -66,7 +66,7 @@ export const useUserCategories = (userId) => {
             setLoading(true);
             setError(null);
 
-            console.log('💾 Сохраняем категории:', selectedCategories);
+            // console.log('💾 Сохраняем категории:', selectedCategories);
             await updateUserCategories(userId, selectedCategories);
             
             // Обновляем локальные данные
@@ -75,7 +75,7 @@ export const useUserCategories = (userId) => {
             );
             setUserCategories(updatedUserCats);
 
-            console.log('✅ Категории успешно сохранены');
+            // console.log('✅ Категории успешно сохранены');
             return true;
         } catch (err) {
             console.error('❌ Error saving categories:', err);
@@ -90,7 +90,7 @@ export const useUserCategories = (userId) => {
     const resetCategories = () => {
         const originalIds = userCategories.map(cat => cat.id);
         setSelectedCategories(originalIds);
-        console.log('🔄 Категории сброшены к исходным:', originalIds);
+        // console.log('🔄 Категории сброшены к исходным:', originalIds);
     };
 
     // Загружаем категории при монтировании или изменении userId

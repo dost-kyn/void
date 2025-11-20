@@ -128,7 +128,7 @@ exports.getChatInfo = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
         
-        console.log('🔍 Контроллер: Получаем информацию о чате ID:', chatId, 'для пользователя:', userId);
+        // console.log('🔍 Контроллер: Получаем информацию о чате ID:', chatId, 'для пользователя:', userId);
         
         const chat = await ChatService.getChatInfo(parseInt(chatId), userId);
         res.status(200).json(chat);
