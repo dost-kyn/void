@@ -43,12 +43,12 @@ export default function Posts() {
             const postsData = await response.json();
             const publishedPosts = postsData.filter(post => post.status === 'Published');
 
-            console.log('📥 Загружено постов:', publishedPosts.length);
-            console.log('📊 Категории постов:', publishedPosts.map(p => ({
-                id: p.id,
-                category: p.category_id,
-                title: p.title
-            })));
+            // console.log('📥 Загружено постов:', publishedPosts.length);
+            // console.log('📊 Категории постов:', publishedPosts.map(p => ({
+            //     id: p.id,
+            //     category: p.category_id,
+            //     title: p.title
+            // })));
 
             setAllPosts(publishedPosts);
             setPosts(publishedPosts);
@@ -67,7 +67,7 @@ export default function Posts() {
             const response = await fetch(`${API_URL}/categories/`);
             if (response.ok) {
                 const categoriesData = await response.json();
-                console.log('📋 Загружены категории:', categoriesData);
+                // console.log('📋 Загружены категории:', categoriesData);
                 setCategories(categoriesData);
             }
         } catch (err) {

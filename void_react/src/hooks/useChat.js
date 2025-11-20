@@ -271,7 +271,7 @@ export const useChat = () => {
 // hooks/useChat.js
 export const getChatInfo = async (chatId) => {
     try {
-        console.log('🔄 API: Получаем информацию о чате ID:', chatId);
+        // console.log('🔄 API: Получаем информацию о чате ID:', chatId);
         
         const token = localStorage.getItem('token');
         if (!token) {
@@ -302,7 +302,7 @@ export const getChatInfo = async (chatId) => {
         }
 
         const data = await response.json();
-        console.log('✅ API: Информация о чате успешно получена:', data);
+        // console.log('✅ API: Информация о чате успешно получена:', data);
         return data;
         
     } catch (error) {

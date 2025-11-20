@@ -248,7 +248,7 @@ const handleSaveCategories = async () => {
         if (userId) {
             try {
                 await delProfile(userId);
-                console.log('✅ Profile: Удаление профиля завершено успешно');
+                // console.log('✅ Profile: Удаление профиля завершено успешно');
                 showActionAlert('profile_deleted', 'success');
 
                 setTimeout(() => {
@@ -888,10 +888,9 @@ const handleSaveCategories = async () => {
                                         onClick={async () => {
                                             const userId = getUserIdFromToken();
                                             if (userId) {
-                                                console.log('🔄 Profile: Запускаем удаление профиля...');
                                                 try {
                                                     await deleteProfile(userId);
-                                                    console.log('✅ Profile: Удаление профиля завершено успешно');
+                                                    // console.log('✅ Profile: Удаление профиля завершено успешно');
                                                 } catch (error) {
                                                     console.error('❌ Profile: Ошибка при удалении профиля:', error);
 

@@ -51,7 +51,7 @@ export const getUserPosts = async (userId) => {
 // posts.api.js
 export const getPostById = async (postId) => {
     try {
-        console.log('🔄 API: Получаем пост ID:', postId);
+        // console.log('🔄 API: Получаем пост ID:', postId);
         
         const response = await fetch(`${API_URL}/posts/${postId}`);
         
@@ -69,7 +69,7 @@ export const getPostById = async (postId) => {
         }
 
         const data = await response.json();
-        console.log('✅ API: Пост успешно получен:', data);
+        // console.log('✅ API: Пост успешно получен:', data);
         return data;
         
     } catch (error) {
@@ -79,8 +79,8 @@ export const getPostById = async (postId) => {
 };
 
 export const updatePost = async (postId, postData) => {
-    console.log('📝 API: Обновляем пост без фото ID:', postId);
-    console.log('📝 API: Данные:', postData);
+    // console.log('📝 API: Обновляем пост без фото ID:', postId);
+    // console.log('📝 API: Данные:', postData);
 
     try {
         const response = await fetch(`${API_URL}/posts/update/${postId}`, {
@@ -91,8 +91,8 @@ export const updatePost = async (postId, postData) => {
             body: JSON.stringify(postData)
         });
 
-        console.log('📡 API Response status:', response.status);
-        console.log('📡 API Response ok:', response.ok);
+        // console.log('📡 API Response status:', response.status);
+        // console.log('📡 API Response ok:', response.ok);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -101,7 +101,7 @@ export const updatePost = async (postId, postData) => {
         }
 
         const result = await response.json();
-        console.log('✅ API Update successful:', result);
+        // console.log('✅ API Update successful:', result);
         return result;
     } catch (error) {
         console.error('❌ API Update error:', error);
