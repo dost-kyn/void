@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'; // Добавьте useNav
 import { useState } from 'react';
 import { autoUser } from '../api/users.api'
 import Alert from '../components/Alert';
-import { useAlert } from '../components/UI/alert'; // Исправьте путь
+import { useAlert } from '../components/UI/alert'; 
 
 export default function Auth() {
     const [formData, setFormData] = useState({
