@@ -269,3 +269,90 @@ exports.unbanUserById = async (id) => {
     }
     return null;
 };
+
+
+// users.service.js
+exports.getUserCategories = async (userId) => {
+    try {
+        console.log('🔍 Сервис: Получаем категории пользователя ID:', userId);
+        
+        const user = await bd.user.findUnique({
+            where: { id: parseInt(userId) },
+            include: {
+                id_category: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            throw new Error('Пользователь не найден');
+        }
+
+        console.log('✅ Сервис: Категории пользователя получены:', user.id_category);
+        return user.id_category;
+    } catch (error) {
+        console.error('❌ Сервис: Ошибка получения категорий пользователя:', error);
+        throw error;
+    }
+};
+
+// Обновить категории пользователя
+exports.updateUserCategories = async (userId, categoryIds) => {
+    try {
+        console.log('🔄 Сервис: Обновляем категории пользователя ID:', userId);
+        console.log('📝 Сервис: ID категорий для обновления:', categoryIds);
+
+        // Проверяем существование пользователя
+        const user = await bd.user.findUnique({
+            where: { id: parseInt(userId) }
+        });
+
+        if (!user) {
+            throw new Error('Пользователь не найден');
+        }
+
+        // Проверяем существование категорий
+        const categories = await bd.category.findMany({
+            where: {
+                id: { in: categoryIds.map(id => parseInt(id)) }
+            }
+        });
+
+        if (categories.length !== categoryIds.length) {
+            throw new Error('Некоторые категории не найдены');
+        }
+
+        // Ограничиваем максимум 3 категории
+        if (categoryIds.length > 3) {
+            throw new Error('Можно выбрать не более 3 категорий');
+        }
+
+        // Обновляем категории пользователя
+        const updatedUser = await bd.user.update({
+            where: { id: parseInt(userId) },
+            data: {
+                id_category: {
+                    set: categoryIds.map(id => ({ id: parseInt(id) }))
+                }
+            },
+            include: {
+                id_category: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+
+        console.log('✅ Сервис: Категории пользователя обновлены');
+        return updatedUser;
+    } catch (error) {
+        console.error('❌ Сервис: Ошибка обновления категорий пользователя:', error);
+        throw error;
+    }
+};

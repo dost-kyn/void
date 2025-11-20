@@ -112,8 +112,6 @@ export const delProfile = async (userId) => {
 
 
 
-
-
 // Обновление данных пользователя
 export const updateUser = async (userId, updateData) => {
     const token = localStorage.getItem('token');
@@ -142,9 +140,6 @@ export const updateUserWithPhoto = async (userId, formData) => {
     });
     return await response.json();
 };
-
-
-
 
 
 // Бан пользователя
@@ -215,6 +210,104 @@ export const unbanUser = async (userId) => {
 
     } catch (error) {
         console.error('❌ API: Ошибка при разбане пользователя:', error);
+        throw error;
+    }
+};
+
+
+
+
+
+// Получить категории пользователя
+export const getUserCategories = async (userId) => {
+    try {
+        console.log('🔄 API: Получаем категории пользователя ID:', userId);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Токен не найден');
+        }
+
+        const response = await fetch(`${API_URL}/users/${userId}/categories`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('📡 API: Статус ответа:', response.status);
+        
+        if (!response.ok) {
+            let errorMessage = 'Ошибка при получении категорий пользователя';
+            
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorData.message || errorMessage;
+            } catch (e) {
+                if (response.status === 404) {
+                    errorMessage = 'Endpoint не найден. Проверьте серверные маршруты.';
+                } else if (response.status === 401) {
+                    errorMessage = 'Ошибка авторизации';
+                } else if (response.status === 403) {
+                    errorMessage = 'Доступ запрещен';
+                }
+            }
+            
+            throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        console.log('✅ API: Категории пользователя получены:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ API Error fetching user categories:', error);
+        throw error;
+    }
+};
+
+// Обновить категории пользователя
+export const updateUserCategories = async (userId, categoryIds) => {
+    try {
+        console.log('🔄 API: Обновляем категории пользователя ID:', userId);
+        console.log('📝 API: Категории для обновления:', categoryIds);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Токен не найден');
+        }
+
+        const response = await fetch(`${API_URL}/users/${userId}/categories`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ categories: categoryIds })
+        });
+
+        console.log('📡 API: Статус ответа:', response.status);
+        
+        if (!response.ok) {
+            let errorMessage = 'Ошибка при обновлении категорий пользователя';
+            
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorData.message || errorMessage;
+            } catch (e) {
+                if (response.status === 404) {
+                    errorMessage = 'Endpoint не найден. Проверьте серверные маршруты.';
+                }
+            }
+            
+            throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        console.log('✅ API: Категории пользователя обновлены:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ API Error updating user categories:', error);
         throw error;
     }
 };

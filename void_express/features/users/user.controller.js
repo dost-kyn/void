@@ -286,3 +286,40 @@ exports.unbanUser = async (req, res, next) => {
         });
     }
 };
+
+
+
+exports.getUserCategories = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        console.log('🔍 Контроллер: Получаем категории пользователя ID:', userId);
+        
+        const userCategories = await UserService.getUserCategories(parseInt(userId));
+        
+        console.log('✅ Контроллер: Категории пользователя получены:', userCategories);
+        res.json(userCategories);
+    } catch (error) {
+        console.error('❌ Контроллер: Ошибка получения категорий пользователя:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Обновить категории пользователя
+exports.updateUserCategories = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { categories } = req.body;
+        
+        console.log('🔄 Контроллер: Обновляем категории пользователя ID:', userId);
+        console.log('📝 Контроллер: Новые категории:', categories);
+        
+        const updatedUser = await UserService.updateUserCategories(parseInt(userId), categories);
+        
+        console.log('✅ Контроллер: Категории пользователя обновлены');
+        res.json(updatedUser);
+    } catch (error) {
+        console.error('❌ Контроллер: Ошибка обновления категорий пользователя:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

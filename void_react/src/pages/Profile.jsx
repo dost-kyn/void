@@ -1,3 +1,4 @@
+
 import React from 'react'
 import Naw from '../components/Naw'
 import '../css/Profile.css'
@@ -22,13 +23,18 @@ import { useUserBan } from '../hooks/profile/useUserBan';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { useEditPost } from '../hooks/useEditPost';
 import { useDeletePost } from '../hooks/useDeletePost';
+import { useUserCategories } from '../hooks/profile/useUserCategories';
+import { updateUser, updateUserWithPhoto } from '../api/users.api';
+import { delProfile } from '../api/users.api';
 
+import Alert from '../components/Alert';
+import { useAlert } from '../components/UI/alert'; 
 export default function Profile() {
     const { id } = useParams();
 
     // Хук для проверки бана
     const { isBanned } = useUserBan();
-
+    const { alert, showActionAlert, closeAlert } = useAlert();
     // Хук для модального окна удаления профиля
     const { isDeleteModalOpen, OpenDelete, CloseDelete } = useDeleteProfileModal(false)
 
@@ -38,6 +44,22 @@ export default function Profile() {
     const { sostEditProfile, OpenEditProfile, CloseEditProfile } = useEditProfile(false)
     const { FileChange, selectedFileName } = useFileName("")
     const { OpenModal, CloseModal, selectedImage } = useImage(null)
+
+    // Получаем userId из токена
+    const { getUserIdFromToken } = useGetUserIdFromToken();
+    const userId = getUserIdFromToken();
+
+    // Хук для категорий пользователя
+    const {
+        categories: allCategories,
+        userCategories,
+        selectedCategories,
+        loading: categoriesLoading,
+        error: categoriesError,
+        handleCategorySelect,
+        saveCategories,
+        resetCategories
+    } = useUserCategories(userId);
 
     // Хук для создания поста
     const {
@@ -92,62 +114,77 @@ export default function Profile() {
     // Хук для получения профиля пользователя
     const { user, setUser, fetchUserProfile } = useFetchUserProfile();
 
-    // ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ТОКЕНА
-    const { getUserIdFromToken } = useGetUserIdFromToken();
-
     // ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ПРОФИЛЯ
-    const handleUpdateProfile = async (e) => {
-        e.preventDefault()
-        setLoading(true)
 
-        try {
-            const userId = getUserIdFromToken()
-            if (!userId) {
-                alert('Ошибка: пользователь не авторизован')
-                return
-            }
+const handleUpdateProfile = async (e) => {
+    e.preventDefault()
+    setLoading(true)
 
-            let result
-            const updateData = {
-                name: user.name,
-                last_name: user.last_name,
-                login: user.login,
-                email: user.email || ''
-            }
-
-            if (photo) {
-                // Если есть фото, используем FormData
-                const formDataObj = new FormData()
-                formDataObj.append('photo', photo)
-
-                // Добавляем текстовые поля
-                Object.keys(updateData).forEach(key => {
-                    if (updateData[key] !== undefined) {
-                        formDataObj.append(key, updateData[key])
-                    }
-                })
-                result = await updateUserWithPhoto(userId, formDataObj)
-            } else {
-                // Если нет фото, отправляем JSON
-                result = await updateUser(userId, updateData)
-            }
-
-            if (result.user) {
-                // Обновляем данные в состоянии
-                setUser(result.user)
-                alert('Данные успешно обновлены!')
-                CloseEditProfile() // Закрываем режим редактирования
-            } else if (result.message) {
-                alert(result.message)
-            }
-        } catch (error) {
-            console.error('Ошибка обновления:', error)
-            alert('Ошибка при обновлении данных')
-        } finally {
-            setLoading(false)
-            setPhoto(null)
+    try {
+        const userId = getUserIdFromToken()
+        if (!userId) {
+            showActionAlert('error_generic', 'error', { message: 'Ошибка: пользователь не авторизован' })
+            return
         }
+
+        let result
+        const updateData = {
+            name: user.name,
+            last_name: user.last_name,
+            login: user.login,
+            email: user.email || ''
+        }
+
+        if (photo) {
+            // Если есть фото, используем FormData
+            const formDataObj = new FormData()
+            formDataObj.append('photo', photo)
+
+            // Добавляем текстовые поля
+            Object.keys(updateData).forEach(key => {
+                if (updateData[key] !== undefined) {
+                    formDataObj.append(key, updateData[key])
+                }
+            })
+            result = await updateUserWithPhoto(userId, formDataObj)
+        } else {
+            // Если нет фото, отправляем JSON
+            result = await updateUser(userId, updateData)
+        }
+
+        if (result.user) {
+            // Обновляем данные в состоянии
+            setUser(result.user)
+            showActionAlert('profile_updated', 'success') // ИСПОЛЬЗУЙТЕ showActionAlert
+            CloseEditProfile() // Закрываем режим редактирования
+        } else if (result.message) {
+            showActionAlert('error_generic', 'error', { message: result.message }) // ИСПОЛЬЗУЙТЕ showActionAlert
+        }
+    } catch (error) {
+        console.error('Ошибка обновления:', error)
+        showActionAlert('error_generic', 'error', { message: 'Ошибка при обновлении данных' }) // ИСПОЛЬЗУЙТЕ showActionAlert
+    } finally {
+        setLoading(false)
+        setPhoto(null)
     }
+}
+
+    // Обработчик сохранения категорий
+const handleSaveCategories = async () => {
+    const success = await saveCategories();
+    if (success) {
+        showActionAlert('profile_updated', 'success'); // ИСПОЛЬЗУЙТЕ showActionAlert вместо alert
+        CloseCategories();
+    } else {
+        showActionAlert('error_generic', 'error', { message: categoriesError });
+    }
+};
+
+    // Обработчик отмены изменений категорий
+    const handleCancelCategories = () => {
+        resetCategories();
+        CloseCategories();
+    };
 
     // Обработчик изменения файла аватара
     const handlePhotoChange = (e) => {
@@ -190,10 +227,7 @@ export default function Profile() {
 
     // Функция для создания поста
     const handleSubmitPost = async () => {
-        const userId = getUserIdFromToken()
-
         await handleCreatePost(userId);
-
         await fetchUserPosts(userId);
         closeCreatePost();
     };
@@ -202,10 +236,7 @@ export default function Profile() {
     const handleSubmitEditPost = async () => {
         const updatedPost = await handleUpdatePost();
         if (updatedPost) {
-            const userId = getUserIdFromToken();
-            if (userId) {
-                await fetchUserPosts(userId);
-            }
+            await fetchUserPosts(userId);
         } else {
             console.log('❌ Ошибка при обновлении поста');
         }
@@ -215,25 +246,29 @@ export default function Profile() {
     const handleDeleteProfile = async () => {
         const userId = getUserIdFromToken();
         if (userId) {
-            console.log('🔄 Profile: Запускаем удаление профиля...');
             try {
-                await deleteProfile(userId);
+                await delProfile(userId);
                 console.log('✅ Profile: Удаление профиля завершено успешно');
+                showActionAlert('profile_deleted', 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
             } catch (error) {
                 console.error('❌ Profile: Ошибка при удалении профиля:', error);
+                showActionAlert('profile_delete_error', 'error', { message: error.message });
             }
         }
     };
 
     // Загружаем данные пользователя при монтировании компонента
     useEffect(() => {
-        const userId = getUserIdFromToken()
         if (userId) {
             fetchUserProfile(userId)
             fetchUserPosts(userId)
             fetchCategories()
         }
-    }, [])
+    }, [userId]) // Добавил userId в зависимости
 
     // Сбрасываем фото при выходе из режима редактирования
     useEffect(() => {
@@ -241,15 +276,19 @@ export default function Profile() {
             setPhoto(null)
         }
     }, [sostEditProfile])
-
     return (
         <>
             <div className="body">
                 <Naw />
+                <Alert
+                    isOpen={alert.isOpen}
+                    text={alert.text}
+                    type={alert.type}
+                    onClose={closeAlert}
+                />
 
                 <div className="Profile">
                     <h1 className="Posts_title">Профиль</h1>
-
                     {user && (
                         <div className="Profile_user">
                             <div className="Profile_user_column">
@@ -332,33 +371,43 @@ export default function Profile() {
                                         <div className="Profile_user_categories">
                                             <div className="Profile_user_categories_modal">
                                                 <div className="Profile_modal_close_container">
-                                                    <button className='Profile_modal_close' onClick={CloseCategories}>✘</button>
+                                                    <button className='Profile_modal_close' onClick={handleCancelCategories}>✘</button>
                                                 </div>
+                                                <h3 className="Profile_categories_title">
+                                                    Выбор категорий ({selectedCategories.length}/3)
+                                                </h3>
+                                                {categoriesError && (
+                                                    <div className="error-message">{categoriesError}</div>
+                                                )}
                                                 <div className="Profile_modal_punkts">
-                                                    <div className="Profile_modal_punkt">
-                                                        <input type="checkbox" className="Profile_modal_punkt_inp" />
-                                                        <p className="Profile_modal_punkt_p">Животные</p>
-                                                    </div>
-                                                    <div className="Profile_modal_punkt">
-                                                        <input type="checkbox" className="Profile_modal_punkt_inp" />
-                                                        <p className="Profile_modal_punkt_p">Животные</p>
-                                                    </div>
-                                                    <div className="Profile_modal_punkt">
-                                                        <input type="checkbox" className="Profile_modal_punkt_inp" />
-                                                        <p className="Profile_modal_punkt_p">Животные</p>
-                                                    </div>
-                                                    <div className="Profile_modal_punkt">
-                                                        <input type="checkbox" className="Profile_modal_punkt_inp" />
-                                                        <p className="Profile_modal_punkt_p">Животные</p>
-                                                    </div>
-                                                    <div className="Profile_modal_punkt">
-                                                        <input type="checkbox" className="Profile_modal_punkt_inp" />
-                                                        <p className="Profile_modal_punkt_p">Животные</p>
-                                                    </div>
-                                                    <div className="Profile_modal_punkt">
-                                                        <input type="checkbox" className="Profile_modal_punkt_inp" />
-                                                        <p className="Profile_modal_punkt_p">Животные</p>
-                                                    </div>
+                                                    {allCategories.map(category => (
+                                                        <div key={category.id} className="Profile_modal_punkt">
+                                                            <input
+                                                                type="checkbox"
+                                                                className="Profile_modal_punkt_inp"
+                                                                checked={selectedCategories.includes(category.id)}
+                                                                onChange={() => handleCategorySelect(category.id)}
+                                                                disabled={selectedCategories.length >= 3 && !selectedCategories.includes(category.id)}
+                                                            />
+                                                            <p className="Profile_modal_punkt_p">{category.name}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="Profile_categories_buttons">
+                                                    <button
+                                                        className="Profile_categories_btn Profile_categories_btn_cancel"
+                                                        onClick={handleCancelCategories}
+                                                        disabled={categoriesLoading}
+                                                    >
+                                                        Отмена
+                                                    </button>
+                                                    <button
+                                                        className="Profile_categories_btn"
+                                                        onClick={handleSaveCategories}
+                                                        disabled={categoriesLoading}
+                                                    >
+                                                        {categoriesLoading ? 'Сохранение...' : 'Сохранить'}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

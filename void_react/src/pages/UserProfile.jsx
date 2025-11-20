@@ -251,7 +251,6 @@ export default function UserProfile() {
 
                             return (
                                 <div key={post.id} className="Posts_posts_post">
-                                    {/* Убираем кнопки редактирования/удаления для чужого профиля */}
 
                                     {hasImages && (
                                         <div className="post_slider">
@@ -308,13 +307,7 @@ export default function UserProfile() {
                                         )}
                                         <div className="post_info">
                                             <p className="post_author">{post.user_post_ship?.login || user?.login}</p>
-                                            <div className="post_status">
-                                                <span className={`status-badge status-${post.status}`}>
-                                                    {post.status === 'Published' && 'Опубликовано'}
-                                                    {post.status === 'Expectation' && 'На модерации'}
-                                                    {post.status === 'Rejected' && 'Отклонено'}
-                                                </span>
-                                            </div>
+
                                             <p className="post_date">
                                                 {post.created_at ? new Date(post.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}
                                             </p>
