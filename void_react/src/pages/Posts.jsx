@@ -13,6 +13,7 @@ const API_URL = 'http://localhost:5000/api';
 export default function Posts() {
     const { OpenModal, CloseModal, selectedImage } = useImage(null)
     const { contentRef, isOverflowed, isExpanded, toggleExpand } = useReadMore(400)
+    const [userCategories, setUserCategories] = useState([]);
 
     // Состояния
     const [posts, setPosts] = useState([]);
@@ -20,7 +21,7 @@ export default function Posts() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     // Состояния для фильтра
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -42,8 +43,8 @@ export default function Posts() {
 
             console.log('📥 Загружено постов:', publishedPosts.length);
             console.log('📊 Категории постов:', publishedPosts.map(p => ({
-                id: p.id, 
-                category: p.category_id, 
+                id: p.id,
+                category: p.category_id,
                 title: p.title
             })));
 
@@ -88,41 +89,83 @@ export default function Posts() {
 
     const applyFilter = () => {
         console.log('🔍 Применяем фильтр по категориям:', selectedCategories);
-        
+
         if (selectedCategories.length === 0) {
-            // Если не выбрано категорий - показываем все посты
             setPosts(allPosts);
             console.log('📊 Показываем все посты:', allPosts.length);
         } else {
-            // Фильтруем посты по выбранным категориям
-            const filteredPosts = allPosts.filter(post => {
-                const hasCategory = selectedCategories.includes(post.category_id);
-                console.log(`Пост "${post.title}" (категория ${post.category_id}) - подходит: ${hasCategory}`);
-                return hasCategory;
-            });
-            
+            const filteredPosts = allPosts.filter(post =>
+                selectedCategories.includes(post.category_id)
+            );
             console.log('📊 Отфильтровано постов:', filteredPosts.length);
             setPosts(filteredPosts);
         }
         closeFilter();
     };
-
     const clearFilter = () => {
         setSelectedCategories([]);
         setPosts(allPosts);
         console.log('🔄 Фильтр сброшен, показываем все посты:', allPosts.length);
     };
 
-    useEffect(() => {
-        fetchPosts();
-        fetchCategories();
-    }, []);
+
 
     // Форматирование даты
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU');
     };
+
+    // Добавьте функцию для загрузки категорий пользователя
+    const fetchUserCategories = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const userId = JSON.parse(atob(token.split('.')[1])).id;
+
+            const response = await fetch(`${API_URL}/users/${userId}/categories`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const userCats = await response.json();
+                console.log('👤 Категории пользователя:', userCats);
+                setUserCategories(userCats);
+
+                const userCategoryIds = userCats.map(cat => cat.id);
+                setSelectedCategories(userCategoryIds);
+
+                // Применяем фильтр по категориям пользователя
+                if (userCategoryIds.length > 0) {
+                    setTimeout(() => {
+                        applyUserCategoriesFilter(userCategoryIds);
+                    }, 100);
+                }
+            }
+        } catch (err) {
+            console.error('Ошибка при загрузке категорий пользователя:', err);
+        }
+    };
+    // Функция для применения фильтра по категориям пользователя
+    const applyUserCategoriesFilter = (categoryIds) => {
+        if (categoryIds.length === 0) {
+            setPosts(allPosts);
+        } else {
+            const filteredPosts = allPosts.filter(post =>
+                categoryIds.includes(post.category_id)
+            );
+            setPosts(filteredPosts);
+        }
+    };
+    useEffect(() => {
+        fetchPosts();
+        fetchCategories();
+        fetchUserCategories(); // Добавьте этот вызов
+    }, []);
+
 
     return (
         <>
@@ -150,38 +193,49 @@ export default function Posts() {
                                         <button className='filter_modal_close' onClick={closeFilter}>✘</button>
                                     </div>
 
+                                    {/* Информация о выбранных категориях пользователя */}
+                                    {userCategories.length > 0 && (
+                                        <div className="user_categories_info">
+                                            <p className="user_categories_text">
+                                                <strong>Ваши предпочтения:</strong> {userCategories.map(cat => cat.name).join(', ')}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="filter_modal_punkts">
                                         {categories.length === 0 ? (
                                             <div className="loading">Загрузка категорий...</div>
                                         ) : (
-                                            categories.map(category => (
-                                                <div key={category.id} className="filter_modal_punkt">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="filter_modal_punkt_inp"
-                                                        checked={selectedCategories.includes(category.id)}
-                                                        onChange={() => handleCategorySelect(category.id)}
-                                                    />
-                                                    <p className="filter_modal_punkt_p">{category.name}</p>
-                                                </div>
-                                            ))
+                                            categories.map(category => {
+                                                const isUserCategory = userCategories.some(uc => uc.id === category.id);
+
+                                                return (
+                                                    <div key={category.id} className="filter_modal_punkt">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="filter_modal_punkt_inp"
+                                                            checked={selectedCategories.includes(category.id)}
+                                                            onChange={() => handleCategorySelect(category.id)}
+                                                        />
+                                                        <p className={`filter_modal_punkt_p ${isUserCategory ? 'user_category' : ''}`}>
+                                                            {category.name}
+                                                            {isUserCategory}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            })
                                         )}
                                     </div>
 
                                     <div className="filter_modal_actions">
-                                        {/* <button 
-                                            className="clear_filter_btn" 
-                                            onClick={clearFilter}
-                                            disabled={selectedCategories.length === 0}
-                                        >
-                                            Сбросить
-                                        </button> */}
-                                        <button 
-                                            className="apply_filter_btn" 
+                                        <button
+                                            className="apply_filter_btn"
                                             onClick={applyFilter}
                                         >
                                             Применить фильтр ({selectedCategories.length})
                                         </button>
+
+
                                     </div>
                                 </div>
                             )}
@@ -192,15 +246,6 @@ export default function Posts() {
                         </div>
                     </div>
 
-                    {/* Индикатор активного фильтра */}
-                    {/* {selectedCategories.length > 0 && (
-                        <div className="active_filter_info">
-                            <p>Активный фильтр: {selectedCategories.length} категорий</p>
-                            <button onClick={clearFilter} className="clear_filter_small_btn">
-                                Сбросить
-                            </button>
-                        </div>
-                    )} */}
 
                     <div className="Posts_posts">
                         {/* Состояние загрузки */}
@@ -224,8 +269,8 @@ export default function Posts() {
                         {!loading && !error && posts.length === 0 && (
                             <div className="posts_empty">
                                 <p>
-                                    {selectedCategories.length > 0 
-                                        ? 'Нет постов в выбранных категориях' 
+                                    {selectedCategories.length > 0
+                                        ? 'Нет постов в выбранных категориях'
                                         : 'Пока нет постов'
                                     }
                                 </p>
@@ -236,7 +281,7 @@ export default function Posts() {
                                 )} */}
                             </div>
                         )}
-                        
+
                         {!loading && !error && posts.map(post => {
                             const postImages = post.images && post.images.length > 0
                                 ? post.images.map(img => `http://localhost:5000${img.image_url}`)
